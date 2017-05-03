@@ -23,7 +23,7 @@ class K5TokenManager(object):
   #
 
   # トークンを保存するファイル名(中身はjsonではなくpickle形式)
-  TOKEN_FILENAME = ".k5token.pickle"
+  TOKEN_FILENAME = ".k5-token.pickle"
 
   # 時刻表示のフォーマット
   DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
