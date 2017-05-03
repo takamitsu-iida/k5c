@@ -16,11 +16,13 @@ Create network
 
 bash-4.4$ ./k5-create-network.py
 POST /v2.0/networks
-=================  ====================================  ==========  ================================  ========
-name               id                                    az          tenant_id                         status
-=================  ====================================  ==========  ================================  ========
-iida-test-network  2f96d845-fbe8-4c3d-9502-de39f0e03f5d  jp-east-1b  a5001a8b9c4a4712985c11377bd6d4fe  ACTIVE
-=================  ====================================  ==========  ================================  ========
+=========  ====================================
+name       iida-test-network
+id         acb539fc-4a5d-4fc3-bc70-324ee336d587
+az         jp-east-1b
+tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
+status     ACTIVE
+=========  ====================================
 bash-4.4$
 """
 
@@ -107,12 +109,18 @@ def main(dump=False):
 
   # 作成したネットワークの情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
   nw = data.get('network', {})
-  networks = []
-  networks.append([nw.get('name', ''), nw.get('id', ''), nw.get('availability_zone', ''), nw.get('tenant_id', ''), nw.get('status', '')])
 
-  # ユーザ一覧を表示
+  # 表示用に配列にする
+  nws = []
+  nws.append(['name', nw.get('name', '')])
+  nws.append(['id', nw.get('id', '')])
+  nws.append(['az', nw.get('availability_zone', '')])
+  nws.append(['tenant_id', nw.get('tenant_id', '')])
+  nws.append(['status', nw.get('status', '')])
+
+  # ネットワーク情報を表示
   print('POST /v2.0/networks')
-  print(tabulate(networks, headers=['name', 'id', 'az', 'tenant_id', 'status'], tablefmt='rst'))
+  print(tabulate(nws, tablefmt='rst'))
 
 
 if __name__ == '__main__':

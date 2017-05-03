@@ -99,7 +99,7 @@ def main(dump=False):
   # ネットワーク一覧はデータオブジェクトの中の'networks'キーに配列として入っている
   networks_list = []
   for item in data.get('networks', []):
-    networks_list.append([item['id'], item['name'], item['tenant_id'], item['availability_zone'], item['status']])
+    networks_list.append([item.get('id', ''), item.get('name', ''), item.get('tenant_id', ''), item.get('availability_zone', ''), item.get('status', '')])
 
   # ユーザ一覧を表示
   print('GET /v2.0/networks')

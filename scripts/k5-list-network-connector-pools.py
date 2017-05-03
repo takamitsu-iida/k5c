@@ -2,20 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-ユーザの取得
-・全体管理者の権限が必要
+GET /v2.0/network_connector_pools
+List Network Connector Pools
+ネットワークコネクタプールの一覧を表示する
 """
 
 """
 実行例
 
-k5-get-users.py
-======  ================================  ========  ================================
-name    id                                locale    domain_id
-======  ================================  ========  ================================
-admin   f48b476f23d84952ae981d264e895aad  ja        e6eb13c4e52b4a60ac17aa925d1aa14c
-tiida   0b507503256542afa30ff75b4d65962f  ja        e6eb13c4e52b4a60ac17aa925d1aa14c
-======  ================================  ========  ================================
+bash-4.4$ ./k5-list-network-connector-pools.py
+GET /v2.0/networks
+====================================  ============================
+id                                    name
+====================================  ============================
+e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
+====================================  ============================
+bash-4.4$
 """
 
 import json
@@ -60,7 +62,7 @@ except ImportError as e:
 def main(dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_USERS
+  url = k5config.URL_NETWORK_CONNECTOR_POOLS
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -85,13 +87,14 @@ def main(dump=False):
     logging.error("no data found")
     exit(1)
 
-  # ユーザ一覧はデータオブジェクトの中の'users'キーに配列として入っている
-  users_list = []
-  for item in data.get('users', []):
-    users_list.append([item.get('name', ''), item.get('id', ''), item.get('locale', ''), item.get('domain_id', '')])
+  # ネットワークコネクタプール一覧はデータオブジェクトの中の'network_connector_pools'キーに配列として入っている
+  nc_pools_list = []
+  for item in data.get('network_connector_pools', []):
+    nc_pools_list.append([item.get('id', ''), item.get('name', '')])
 
-  # ユーザ一覧を表示
-  print(tabulate(users_list, headers=['name', 'id', 'locale', 'domain_id'], tablefmt='rst'))
+  # ネットワークコネクタプール一覧を表示
+  print('GET /v2.0/network_connector_pools')
+  print(tabulate(nc_pools_list, headers=['id', 'name'], tablefmt='rst'))
 
 
 if __name__ == '__main__':

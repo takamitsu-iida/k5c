@@ -2,31 +2,21 @@
 # -*- coding: utf-8 -*-
 
 """
-GET /v2.0/networks/{network_id}
-Show network
-指定したネットワークの情報を表示する
+GET /v2.0/network_connector_pools/{network connector pool id}
+Show Network Connector Pool
+ネットワークコネクタプールを表示する
 """
 
 """
 実行例
 
-bash-4.4$ ./k5-show-network.py 375c49fa-a706-4676-b55b-2d3554e5db6a
-GET /v2.0/networks/{network_id}
-=================  ====================================  ==========  ========
-id                 name                                  az          status
-=================  ====================================  ==========  ========
-inf_az2_ext-net01  375c49fa-a706-4676-b55b-2d3554e5db6a  jp-east-1b  ACTIVE
-=================  ====================================  ==========  ========
-
-====================================
-subnets
-====================================
-5079f324-5db0-44ee-92ac-3a6b7977b23f
-a56b6058-0479-43a1-8b27-01c1c05e96a2
-c1da3ee7-51c3-4801-bb97-aa03a4383ef0
-e96e55b8-84bb-4777-a782-a5d6e8340039
-f5e9ec37-88ec-494b-ac55-dae101a54cc1
-====================================
+bash-4.4$ ./k5-show-network-connector-pool.py e0a80446-203e-4b28-abec-d4b031d5b63e
+GET /v2.0/network_connector_pools/{network connector pool id}
+============================  ====================================
+name                          id
+============================  ====================================
+jp-east-1a_connector_pool_01  e0a80446-203e-4b28-abec-d4b031d5b63e
+============================  ====================================
 bash-4.4$
 """
 
@@ -69,10 +59,10 @@ except ImportError as e:
 #
 # メイン
 #
-def main(network_id='', dump=False):
+def main(nc_pool_id='', dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK + "/" + network_id
+  url = k5config.URL_NETWORK_CONNECTOR_POOLS + "/" + nc_pool_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -100,26 +90,19 @@ def main(network_id='', dump=False):
     logging.error("no data found")
     exit(1)
 
-  # ネットワーク情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
-  nw = data.get('network', {})
+  # ネットワークコネクタプール情報はデータオブジェクトの中の'network_connector_pool'キーにオブジェクトとして入っている
+  ncp = data.get('network_connector_pool', {})
 
   # ネットワーク情報を表示
-  networks = []
-  networks.append([nw.get('name', ''), nw.get('id', ''), nw.get('availability_zone', ''), nw.get('status', '')])
-  print('GET /v2.0/networks/{network_id}')
-  print(tabulate(networks, headers=['name', 'id', 'az', 'status'], tablefmt='rst'))
-
-  # サブネット一覧を表示
-  subnets_list = []
-  for item in nw.get('subnets', []):
-    subnets_list.append([item])
-  print('')
-  print(tabulate(subnets_list, headers=['subnets'], tablefmt='rst'))
+  nc_pools = []
+  nc_pools.append([ncp.get('name', ''), ncp.get('id', '')])
+  print('GET /v2.0/network_connector_pools/{network connector pool id}')
+  print(tabulate(nc_pools, headers=['name', 'id'], tablefmt='rst'))
 
 
 if __name__ == '__main__':
   if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "network_id"))
+    print("Usage: {0} {1}".format(sys.argv[0], "network_connector_pool_id"))
     exit(1)
 
-  main(network_id=sys.argv[1], dump=False)
+  main(nc_pool_id=sys.argv[1], dump=False)
