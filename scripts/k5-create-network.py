@@ -74,7 +74,8 @@ def main(dump=False):
   name = "iida-test-network"
 
   # 作成する場所
-  az = "jp-east-1b"
+  az = "jp-east-1a"
+  # az = "jp-east-1b"
 
   # 作成するネットワークのオブジェクト
   network_object = {

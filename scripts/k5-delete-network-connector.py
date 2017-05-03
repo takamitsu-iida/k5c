@@ -6,7 +6,7 @@ DELETE /v2.0/network_connectors/{network connector id}　★
 Deletes Network Connector
 ネットワークコネクタを削除する
 
-★マニュアル APIリファレンス（Network編）Version1.8の記載は間違っているので注意
+★マニュアル APIリファレンス（Network編）Version1.8 の記載は間違っているので注意
 
 注意：
 　・削除するネットワークコネクタのidは実行時の引数として指定
