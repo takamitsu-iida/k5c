@@ -71,7 +71,7 @@ except ImportError as e:
 def main(dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK
+  url = k5config.URL_NETWORKS
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -82,29 +82,34 @@ def main(dump=False):
   # 中身を確認
   if dump:
     print(json.dumps(r, indent=2))
-    return
+    return r
 
-  # 戻り値は'status_code'キーに格納
-  # ステータスコードが負の場合は、何かおかしかったということ
-  if r.get('status_code', -1) < 0:
-    logging.error("failed to GET %s", url)
-    exit(1)
+  # ステータスコードは'status_code'キーに格納
+  status_code = r.get('status_code', -1)
+
+  # ステータスコードが異常な場合
+  if status_code < 0 or status_code >= 400:
+    print(json.dumps(r, indent=2))
+    return r
 
   # データは'data'キーに格納
   data = r.get('data', None)
   if not data:
     logging.error("no data found")
-    exit(1)
+    return r
 
   # ネットワーク一覧はデータオブジェクトの中の'networks'キーに配列として入っている
   networks_list = []
   for item in data.get('networks', []):
     networks_list.append([item.get('id', ''), item.get('name', ''), item.get('tenant_id', ''), item.get('availability_zone', ''), item.get('status', '')])
 
-  # ユーザ一覧を表示
-  print('GET /v2.0/networks')
+  # 一覧を表示
+  print("GET /v2.0/networks")
   print(tabulate(networks_list, headers=['id', 'name', 'tenant_id', 'az', 'status'], tablefmt='rst'))
+
+  # 結果を返す
+  return r
 
 
 if __name__ == '__main__':
-  main()
+  main(dump=False)

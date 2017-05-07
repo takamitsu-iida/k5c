@@ -22,6 +22,7 @@ status_code: 404
 bash-4.4$
 """
 
+import json
 import logging
 import os
 import sys
@@ -58,7 +59,7 @@ except ImportError:
 def main(network_id=''):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK + "/" + network_id
+  url = k5config.URL_NETWORKS + "/" + network_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -66,15 +67,20 @@ def main(network_id=''):
   # DELETEメソッドで削除して、結果のオブジェクトを得る
   r = c.delete(url=url)
 
-  # 戻り値は'status_code'キーに格納
-  # ステータスコードが負の場合は、何かおかしかったということ
-  if r.get('status_code', -1) < 0:
-    logging.error("failed to DELETE %s", url)
-    exit(1)
+  # ステータスコードは'status_code'キーに格納
+  status_code = r.get('status_code', -1)
+
+  # ステータスコードが異常な場合
+  if status_code < 0 or status_code >= 400:
+    print(json.dumps(r, indent=2))
+    return r
 
   # 結果表示
   print("status_code: {0}".format(r.get('status_code', "")))
   print(r.get('data', ""))
+
+  # 結果を返す
+  return r
 
 
 if __name__ == '__main__':

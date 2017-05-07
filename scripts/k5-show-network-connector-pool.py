@@ -73,22 +73,21 @@ def main(nc_pool_id='', dump=False):
   # 中身を確認
   if dump:
     print(json.dumps(r, indent=2))
-    return
+    return r
 
-  # 戻り値は'status_code'キーに格納
+  # ステータスコードは'status_code'キーに格納
   status_code = r.get('status_code', -1)
 
-  # ステータスコードがおかしい場合
-  if status_code < 0 or status_code >= 300:
-    print("status_code: {0}".format(r.get('status_code', "")))
-    print(r.get('data', ""))
-    exit(1)
+  # ステータスコードが異常な場合
+  if status_code < 0 or status_code >= 400:
+    print(json.dumps(r, indent=2))
+    return r
 
   # データは'data'キーに格納
   data = r.get('data', None)
   if not data:
     logging.error("no data found")
-    exit(1)
+    return r
 
   # ネットワークコネクタプール情報はデータオブジェクトの中の'network_connector_pool'キーにオブジェクトとして入っている
   ncp = data.get('network_connector_pool', {})
@@ -96,8 +95,11 @@ def main(nc_pool_id='', dump=False):
   # ネットワーク情報を表示
   nc_pools = []
   nc_pools.append([ncp.get('name', ''), ncp.get('id', '')])
-  print('GET /v2.0/network_connector_pools/{network connector pool id}')
+  print("GET /v2.0/network_connector_pools/{network connector pool id}")
   print(tabulate(nc_pools, headers=['name', 'id'], tablefmt='rst'))
+
+  # 結果を返す
+  return r
 
 
 if __name__ == '__main__':

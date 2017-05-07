@@ -72,7 +72,7 @@ except ImportError as e:
 def main(network_id='', dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK + "/" + network_id
+  url = k5config.URL_NETWORKS + "/" + network_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -83,22 +83,21 @@ def main(network_id='', dump=False):
   # 中身を確認
   if dump:
     print(json.dumps(r, indent=2))
-    return
+    return r
 
-  # 戻り値は'status_code'キーに格納
+  # ステータスコードは'status_code'キーに格納
   status_code = r.get('status_code', -1)
 
-  # ステータスコードがおかしい場合
-  if status_code < 0 or status_code >= 300:
-    print("status_code: {0}".format(r.get('status_code', "")))
-    print(r.get('data', ""))
-    exit(1)
+  # ステータスコードが異常な場合
+  if status_code < 0 or status_code >= 400:
+    print(json.dumps(r, indent=2))
+    return r
 
   # データは'data'キーに格納
   data = r.get('data', None)
   if not data:
     logging.error("no data found")
-    exit(1)
+    return r
 
   # ネットワーク情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
   nw = data.get('network', {})
@@ -106,15 +105,18 @@ def main(network_id='', dump=False):
   # ネットワーク情報を表示
   networks = []
   networks.append([nw.get('name', ''), nw.get('id', ''), nw.get('availability_zone', ''), nw.get('status', '')])
-  print('GET /v2.0/networks/{network_id}')
+  print("GET /v2.0/networks/{network_id}")
   print(tabulate(networks, headers=['name', 'id', 'az', 'status'], tablefmt='rst'))
 
   # サブネット一覧を表示
   subnets_list = []
   for item in nw.get('subnets', []):
     subnets_list.append([item])
-  print('')
+  print("")
   print(tabulate(subnets_list, headers=['subnets'], tablefmt='rst'))
+
+  # 結果を返す
+  return r
 
 
 if __name__ == '__main__':

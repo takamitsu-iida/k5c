@@ -73,28 +73,33 @@ def main(dump=False):
   # 中身を確認
   if dump:
     print(json.dumps(r, indent=2))
-    return
+    return r
 
-  # 戻り値は'status_code'キーに格納
-  # ステータスコードが負の場合は、何かおかしかったということ
-  if r.get('status_code', -1) < 0:
-    logging.error("failed to GET %s", url)
-    exit(1)
+  # ステータスコードは'status_code'キーに格納
+  status_code = r.get('status_code', -1)
+
+  # ステータスコードが異常な場合
+  if status_code < 0 or status_code >= 400:
+    print(json.dumps(r, indent=2))
+    return r
 
   # データは'data'キーに格納
   data = r.get('data', None)
   if not data:
     logging.error("no data found")
-    exit(1)
+    return r
 
   # ネットワークコネクタプール一覧はデータオブジェクトの中の'network_connector_pools'キーに配列として入っている
   nc_pools_list = []
   for item in data.get('network_connector_pools', []):
     nc_pools_list.append([item.get('id', ''), item.get('name', '')])
 
-  # ネットワークコネクタプール一覧を表示
-  print('GET /v2.0/network_connector_pools')
+  # 一覧を表示
+  print("GET /v2.0/network_connector_pools")
   print(tabulate(nc_pools_list, headers=['id', 'name'], tablefmt='rst'))
+
+  # 結果を返す
+  return r
 
 
 if __name__ == '__main__':

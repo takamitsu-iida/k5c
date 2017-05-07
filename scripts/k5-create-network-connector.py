@@ -7,7 +7,8 @@ Create Network Connector
 ネットワークコネクタを作成する
 
 注意：
-　・最初に所属させるネットワークコネクタプールのIDを調べる必要がある
+　・所属させるネットワークコネクタプールのIDを先に調べる必要がある
+　・コネクタプールは任意には作れない模様
 
 bash-4.4$ ./k5-list-network-connector-pools.py
 GET /v2.0/network_connector_pools
@@ -105,19 +106,21 @@ def main(dump=False):
   # 中身を確認
   if dump:
     print(json.dumps(r, indent=2))
-    return
+    return r
 
-  # 戻り値は'status_code'キーに格納
-  # ステータスコードが負の場合は、何かおかしかったということ
-  if r.get('status_code', -1) < 0:
-    logging.error("failed to POST %s", url)
-    exit(1)
+  # ステータスコードは'status_code'キーに格納
+  status_code = r.get('status_code', -1)
+
+  # ステータスコードが異常な場合
+  if status_code < 0 or status_code >= 400:
+    print(json.dumps(r, indent=2))
+    return r
 
   # データは'data'キーに格納
   data = r.get('data', None)
   if not data:
     logging.error("no data found")
-    exit(1)
+    return r
 
   # 作成したネットワークコネクタの情報はdataの中の'network_connector'キーにオブジェクトとして入っている
   nc = data.get('network_connector', {})
@@ -127,8 +130,11 @@ def main(dump=False):
   ncs.append(['pool_id', nc.get('network_connector_pool_id', '')])
 
   # ネットワークコネクタ情報を表示
-  print('POST /v2.0/network_connectors')
+  print("POST /v2.0/network_connectors")
   print(tabulate(ncs, tablefmt='rst'))
+
+  # 結果を返す
+  return r
 
 
 if __name__ == '__main__':

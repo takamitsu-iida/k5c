@@ -23,7 +23,7 @@ PROJECT_ID = ""  # ここを書き換え
 USERNAME = ""  # ここを書き換え
 PASSWORD = ""  # ここを書き換え
 
-# 利用リージョン
+# 対象リージョン
 REGION = "jp-east-1"  # ここを書き換え
 
 #
@@ -38,7 +38,12 @@ EP_NETWORK = "https://networking." + REGION + ".cloud.global.fujitsu.com"
 #
 URL_TOKEN = EP_TOKEN + "/v3/auth/tokens"
 URL_USERS = EP_IDENTITY + "/v3/users?domain_id=" + DOMAIN_ID
-URL_NETWORK = EP_NETWORK + "/v2.0/networks"
+URL_SUBNETS = EP_NETWORK + "/v2.0/subnets"
+URL_NETWORKS = EP_NETWORK + "/v2.0/networks"
+URL_NETWORK_CONNECTOR_POOLS = EP_NETWORK + "/v2.0/network_connector_pools"
+URL_NETWORK_CONNECTORS = EP_NETWORK + "/v2.0/network_connectors"
+URL_NETWORK_CONNECTOR_ENDPOINTS = EP_NETWORK + "/v2.0/network_connector_endpoints"
+URL_PORTS = EP_NETWORK + "/v2.0/ports"
 
 #
 # プロキシ設定
@@ -47,8 +52,8 @@ USE_PROXY = False
 # USE_PROXY = True
 
 PROXIES = {
-  'http': "http://username:password@proxyserver:8080",
-  'https': "http://username:password@proxyserver:8080"
+  'http': "http://username:password@proxyserver:8080",  # ここを書き換え
+  'https': "http://username:password@proxyserver:8080"  # ここを書き換え
 }
 
 if not USE_PROXY:

@@ -6,7 +6,7 @@ POST /v2.0/networks
 Create network
 ネットワークを作成する
 
-注意：
+NOTE:
 　・作成するネットワークの名前とゾーンはスクリプトのmain()で指定
 　・同じ名前であっても何個でも作れる（idで区別）
 """
@@ -68,10 +68,10 @@ except ImportError as e:
 def main(dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK
+  url = k5config.URL_NETWORKS
 
   # 作成するネットワークの名前
-  name = "iida-test-network"
+  name = "iida-test-network-1"
 
   # 作成する場所
   az = "jp-east-1a"
@@ -94,19 +94,21 @@ def main(dump=False):
   # 中身を確認
   if dump:
     print(json.dumps(r, indent=2))
-    return
+    return r
 
-  # 戻り値は'status_code'キーに格納
-  # ステータスコードが負の場合は、何かおかしかったということ
-  if r.get('status_code', -1) < 0:
-    logging.error("failed to POST %s", url)
-    exit(1)
+  # ステータスコードは'status_code'キーに格納
+  status_code = r.get('status_code', -1)
+
+  # ステータスコードが異常な場合
+  if status_code < 0 or status_code >= 400:
+    print(json.dumps(r, indent=2))
+    return r
 
   # データは'data'キーに格納
   data = r.get('data', None)
   if not data:
     logging.error("no data found")
-    exit(1)
+    return r
 
   # 作成したネットワークの情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
   nw = data.get('network', {})
@@ -120,8 +122,11 @@ def main(dump=False):
   nws.append(['status', nw.get('status', '')])
 
   # ネットワーク情報を表示
-  print('POST /v2.0/networks')
+  print("POST /v2.0/networks")
   print(tabulate(nws, tablefmt='rst'))
+
+  # 結果を返す
+  return r
 
 
 if __name__ == '__main__':

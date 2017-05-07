@@ -50,7 +50,7 @@ def main():
   # トークンを取得
   token = c.getToken()
 
-  # ダンプ表示
+  # tokenオブジェクトをダンプ表示
   print(json.dumps(token, indent=2))
 
 
