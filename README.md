@@ -137,10 +137,13 @@ PASSWORD = ""  # ここを書き換え
 REGION = "jp-east-1"  # ここを書き換え
 ```
 
+---
 
 ## スクリプトの実行
 
-scriptsにサンプルスクリプトを置いています。
+scriptsフォルダに実行用のスクリプトを置いています。
+
+k5-create-系のスクリプトは、作成に必要なパラメータをスクリプト本文に埋め込んでいますので、環境にあわせて修正が必要です（後で直します）。
 
 Windowsのコマンドプロンプトでも実行できますが、画面の横幅が狭いため見苦しい表示になってしまいます。
 TeraTERMでCygwinに接続する、出力をファイルにリダイレクトしてエディタで確認する、といった工夫をするといいと思います。
@@ -152,7 +155,8 @@ K5のAPIを操作するためには、事前に認証トークンを取得しな
 
 ### k5-token.py
 
-APIエンドポイントにアクセスできるかテストするためのスクリプトです。
+APIエンドポイントに接続できるかテストするためのスクリプトです。
+これがエラーを返すようなら、k5config.pyの設定パラメータに誤りがあります。
 
 ```
 bash-4.4$ ./k5-token.py
@@ -161,7 +165,6 @@ bash-4.4$ ./k5-token.py
   "X-Subject-Token": "f240eccd302f4a31b3ccdb4b0d1bcd7f",
   "issued_at": "2017-05-02T10:31:28.092987Z"
 }
-bash-4.4$
 ```
 
 issued_atとexpires_atの差分が3時間ほどありますので、トークンの有効期間は3時間と考えられます。
@@ -170,110 +173,112 @@ issued_atとexpires_atの差分が3時間ほどありますので、トークン
 一度取得したトークンはキャッシュして使いまわすようにしています。
 
 
-### k5-list-networks.py
+### k5-list-network-connector-pools.py
 
-APIリファレンス（Network編）Version 1.8
+ネットワークコネクタプールは事業者が作成するもので、そのIDを調べるためにこのスクリプトを使います。
 
-1.2.6.1 List networks
-
-Lists networks to which the specified tenant has access.
+- GET /v2.0/network_connector_pools
+- List Network Connector Pools
+- ネットワークコネクタプールの一覧を表示する
 
 ```
-bash-4.4$ ./k5-list-networks.py
+bash-4.4$ ./k5-list-network-connector-pools.py
 GET /v2.0/networks
-====================================  =================  ================================  ==========  ========
-id                                    name               tenant_id                         az          status
-====================================  =================  ================================  ==========  ========
-375c49fa-a706-4676-b55b-2d3554e5db6a  inf_az2_ext-net01  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-4516097a-84dd-476f-824a-6b2fd3cc6499  inf_az2_ext-net05  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-852e40a7-82a3-4196-8b84-46f55d01ccba  inf_az2_ext-net02  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-abe76a93-87c3-4635-b0f3-40f794165c26  inf_az2_ext-net03  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-bfca06b3-0b23-433f-96af-4f54bf963e5f  inf_az2_ext-net04  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-6d9df982-7a89-462a-8b17-8a8e5befa63e  inf_az1_ext-net03  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-92f386c1-59fe-48ca-8cf9-b95f81920466  inf_az1_ext-net02  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-a4715541-c915-444b-bed6-99aa1e8b15c9  inf_az1_ext-net04  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-af4198a9-b392-493d-80ec-a7c6e5a1c22a  inf_az1_ext-net01  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-cd4057bd-f72e-4244-a7dd-1bcb2775dd67  inf_az1_ext-net05  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-====================================  =================  ================================  ==========  ========
-bash-4.4$
+====================================  ============================
+id                                    name
+====================================  ============================
+e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
+====================================  ============================
 ```
 
+jp-east-1a_connector_pool_01という名前で一つ作成されていることがわかります。
 
-### k5-create-network.py
+### k5-create-network-connector.py
 
-APIリファレンス（Network編）Version 1.8
+外部との接点になるネットワークコネクタを作成します。
 
-1.2.6.2 Create network
+- POST /v2.0/network_connectors
+- Create Network Connector
+- ネットワークコネクタを作成する
 
-Creates a network.
+所属させるネットワークコネクタプールのIDを先に調べる必要があります。
+ここでは *e0a80446-203e-4b28-abec-d4b031d5b63e* のコネクタプールに作成するとして、それをスクリプト本文で指定しています。
 
-注意:
- - 作成するネットワークの名前とゾーンはスクリプトのmain()で指定
- - 同じ名前であっても何個でも作れる（idで区別）
+ネットワークコネクタの名前は *iida-test-network-connecotor* として、それをスクリプト本文で指定しています。
+
+```
+bash-4.4$ ./k5-create-network-connector.py
+POST /v2.0/network_connectors
+=======  ====================================
+name     iida-test-network-connecotor
+id       385bc7f5-bcc4-4521-ad41-de2074143355
+pool_id  e0a80446-203e-4b28-abec-d4b031d5b63e
+=======  ====================================
+```
+
+### k5-list-network-connectors.py
+
+ネットワークコネクタを作成したら、一覧表示で確認します。
+
+- GET /v2.0/network_connectors
+- List Network Connectors
+- ネットワークコネクタの一覧を表示する
 
 
 ```
-bash-4.4$ ./k5-create-network.py
-POST /v2.0/networks
-=========  ====================================
-name       iida-test-network
-id         acb539fc-4a5d-4fc3-bc70-324ee336d587
-az         jp-east-1b
-tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
-status     ACTIVE
-=========  ====================================
-bash-4.4$
+bash-4.4$ ./k5-list-network-connectors.py
+GET /v2.0/network_connectors
+====================================  ============================  ====================================
+id                                    name                          pool_id
+====================================  ============================  ====================================
+eceb05fd-8aee-470b-bdca-95f789f181c1  iida-test-network-connecotor  e0a80446-203e-4b28-abec-d4b031d5b63e
+====================================  ============================  ====================================
 ```
 
+### k5-create-network-connector-endpoint.py
 
-### k5-show-network.py
+ネットワークコネクタにコネクタエンドポイントを作成します。
 
-APIリファレンス（Network編）Version 1.8
+事前にネットワークコネクタを作成しておく必要があります。
+ここではid= *eceb05fd-8aee-470b-bdca-95f789f181c1* のコネクタの中に作成するものとして、スクリプト本文で指定しています。
 
-1.2.6.3 Show network
+コネクタエンドポイントの名前は *iida-test-network-connecotor-endpoint-1* として、スクリプト本文で指定しています。
 
-Shows information for a specified network.
-
-```
-bash-4.4$ ./k5-show-network.py 375c49fa-a706-4676-b55b-2d3554e5db6a
-GET /v2.0/networks/{network_id}
-=================  ====================================  ==========  ========
-id                 name                                  az          status
-=================  ====================================  ==========  ========
-inf_az2_ext-net01  375c49fa-a706-4676-b55b-2d3554e5db6a  jp-east-1b  ACTIVE
-=================  ====================================  ==========  ========
-
-====================================
-subnets
-====================================
-5079f324-5db0-44ee-92ac-3a6b7977b23f
-a56b6058-0479-43a1-8b27-01c1c05e96a2
-c1da3ee7-51c3-4801-bb97-aa03a4383ef0
-e96e55b8-84bb-4777-a782-a5d6e8340039
-f5e9ec37-88ec-494b-ac55-dae101a54cc1
-====================================
-bash-4.4$
-```
-
-### k5-delete-network.py
-
-APIリファレンス（Network編）Version 1.8
-
-1.2.6.5 Delete network
-
-Deletes a specified network and its associated resources.
+- POST /v2.0/network_connector_endpoints
+- Create Network Connector Endpoint
+- ネットワークコネクタエンドポイントを作成する
 
 ```
-実行例（成功した場合は特にデータは戻りません）
-bash-4.4$ ./k5-delete-network.py 7bc1d12f-5ef6-4177-aa87-c2a5c74aa40b
-status_code: 204
+bash-4.4$ ./k5-create-network-connector-endpoint.py
+POST /v2.0/network_connector_endpoints
+=============  =======================================
+name           iida-test-network-connecotor-endpoint-1
+id             ed44d452-cbc4-4f4c-9c87-03fdf4a7c965
+nc_id          eceb05fd-8aee-470b-bdca-95f789f181c1
+tenant_id      a5001a8b9c4a4712985c11377bd6d4fe
+location       jp-east-1a
+endpoint_type  availability_zone
+=============  =======================================
 ```
 
+作成に失敗するとこのような表示になります。
+
 ```
-実行例（失敗した場合はエラーメッセージが戻ります）
-bash-4.4$ ./k5-delete-network.py 7bc1d12f-5ef6-4177-aa87-c2a5c74aa40b
-status_code: 404
-{'NeutronError': {'type': 'NetworkNotFound', 'detail': '', 'message': 'Network 7bc1d12f-5ef6-4177-aa87-c2a5c74aa40b could not be found'}}
-bash-4.4$
+bash-4.4$ ./k5-create-network-connector-endpoint.py
+{
+  "Content-Type": "application/json;charset=utf-8",
+  "status_code": 409,
+  "data": {
+    "NeutronError": {
+      "type": "EndpointAlreadyExist",
+      "detail": "network connector id: eceb05fd-8aee-470b-bdca-95f789f181c1, type: availability_zone, location: jp-east-1a",
+      "message": "network connector endpoint already exist"
+    },
+    "request_id": "a79772bc-a08c-40b9-ae52-922857e29ff6"
+  }
+}
 ```
+
+一つのコネクタには、一つのエンドポイントしか作成できないことがわかります。
+
 

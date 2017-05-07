@@ -6,9 +6,8 @@ POST /v2.0/network_connectors
 Create Network Connector
 ネットワークコネクタを作成する
 
-注意：
+NOTE:
 　・所属させるネットワークコネクタプールのIDを先に調べる必要がある
-　・コネクタプールは任意には作れない模様
 
 bash-4.4$ ./k5-list-network-connector-pools.py
 GET /v2.0/network_connector_pools
