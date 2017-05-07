@@ -17,15 +17,15 @@ Availability Zone
 　　│　
 　　│
 　　├─サブネット(subnet_id)
-　　│  　ネットワークとサブネットは1:1の関係
+　　│　　ネットワークとサブネットは1:1の関係
 　　│
 　　├─ポート(port_id)
-　　│  │　固定IPアドレス(fixed_ips)
-　　│  │
-　　│  └─デバイスオーナ(仮想サーバや仮想ルータ、コネクタエンドポイント)
+　　│　│　固定IPアドレス(fixed_ips)
+　　│　│
+　　│　└─デバイスオーナ(仮想サーバや仮想ルータ、コネクタエンドポイント)
 　　│
 　　└─ポート(port_id)
-　　　  │　固定IPアドレス(fixed_ips)
+　　　　│　固定IPアドレス(fixed_ips)
 　　　　│
 　　　　└─デバイスオーナ(仮想サーバや仮想ルータ、コネクタエンドポイント)
 ```
@@ -65,7 +65,7 @@ Availability Zone
 　　　　├─ネットワークコネクタエンドポイント(network_connector_endpoint_id)
 　　　　│　│
 　　　　│　└─ポート(port_id)
-　　　　│　　　　
+　　　　│
 　　　　│
 　　　　└─ネットワークコネクタエンドポイント(network_connector_endpoint_id)
 　　　　　　│
