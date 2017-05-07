@@ -110,9 +110,9 @@ if __name__ == '__main__':
   # ncep_id="ed44d452-cbc4-4f4c-9c87-03fdf4a7c965"
 
   # 接続するポートID
-  # port_id="863f2404-4a92-4991-8fab-e4312682dd86"
+  # port_id="305485fb-3bff-4230-a1f6-f594ec4ea1fb"
 
   main(
     ncep_id="ed44d452-cbc4-4f4c-9c87-03fdf4a7c965",
-    port_id="863f2404-4a92-4991-8fab-e4312682dd86",
+    port_id="305485fb-3bff-4230-a1f6-f594ec4ea1fb",
     dump=False)
