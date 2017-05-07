@@ -7,23 +7,21 @@ Create network
 ネットワークを作成する
 
 NOTE:
-　・作成するネットワークの名前とゾーンはスクリプトのmain()で指定
+　・作成するネットワークの名前とAvailability Zoneはスクリプト内に記述
 　・同じ名前であっても何個でも作れる（idで区別）
 """
 
 """
 実行例
-
 bash-4.4$ ./k5-create-network.py
 POST /v2.0/networks
 =========  ====================================
-name       iida-test-network
-id         acb539fc-4a5d-4fc3-bc70-324ee336d587
-az         jp-east-1b
+name       iida-test-network-1
+id         93a83e0e-424e-4e7d-8299-4bdea906354e
+az         jp-east-1a
 tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
 status     ACTIVE
 =========  ====================================
-bash-4.4$
 """
 
 import json
@@ -65,17 +63,12 @@ except ImportError as e:
 #
 # メイン
 #
-def main(dump=False):
-  """メイン関数"""
-  # 接続先
+def main(name="", az="", dump=False):
+  """
+  ネットワークを作成します。
+  """
+  # 接続先URL
   url = k5config.URL_NETWORKS
-
-  # 作成するネットワークの名前
-  name = "iida-test-network-1"
-
-  # 作成する場所
-  az = "jp-east-1a"
-  # az = "jp-east-1b"
 
   # 作成するネットワークのオブジェクト
   network_object = {
@@ -130,4 +123,11 @@ def main(dump=False):
 
 
 if __name__ == '__main__':
-  main(dump=False)
+  # 作成するネットワークの名前
+  # name = "iida-test-network-1"
+
+  # 作成する場所
+  # az = "jp-east-1a"
+
+  # 実行
+  main(name="iida-test-network-1", az="jp-east-1a", dump=False)

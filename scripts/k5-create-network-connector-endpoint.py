@@ -87,28 +87,10 @@ except ImportError as e:
 #
 # メイン
 #
-def main(dump=False):
+def main(name="", nc_id="", endpoint_type="availability_zone", az="", tenant_id="", dump=False):
   """メイン関数"""
   # 接続先
   url = k5config.URL_NETWORK_CONNECTOR_ENDPOINTS
-
-  # 作成するネットワークコネクタの名前
-  name = "iida-test-network-connecotor-endpoint-1"
-
-  # 所属させるネットワークコネクタID
-  nc_id = "eceb05fd-8aee-470b-bdca-95f789f181c1"
-
-  # エンドポイントタイプ
-  # "availability_zone" or "remote"
-  # ここではazで固定
-  endpoint_type = "availability_zone"
-
-  # ロケーション
-  # エンドポイントタイプがavailability_zoneの場合はその名前
-  availability_zone = "jp-east-1a"  # or "jp-east-1b"
-
-  # 所属させるテナントID
-  tenant_id = k5config.TENANT_ID
 
   # 作成するネットワークコネクタエンドポイントのオブジェクト
   ncep_object = {
@@ -116,7 +98,7 @@ def main(dump=False):
       'name': name,
       'network_connector_id': nc_id,
       'endpoint_type': endpoint_type,
-      "location" : availability_zone,
+      "location" : az,
       'tenant_id' : tenant_id
     }
   }
@@ -177,4 +159,29 @@ def main(dump=False):
 
 
 if __name__ == '__main__':
-  main(dump=False)
+
+  # 作成するネットワークコネクタの名前
+  # name = "iida-test-network-connecotor-endpoint-1"
+
+  # 所属させるネットワークコネクタID
+  # nc_id = "eceb05fd-8aee-470b-bdca-95f789f181c1"
+
+  # エンドポイントタイプ
+  # "availability_zone" or "remote"
+  # ここではazで固定
+  # endpoint_type = "availability_zone"
+
+  # ロケーション
+  # エンドポイントタイプがavailability_zoneの場合はその名前
+  # az = "jp-east-1a"  # or "jp-east-1b"
+
+  # 所属させるテナントID
+  # tenant_id = k5config.TENANT_ID
+
+  main(
+    name="iida-test-network-connecotor-endpoint-1",
+    nc_id="eceb05fd-8aee-470b-bdca-95f789f181c1",
+    endpoint_type="availability_zone",
+    az="jp-east-1a",
+    tenant_id=k5config.TENANT_ID,
+    dump=False)

@@ -21,21 +21,20 @@ GET /v2.0/networks
 ====================================  ===================  ================================  ==========  ========
 id                                    name                 tenant_id                         az          status
 ====================================  ===================  ================================  ==========  ========
-ce5ae176-3478-45c0-9a8f-59975e4ba28d  iida-test-network-1  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a  ACTIVE
-====================================  ===================  ================================  ==========  ========
+93a83e0e-424e-4e7d-8299-4bdea906354e  iida-test-network-1  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a  ACTIVE
 
-このネットワークIDに対応付けるサブネットを作成する
+このネットワークIDに対応付けるサブネットを作成する。
 
 bash-4.4$ ./k5-create-subnet.py
 POST /v2.0/subnets
 ===========  ====================================
 name         iida-subnet-1
-id           8ed6dd7b-2ae3-4f68-81c9-e5d9e074b67a
+id           38701f66-4610-493f-9c15-78f81917f362
 az           jp-east-1a
 cidr         192.168.0.0/24
 gateway_ip   192.168.0.1
 tenant_id    a5001a8b9c4a4712985c11377bd6d4fe
-network_id   ce5ae176-3478-45c0-9a8f-59975e4ba28d
+network_id   93a83e0e-424e-4e7d-8299-4bdea906354e
 enable_dhcp  True
 ===========  ====================================
 """
@@ -79,26 +78,10 @@ except ImportError as e:
 #
 # メイン
 #
-def main(dump=False):
+def main(name="", network_id="", ip_version=4, cidr="", az="", dump=False):
   """メイン関数"""
   # 接続先
   url = k5config.URL_SUBNETS
-
-  # 作成するサブネットの名前
-  name = "iida-subnet-1"
-
-  # 所属させるネットワークID
-  network_id = "ce5ae176-3478-45c0-9a8f-59975e4ba28d"
-
-  # IPバージョン
-  ip_version = 4
-
-  # cidr
-  cidr = "192.168.0.0/24"
-
-  # 作成する場所
-  az = "jp-east-1a"
-  # az = "jp-east-1b"
 
   # 作成するサブネットのオブジェクト
   subnet_object = {
@@ -179,4 +162,26 @@ def main(dump=False):
 
 
 if __name__ == '__main__':
-  main(dump=False)
+  # 作成するサブネットの名前
+  # name = "iida-subnet-1"
+
+  # 所属させるネットワークID
+  # network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+
+  # IPバージョン
+  # ip_version = 4
+
+  # サブネットのアドレス
+  # cidr = "192.168.0.0/24"
+
+  # 作成する場所
+  # az = "jp-east-1a"
+  # az = "jp-east-1b"
+
+  main(
+    name="iida-subnet-1",
+    network_id="93a83e0e-424e-4e7d-8299-4bdea906354e",
+    ip_version=4,
+    cidr="192.168.0.0/24",
+    az="jp-east-1a",
+    dump=False)

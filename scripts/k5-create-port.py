@@ -20,22 +20,22 @@ bash-4.4$ ./k5-create-port.py
 POST /v2.0/ports
 =================  ====================================
 name               iida-network-1-port-1
-id                 16fbf915-3399-4721-b5b8-e41882da268e
+id                 802c2a2d-5e3e-41c8-8a94-c6430bf48a80
 az                 jp-east-1a
 tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
 status             DOWN
 admin_state_up     True
 device_owner
 device_id
-network_id         ce5ae176-3478-45c0-9a8f-59975e4ba28d
+network_id         93a83e0e-424e-4e7d-8299-4bdea906354e
 binding:vnic_type  normal
-mac_address        fa:16:3e:ff:98:a8
+mac_address        fa:16:3e:49:02:6d
 =================  ====================================
 
 =============  ====================================
 ip_address     subnet_id
 =============  ====================================
-192.168.0.100  8ed6dd7b-2ae3-4f68-81c9-e5d9e074b67a
+192.168.0.100  38701f66-4610-493f-9c15-78f81917f362
 =============  ====================================
 """
 
@@ -78,37 +78,16 @@ except ImportError as e:
 #
 # メイン
 #
-def main(dump=False):
+def main(name="", network_id="", subnet_id="", ip_address="", admin_state_up=True, az="", dump=False):
   """メイン関数"""
   # 接続先
   url = k5config.URL_PORTS
-
-  # 作成するポートの名前
-  name = "iida-network-1-port-1"
-
-  # 所属させるネットワークID
-  network_id = "ce5ae176-3478-45c0-9a8f-59975e4ba28d"
-
-  # 固定IPを指定する場合に必要
-  # そのネットワークに対応付けられるサブネットID
-  subnet_id = "8ed6dd7b-2ae3-4f68-81c9-e5d9e074b67a"
-
-  # 固定IPを指定する場合に必要
-  # そのサブネットの中からこのポートに割り当てたいIPアドレスを指定する
-  ip_address = "192.168.0.100"
 
   # 固定IPアドレスの指定(配列で指定)
   fixed_ips = [{
     'subnet_id': subnet_id,
     'ip_address': ip_address
   }]
-
-  # 管理状態
-  admin_state_up = True
-
-  # 作成する場所
-  az = "jp-east-1a"
-  # az = "jp-east-1b"
 
   # 作成するポートのオブジェクト
   port_object = {
@@ -204,4 +183,29 @@ def main(dump=False):
 
 
 if __name__ == '__main__':
-  main(dump=False)
+
+  # 作成するポートの名前
+  # name = "iida-network-1-port-1"
+
+  # 所属させるネットワークID
+  # network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+
+  # 固定IPを指定する場合に必要
+  # そのネットワークに対応付けられるサブネットID
+  # subnet_id = "38701f66-4610-493f-9c15-78f81917f362"
+
+  # 固定IPを指定する場合に必要
+  # そのサブネットの中からこのポートに割り当てたいIPアドレスを指定する
+  # ip_address = "192.168.0.100"
+
+  # 作成する場所
+  # az = "jp-east-1a"
+  # az = "jp-east-1b"
+
+  main(
+    name="iida-network-1-port-1",
+    network_id="93a83e0e-424e-4e7d-8299-4bdea906354e",
+    subnet_id="38701f66-4610-493f-9c15-78f81917f362",
+    ip_address="192.168.0.100",
+    az="jp-east-1a",
+    dump=False)

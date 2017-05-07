@@ -12,21 +12,21 @@ List networks
 
 bash-4.4$ ./k5-list-networks.py
 GET /v2.0/networks
-====================================  =================  ================================  ==========  ========
-id                                    name               tenant_id                         az          status
-====================================  =================  ================================  ==========  ========
-375c49fa-a706-4676-b55b-2d3554e5db6a  inf_az2_ext-net01  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-4516097a-84dd-476f-824a-6b2fd3cc6499  inf_az2_ext-net05  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-852e40a7-82a3-4196-8b84-46f55d01ccba  inf_az2_ext-net02  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-abe76a93-87c3-4635-b0f3-40f794165c26  inf_az2_ext-net03  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-bfca06b3-0b23-433f-96af-4f54bf963e5f  inf_az2_ext-net04  31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
-6d9df982-7a89-462a-8b17-8a8e5befa63e  inf_az1_ext-net03  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-92f386c1-59fe-48ca-8cf9-b95f81920466  inf_az1_ext-net02  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-a4715541-c915-444b-bed6-99aa1e8b15c9  inf_az1_ext-net04  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-af4198a9-b392-493d-80ec-a7c6e5a1c22a  inf_az1_ext-net01  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-cd4057bd-f72e-4244-a7dd-1bcb2775dd67  inf_az1_ext-net05  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-====================================  =================  ================================  ==========  ========
-bash-4.4$
+====================================  ===================  ================================  ==========  ========
+id                                    name                 tenant_id                         az          status
+====================================  ===================  ================================  ==========  ========
+375c49fa-a706-4676-b55b-2d3554e5db6a  inf_az2_ext-net01    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+4516097a-84dd-476f-824a-6b2fd3cc6499  inf_az2_ext-net05    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+852e40a7-82a3-4196-8b84-46f55d01ccba  inf_az2_ext-net02    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+abe76a93-87c3-4635-b0f3-40f794165c26  inf_az2_ext-net03    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+bfca06b3-0b23-433f-96af-4f54bf963e5f  inf_az2_ext-net04    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+6d9df982-7a89-462a-8b17-8a8e5befa63e  inf_az1_ext-net03    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+92f386c1-59fe-48ca-8cf9-b95f81920466  inf_az1_ext-net02    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+93a83e0e-424e-4e7d-8299-4bdea906354e  iida-test-network-1  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a  ACTIVE
+a4715541-c915-444b-bed6-99aa1e8b15c9  inf_az1_ext-net04    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+af4198a9-b392-493d-80ec-a7c6e5a1c22a  inf_az1_ext-net01    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+cd4057bd-f72e-4244-a7dd-1bcb2775dd67  inf_az1_ext-net05    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+====================================  ===================  ================================  ==========  ========
 """
 
 import json

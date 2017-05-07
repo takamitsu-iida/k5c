@@ -73,19 +73,10 @@ except ImportError as e:
 #
 # メイン
 #
-def main(dump=False):
+def main(name="", nc_pool_id="", tenant_id="", dump=False):
   """メイン関数"""
   # 接続先
   url = k5config.URL_NETWORK_CONNECTORS
-
-  # 作成するネットワークコネクタの名前
-  name = "iida-test-network-connecotor"
-
-  # 所属させるネットワークコネクタプールID
-  nc_pool_id = "e0a80446-203e-4b28-abec-d4b031d5b63e"
-
-  # 所属させるテナントID
-  tenant_id = k5config.TENANT_ID
 
   # 作成するネットワークコネクタのオブジェクト
   nc_object = {
@@ -137,4 +128,17 @@ def main(dump=False):
 
 
 if __name__ == '__main__':
-  main(dump=False)
+  # 作成するネットワークコネクタの名前
+  # name = "iida-test-network-connecotor"
+
+  # 所属させるネットワークコネクタプールID
+  # nc_pool_id = "e0a80446-203e-4b28-abec-d4b031d5b63e"
+
+  # 所属させるテナントID
+  # tenant_id = k5config.TENANT_ID
+
+  main(
+    name="iida-test-network-connecotor",
+    nc_pool_id="e0a80446-203e-4b28-abec-d4b031d5b63e",
+    tenant_id=k5config.TENANT_ID,
+    dump=False)

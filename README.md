@@ -50,7 +50,7 @@ IPアドレスはポートに付与されます。
 
 ### ネットワークコネクタ
 
-少々ややこしいのは、データセンター構内で別ネットワークと接続する場合です。ネットワークコネクタという聞きなれない用語が登場します。
+少々ややこしいのは、データセンター構内で別の物理ネットワークと接続する場合です。ネットワークコネクタという聞きなれない用語が登場します。
 
 ```
 Availability Zone
@@ -72,18 +72,18 @@ Availability Zone
 　　　　　　└─ポート(port_id)
 ```
 
-Availability Zoneの中にはネットワークコネクタプールというものが存在します。これは自動で作成されたもので、削除も追加もできません。
+Availability Zoneの中にはネットワークコネクタプールというものが存在します。これは最初から存在するもので、削除も追加もできません。
 
 ネットワークコネクタプールの中にネットワークコネクタを作成します。これが外部との接点になります。外側の接続設定はK5事業者が行いますので、（申請書を書くとか）何らかの形で依頼をすることになると思います。
 
-ネットワークコネクタには、コネクタエンドポイントを作成します。これが内側との接点になります。ポートのオーナーとしてコネクタエンドポイントを指定することで、内側と紐付けられます。
+ネットワークコネクタには、コネクタエンドポイントを作成します。これが内側との接点になります。ポートのオーナーとしてコネクタエンドポイントを指定することで、内側のネットワークと紐付けられます。
 
 ネットワークコネクタには複数のコネクタエンドポイントを作成できます。したがって、一つの構内接続を複数のプロジェクトで共有することもできます。
 
-作成する順番としては、このようになります。
+外部との接続を作成する順番としては、このようになります。
 
 1. ネットワークコネクタプールのIDを調べる
-2. そのプールのIDを指定してネットワークコネクタを作成する
+2. そのプールのIDを指定して、ネットワークコネクタを作成する
 3. 作成したネットワークコネクタのIDを調べる
 4. そのネットワークコネクタのIDを指定してコネクタエンドポイントを作成する
 5. 事前に作成しておいたポートのオーナーとしてコネクタエンドポイントを指定する
@@ -155,7 +155,7 @@ K5のAPIを操作するためには、事前に認証トークンを取得しな
 
 ### k5-token.py
 
-APIエンドポイントに接続できるかテストするためのスクリプトです。
+APIエンドポイントに接続できるかテストするためのスクリプトで、通常は使いません。
 これがエラーを返すようなら、k5config.pyの設定パラメータに誤りがあります。
 
 ```
@@ -171,6 +171,8 @@ issued_atとexpires_atの差分が3時間ほどありますので、トークン
 トークンは取得するたびに変わります。
 払い出せるトークンの数には制限があるかもしれませんので、
 一度取得したトークンはキャッシュして使いまわすようにしています。
+
+（自分用メモ：expires_atはGMTになっているので、ローカル時間に直す処理が必要。別途実装すること）
 
 
 ### k5-list-network-connector-pools.py
@@ -223,7 +225,6 @@ pool_id  e0a80446-203e-4b28-abec-d4b031d5b63e
 - GET /v2.0/network_connectors
 - List Network Connectors
 - ネットワークコネクタの一覧を表示する
-
 
 ```
 bash-4.4$ ./k5-list-network-connectors.py
@@ -280,5 +281,275 @@ bash-4.4$ ./k5-create-network-connector-endpoint.py
 ```
 
 一つのコネクタには、一つのエンドポイントしか作成できないことがわかります。
+
+
+### k5-create-network.py
+
+K5の内部ネットワークを作成します。
+ネットワークとサブネットは1:1の対応になります。
+
+- POST /v2.0/networks
+- Create network
+- ネットワークを作成する
+
+名前を *iida-test-network-1* とし、Availability Zone *jp-east-1a* としてネットワークを作成する例です。
+これらパラメータはスクリプト本文で指定しています。
+
+```
+bash-4.4$ ./k5-create-network.py
+POST /v2.0/networks
+=========  ====================================
+name       iida-test-network-1
+id         93a83e0e-424e-4e7d-8299-4bdea906354e
+az         jp-east-1a
+tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
+status     ACTIVE
+=========  ====================================
+```
+
+同じ名前のネットワークも作れてしまいます。
+同じ名前だとわかりづらくなるので、一意に区別できる意味のある名前が好ましいでしょう。
+
+
+### k5-list-networks.py
+
+ネットワークを作成したら、一覧で確認します。
+
+- GET /v2.0/networks
+- List networks
+- テナントがアクセスするネットワークの一覧を表示する
+
+```
+bash-4.4$ ./k5-list-networks.py
+GET /v2.0/networks
+====================================  ===================  ================================  ==========  ========
+id                                    name                 tenant_id                         az          status
+====================================  ===================  ================================  ==========  ========
+375c49fa-a706-4676-b55b-2d3554e5db6a  inf_az2_ext-net01    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+4516097a-84dd-476f-824a-6b2fd3cc6499  inf_az2_ext-net05    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+852e40a7-82a3-4196-8b84-46f55d01ccba  inf_az2_ext-net02    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+abe76a93-87c3-4635-b0f3-40f794165c26  inf_az2_ext-net03    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+bfca06b3-0b23-433f-96af-4f54bf963e5f  inf_az2_ext-net04    31ceb599e8ff48aeb66f2fd748988960  jp-east-1b  ACTIVE
+6d9df982-7a89-462a-8b17-8a8e5befa63e  inf_az1_ext-net03    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+92f386c1-59fe-48ca-8cf9-b95f81920466  inf_az1_ext-net02    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+93a83e0e-424e-4e7d-8299-4bdea906354e  iida-test-network-1  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a  ACTIVE
+a4715541-c915-444b-bed6-99aa1e8b15c9  inf_az1_ext-net04    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+af4198a9-b392-493d-80ec-a7c6e5a1c22a  inf_az1_ext-net01    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+cd4057bd-f72e-4244-a7dd-1bcb2775dd67  inf_az1_ext-net05    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+====================================  ===================  ================================  ==========  ========
+```
+
+何やらたくさんネットワークがありますが、名前が *inf_* で始まるものは最初から存在するもので、インターネット向けのものです。
+*iida-test-network-1* という名前で作成したものは *93a83e0e-424e-4e7d-8299-4bdea906354e* というIDになっていることが確認できます。
+
+
+### k5-create-subnet.py
+
+ネットワークと1:1に対応するサブネットを作成します。
+
+- POST /v2.0/subnets
+- Create subnet
+- 指定したネットワーク上のサブネットを作成する
+
+
+ネットワークIDは *93a83e0e-424e-4e7d-8299-4bdea906354e* に紐付けます。
+
+名前は *iida-subnet-1* とします。
+
+アドレス(cidr)は *192.168.0.0/24* とします。
+
+```
+bash-4.4$ ./k5-create-subnet.py
+POST /v2.0/subnets
+===========  ====================================
+name         iida-subnet-1
+id           38701f66-4610-493f-9c15-78f81917f362
+az           jp-east-1a
+cidr         192.168.0.0/24
+gateway_ip   192.168.0.1
+tenant_id    a5001a8b9c4a4712985c11377bd6d4fe
+network_id   93a83e0e-424e-4e7d-8299-4bdea906354e
+enable_dhcp  True
+===========  ====================================
+```
+
+ゲートウェイのIPアドレスは *192.168.0.1* が自動で選ばれています。
+指定しない場合はdhcpが有効になります。
+
+
+### k5-show-network.py
+
+特定のネットワークの情報を表示します。
+
+- GET /v2.0/networks/{network_id}
+- Show network
+- 指定したネットワークの情報を表示する
+
+作成したネットワーク *93a83e0e-424e-4e7d-8299-4bdea906354e* について表示すると、このようになります。
+
+```
+bash-4.4$ ./k5-show-network.py 93a83e0e-424e-4e7d-8299-4bdea906354e
+GET /v2.0/networks/{network_id}
+===================  ====================================  ==========  ========
+name                 id                                    az          status
+===================  ====================================  ==========  ========
+iida-test-network-1  93a83e0e-424e-4e7d-8299-4bdea906354e  jp-east-1a  ACTIVE
+===================  ====================================  ==========  ========
+
+====================================
+subnets
+====================================
+38701f66-4610-493f-9c15-78f81917f362
+====================================
+```
+
+サブネットが一つ、対応付けられていることが確認できます。
+
+
+### k5-show-subnet.py
+
+特定のサブネットの情報を表示します。
+
+- GET /v2.0/subnets/{subnet_id}
+- Show subnet
+- 指定したサブネットの情報を表示する
+
+作成時に得られる情報と同じものが得られます。
+
+```
+bash-4.4$ ./k5-show-subnet.py 38701f66-4610-493f-9c15-78f81917f362
+GET /v2.0/subnets/{subnet_id}
+===========  ====================================
+name         iida-subnet-1
+id           38701f66-4610-493f-9c15-78f81917f362
+az           jp-east-1a
+cidr         192.168.0.0/24
+gateway_ip   192.168.0.1
+tenant_id    a5001a8b9c4a4712985c11377bd6d4fe
+network_id   93a83e0e-424e-4e7d-8299-4bdea906354e
+enable_dhcp  True
+===========  ====================================
+```
+
+### k5-create-port.py
+
+ネットワーク配下にサブネットを紐付けた後、ポートを作成します。
+
+- POST /v2.0/ports
+- Create port
+- ポートを作成する
+
+ネットワークIDは *93a83e0e-424e-4e7d-8299-4bdea906354e* (iida-test-network-1)の中に作成します。
+
+このネットワークにはサブネットID *38701f66-4610-493f-9c15-78f81917f362* (iida-subnet-1)が紐付けられています。
+このサブネットは *192.168.0.0/24* のアドレスを持っています。
+
+固定IPアドレスとして *192.168.0.100* を指定して作成します。
+
+```
+bash-4.4$ ./k5-create-port.py
+POST /v2.0/ports
+=================  ====================================
+name               iida-network-1-port-1
+id                 802c2a2d-5e3e-41c8-8a94-c6430bf48a80
+az                 jp-east-1a
+tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
+status             DOWN
+admin_state_up     True
+device_owner
+device_id
+network_id         93a83e0e-424e-4e7d-8299-4bdea906354e
+binding:vnic_type  normal
+mac_address        fa:16:3e:49:02:6d
+=================  ====================================
+
+=============  ====================================
+ip_address     subnet_id
+=============  ====================================
+192.168.0.100  38701f66-4610-493f-9c15-78f81917f362
+=============  ====================================
+```
+
+MACアドレスは自動採番され、 *fa:16:3e:49:02:6d* が割り当てられました。
+オーナーとなるデバイスがまだ存在しませんので、device_ownerは空白です。
+
+
+### k5-connect-network-connector-endpoint.py
+
+ネットワークコネクタエンドポイントにポートを紐付けます。
+
+- PUT /v2.0/network_connector_endpoints{network connector endpoint id}/connect
+- Connect Network Connector Endpoint
+- ネットワークコネクタエンドポイントにインターフェイスを接続する
+
+コネクターエンドポイントID *ed44d452-cbc4-4f4c-9c87-03fdf4a7c965* (iida-test-network-connecotor-endpoint-1)にポートを割り当てます。
+
+ポートは事前に作成しておいた *863f2404-4a92-4991-8fab-e4312682dd86* (iida-network-1-port-1)を使います。
+
+```
+bash-4.4$ ./k5-connect-network-connector-endpoint.py
+status_code: 200
+{'interface': {'port_id': '863f2404-4a92-4991-8fab-e4312682dd86'}}
+```
+
+ステータスコード200が返ってくれば成功です。
+
+この状態でポートの情報を調べます。
+
+```
+bash-4.4$ ./k5-show-port.py 863f2404-4a92-4991-8fab-e4312682dd86
+GET /v2.0/ports/{port_id}
+=================  ====================================
+name               iida-network-1-port-1
+id                 863f2404-4a92-4991-8fab-e4312682dd86
+az                 jp-east-1a
+tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
+status             ACTIVE
+admin_state_up     True
+device_owner       network:router_interface
+device_id          63c440e0-e082-4214-ae6e-565eba16e863
+network_id         93a83e0e-424e-4e7d-8299-4bdea906354e
+binding:vnic_type  normal
+mac_address        fa:16:3e:ad:e9:5c
+=================  ====================================
+
+=============  ====================================
+ip_address     subnet_id
+=============  ====================================
+192.168.0.100  38701f66-4610-493f-9c15-78f81917f362
+=============  ====================================
+```
+
+ポートにdevice_ownerが設定され、 *network:router_interface* が割り当てられました。
+デバイスのIDは *63c440e0-e082-4214-ae6e-565eba16e863* となっています。
+これはネットワークコネクタエンドポイント**ではありません**。
+
+マニュアルには、
+
+> ID for internal control is displayed in device_id of port information after the port
+> connected to Network Connector Endpoint.
+
+と書かれていますので、内部の制御ポートのことのようです。
+
+
+### k5-disconnect-network-connector-endpoint.py
+
+コネクタエンドポイントとポートの接続を解消します。
+
+> 注意！
+>
+> 実行するとポートそのものが削除されてしまいます！
+
+- PUT /v2.0/network_connector_endpoints/{network connector endpoint id}/disconnect
+- Disconnect Network Connector Endpoint
+- ネットワークコネクタエンドポイントからインターフェイスを接続解除する
+
+
+```
+bash-4.4$ ./k5-disconnect-network-connector-endpoint.py
+status_code: 200
+{'interface': {'port_id': '863f2404-4a92-4991-8fab-e4312682dd86'}}
+```
+
 
 

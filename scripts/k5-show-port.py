@@ -10,28 +10,28 @@ Show port
 """
 実行例
 
-bash-4.4$ ./k5-show-port.py 16fbf915-3399-4721-b5b8-e41882da268e
+bash-4.4$ ./k5-show-port.py 802c2a2d-5e3e-41c8-8a94-c6430bf48a80
 GET /v2.0/ports/{port_id}
 =================  ====================================
 name               iida-network-1-port-1
-id                 16fbf915-3399-4721-b5b8-e41882da268e
+id                 802c2a2d-5e3e-41c8-8a94-c6430bf48a80
 az                 jp-east-1a
 tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
 status             DOWN
 admin_state_up     True
 device_owner
 device_id
-network_id         ce5ae176-3478-45c0-9a8f-59975e4ba28d
+network_id         93a83e0e-424e-4e7d-8299-4bdea906354e
 binding:vnic_type  normal
-mac_address        fa:16:3e:ff:98:a8
+mac_address        fa:16:3e:49:02:6d
 =================  ====================================
 
 =============  ====================================
 ip_address     subnet_id
 =============  ====================================
-192.168.0.100  8ed6dd7b-2ae3-4f68-81c9-e5d9e074b67a
+192.168.0.100  38701f66-4610-493f-9c15-78f81917f362
 =============  ====================================
-"""
+bash-4.4$ ]"""
 
 import json
 import logging
