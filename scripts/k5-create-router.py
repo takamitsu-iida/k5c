@@ -65,7 +65,7 @@ except ImportError as e:
 #
 def main(name="", az="", dump=False):
   """
-  ネットワークを作成します。
+  ルータを作成します。
   """
   # 接続先URL
   url = k5config.EP_NETWORK +  "/v2.0/routers"
@@ -104,7 +104,7 @@ def main(name="", az="", dump=False):
     logging.error("no data found")
     return r
 
-  # 作成したネットワークの情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
+  # 作成したルータの情報はデータオブジェクトの中の'router'キーにオブジェクトとして入っている
   #"data": {
   #  "router": {
   #    "admin_state_up": true,
