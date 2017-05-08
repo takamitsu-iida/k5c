@@ -60,7 +60,7 @@ except ImportError as e:
 def main(dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_USERS
+  url = k5config.EP_IDENTITY + "/v3/users?domain_id=" + k5config.DOMAIN_ID
 
   # Clientクラスをインスタンス化
   c = k5c.Client()

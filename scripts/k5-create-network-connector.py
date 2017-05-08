@@ -76,7 +76,7 @@ except ImportError as e:
 def main(name="", nc_pool_id="", tenant_id="", dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK_CONNECTORS
+  url = k5config.EP_NETWORK + "/v2.0/network_connector_endpoints"
 
   # 作成するネットワークコネクタのオブジェクト
   nc_object = {

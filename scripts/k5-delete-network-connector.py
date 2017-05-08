@@ -78,7 +78,7 @@ except ImportError:
 def main(nc_id=''):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK_CONNECTORS + "/" + nc_id
+  url = k5config.EP_NETWORK + "/v2.0/network_connectors/" + nc_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()

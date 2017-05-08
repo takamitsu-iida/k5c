@@ -34,18 +34,6 @@ EP_IDENTITY = "https://identity." + REGION + ".cloud.global.fujitsu.com"
 EP_NETWORK = "https://networking." + REGION + ".cloud.global.fujitsu.com"
 
 #
-# URLショートカット
-#
-URL_TOKEN = EP_TOKEN + "/v3/auth/tokens"
-URL_USERS = EP_IDENTITY + "/v3/users?domain_id=" + DOMAIN_ID
-URL_SUBNETS = EP_NETWORK + "/v2.0/subnets"
-URL_NETWORKS = EP_NETWORK + "/v2.0/networks"
-URL_NETWORK_CONNECTOR_POOLS = EP_NETWORK + "/v2.0/network_connector_pools"
-URL_NETWORK_CONNECTORS = EP_NETWORK + "/v2.0/network_connectors"
-URL_NETWORK_CONNECTOR_ENDPOINTS = EP_NETWORK + "/v2.0/network_connector_endpoints"
-URL_PORTS = EP_NETWORK + "/v2.0/ports"
-
-#
 # プロキシ設定
 #
 USE_PROXY = False

@@ -54,7 +54,7 @@ except ImportError:
 def main(ncep_id="", port_id="", dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_NETWORK_CONNECTOR_ENDPOINTS + "/" + ncep_id + "/disconnect"
+  url = k5config.EP_NETWORK + "/v2.0/network_connector_endpoints/" + ncep_id + "/disconnect"
 
   # 切断対象となるインタフェースのオブジェクト
   interface_object = {

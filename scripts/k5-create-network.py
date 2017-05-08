@@ -68,7 +68,7 @@ def main(name="", az="", dump=False):
   ネットワークを作成します。
   """
   # 接続先URL
-  url = k5config.URL_NETWORKS
+  url = k5config.EP_NETWORK + "/v2.0/networks"
 
   # 作成するネットワークのオブジェクト
   network_object = {

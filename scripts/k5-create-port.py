@@ -81,7 +81,7 @@ except ImportError as e:
 def main(name="", network_id="", subnet_id="", ip_address="", admin_state_up=True, az="", dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_PORTS
+  url = k5config.EP_NETWORK + "/v2.0/ports"
 
   # 固定IPアドレスの指定(配列で指定)
   fixed_ips = [{

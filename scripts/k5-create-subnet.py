@@ -85,7 +85,7 @@ except ImportError as e:
 def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=None, dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_SUBNETS
+  url = k5config.EP_NETWORK + "/v2.0/subnets"
 
   # 作成するサブネットのオブジェクト
   subnet_object = {

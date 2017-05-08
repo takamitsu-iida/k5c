@@ -69,7 +69,7 @@ except ImportError:
 def main(subnet_id=''):
   """メイン関数"""
   # 接続先
-  url = k5config.URL_SUBNETS + "/" + subnet_id
+  url = k5config.EP_NETWORK + "/v2.0/subnets/" + subnet_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()

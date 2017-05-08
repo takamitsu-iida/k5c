@@ -46,7 +46,7 @@ class Client(object):
     self._username = k5config.USERNAME
     self._password = k5config.PASSWORD
     self._proxies = k5config.PROXIES
-    self._url_token = k5config.URL_TOKEN
+    self._url_token = k5config.EP_TOKEN + "/v3/auth/tokens"
     self._domain_name = k5config.DOMAIN_NAME
     self._project_id = k5config.PROJECT_ID
 
