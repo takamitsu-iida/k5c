@@ -10,6 +10,10 @@ NOTE:
 　・network_idは必須（つまり、先にネットワークを作成しておく必要がある）
 　・ip_versionは必須
 　・cidrは必須
+
+　・固定IPの場合でもDHCPを使ってアドレスを配布するのでenable_dhcpは常時True
+　・DNSサーバはDHCPで配られるので極力設定する
+　・同じセグメント上にルータが複数いる場合、仮想サーバにDHCPで経路情報を配布するためhost_routesを設定する
 """
 
 """
@@ -78,7 +82,7 @@ except ImportError as e:
 #
 # メイン
 #
-def main(name="", network_id="", ip_version=4, cidr="", az="", dump=False):
+def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=None, dump=False):
   """メイン関数"""
   # 接続先
   url = k5config.URL_SUBNETS
@@ -90,9 +94,14 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dump=False):
       'network_id': network_id,
       'ip_version': ip_version,
       'cidr': cidr,
+      'enable_dhcp': True,  # 常時True
       'availability_zone': az
     }
   }
+
+  # DNSが指定されていたら追加
+  if dns_nameservers:
+    subnet_object['dns_nameservers'] = dns_nameservers
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -163,13 +172,10 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dump=False):
 
 if __name__ == '__main__':
   # 作成するサブネットの名前
-  # name = "iida-subnet-1"
+  # name="iida-subnet-1"
 
   # 所属させるネットワークID
-  # network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
-
-  # IPバージョン
-  # ip_version = 4
+  # network_id="93a83e0e-424e-4e7d-8299-4bdea906354e"
 
   # サブネットのアドレス
   # cidr = "192.168.0.0/24"
@@ -178,10 +184,18 @@ if __name__ == '__main__':
   # az = "jp-east-1a"
   # az = "jp-east-1b"
 
+  # DNSサーバは環境にあわせて設定する
+  # AZ1の場合
+  # dns_nameservers=["133.162.193.9", "133.162.193.10"]
+  # AZ2の場合
+  # dns_nameservers=["133.162.201.9", "133.162.201.10"]
+  # それ以外
+  # dns_nameservers=["8.8.8.7", "8.8.8.8"]
+
   main(
     name="iida-subnet-1",
     network_id="93a83e0e-424e-4e7d-8299-4bdea906354e",
-    ip_version=4,
     cidr="192.168.0.0/24",
+    dns_nameservers=["133.162.193.9", "133.162.193.10"],  # AZ1
     az="jp-east-1a",
     dump=False)
