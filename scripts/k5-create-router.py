@@ -127,7 +127,7 @@ def main(name="", az="", dump=False):
   rtrs.append(['status', rtr.get('status', '')])
   rtrs.append(['admin_state_up', rtr.get('admin_state_up', '')])
 
-  # ネットワーク情報を表示
+  # 表示
   print("POST /v2.0/routers")
   print(tabulate(rtrs, tablefmt='rst'))
 
