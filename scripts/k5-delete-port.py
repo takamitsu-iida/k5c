@@ -86,8 +86,15 @@ def main(port_id=''):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "port_id"))
-    exit(1)
 
-  main(port_id=sys.argv[1])
+  def run_main():
+    """メイン関数を実行します"""
+    import argparse
+    parser = argparse.ArgumentParser(description='Delete port.')
+    parser.add_argument('port_id, help="Port id')
+    args = parser.parse_args()
+    port_id = args.port_id
+    main(port_id=port_id)
+
+  # 実行
+  run_main()

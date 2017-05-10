@@ -83,8 +83,15 @@ def main(router_id=''):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "router_id"))
-    exit(1)
 
-  main(router_id=sys.argv[1])
+  def run_main():
+    """メイン関数を実行します"""
+    import argparse
+    parser = argparse.ArgumentParser(description='Delete router.')
+    parser.add_argument('subnet_id, help="Router id')
+    args = parser.parse_args()
+    router_id = args.router_id
+    main(router_id=router_id)
+
+  # 実行
+  run_main()

@@ -67,10 +67,10 @@ except ImportError as e:
 #
 # メイン
 #
-def main(nc_id=''):
+def main(network_connector_id=''):
   """メイン関数"""
   # 接続先
-  url = k5config.EP_NETWORK + "/v2.0/network_connectors/" + nc_id
+  url = k5config.EP_NETWORK + "/v2.0/network_connectors/" + network_connector_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -95,8 +95,15 @@ def main(nc_id=''):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "network_connector_id"))
-    exit(1)
 
-  main(nc_id=sys.argv[1])
+  def run_main():
+    """メイン関数を実行します"""
+    import argparse
+    parser = argparse.ArgumentParser(description='Delete network connector.')
+    parser.add_argument('network_connector_id, help="Network connector id')
+    args = parser.parse_args()
+    network_connector_id = args.network_connector_id
+    main(network_connector_id=network_connector_id)
+
+  # 実行
+  run_main()

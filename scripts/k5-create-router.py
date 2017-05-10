@@ -131,5 +131,33 @@ def main(name="", az="", dump=False):
 
 
 if __name__ == '__main__':
+
+  def run_main(DEBUG=False):
+    """メイン関数を呼び出します"""
+    if DEBUG:
+      # 作成するルータの名前
+      name = "iida-ext-router-1"
+
+      # 作成する場所
+      az = "jp-east-1a"
+      # az = "jp-east-1b"
+
+      # jsonをダンプ
+      dump = False
+
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='Create router.')
+      parser.add_argument('--name', required=True, help='The router name.')
+      parser.add_argument('--az', required=True, help='The Availability Zone name.')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+
+      name = args.name
+      az = args.az
+      dump = args.dump
+
+    main(name=name, az=az, dump=dump)
+
   # 実行
-  main(name="iida-ext-router-1", az="jp-east-1a", dump=False)
+  run_main()

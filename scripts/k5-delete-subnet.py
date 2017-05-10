@@ -88,8 +88,15 @@ def main(subnet_id=''):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "subnet_id"))
-    exit(1)
 
-  main(subnet_id=sys.argv[1])
+  def run_main():
+    """メイン関数を実行します"""
+    import argparse
+    parser = argparse.ArgumentParser(description='Delete subnet.')
+    parser.add_argument('subnet_id, help="Subnet id')
+    args = parser.parse_args()
+    subnet_id = args.subnet_id
+    main(subnet_id=subnet_id)
+
+  # 実行
+  run_main()

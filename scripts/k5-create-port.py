@@ -75,25 +75,27 @@ except ImportError as e:
 #
 def main(name="", network_id="", subnet_id="", ip_address="", admin_state_up=True, az="", dump=False):
   """メイン関数"""
+  # pylint: disable=too-many-arguments
+
   # 接続先
   url = k5config.EP_NETWORK + "/v2.0/ports"
-
-  # 固定IPアドレスの指定(配列で指定)
-  fixed_ips = [{
-    'subnet_id': subnet_id,
-    'ip_address': ip_address
-  }]
 
   # 作成するポートのオブジェクト
   port_object = {
     'port': {
       'name': name,
       'network_id': network_id,
-      'fixed_ips': fixed_ips,  # 固定アドレスを指定する場合のみ
       'admin_state_up': admin_state_up,
       'availability_zone': az
     }
   }
+
+  # 固定IPアドレスの指定(配列で指定)
+  if ip_address:
+    port_object['port']['fixed_ips'] = [{
+      'subnet_id': subnet_id,
+      'ip_address': ip_address
+    }]
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -179,28 +181,49 @@ def main(name="", network_id="", subnet_id="", ip_address="", admin_state_up=Tru
 
 if __name__ == '__main__':
 
-  # 作成するポートの名前
-  # name = "iida-network-1-port-1"
+  def run_main(DEBUG=False):
+    """メイン関数を呼び出します"""
+    if DEBUG:
+      # 作成するポートの名前
+      name = "iida-network-1-port-1"
 
-  # 所属させるネットワークID
-  # network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+      # 所属させるネットワークID
+      network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
 
-  # 固定IPを指定する場合に必要
-  # そのネットワークに対応付けられるサブネットID
-  # subnet_id = "38701f66-4610-493f-9c15-78f81917f362"
+      # 固定IPを指定する場合に必要
+      # そのネットワークに対応付けられるサブネットID
+      subnet_id = "38701f66-4610-493f-9c15-78f81917f362"
 
-  # 固定IPを指定する場合に必要
-  # そのサブネットの中からこのポートに割り当てたいIPアドレスを指定する
-  # ip_address = "192.168.0.100"
+      # 固定IPを指定する場合に必要
+      # そのサブネットの中からこのポートに割り当てたいIPアドレスを指定する
+      ip_address = "192.168.0.100"
 
-  # 作成する場所
-  # az = "jp-east-1a"
-  # az = "jp-east-1b"
+      # 作成する場所
+      az = "jp-east-1a"
+      # az = "jp-east-1b"
 
-  main(
-    name="iida-network-1-port-1",
-    network_id="93a83e0e-424e-4e7d-8299-4bdea906354e",
-    subnet_id="38701f66-4610-493f-9c15-78f81917f362",
-    ip_address="192.168.0.100",
-    az="jp-east-1a",
-    dump=False)
+      # jsonをダンプ
+      dump = False
+
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='Create port.')
+      parser.add_argument('--name', required=True, help='The port name.')
+      parser.add_argument('--network_id', required=True, help='The ID of the the network.')
+      parser.add_argument('--subnet_id', required=True, help='The ID of the the subnet.')
+      parser.add_argument('--ip_address', default='', help='Fixed ip address.')
+      parser.add_argument('--az', required=True, help='The Availability Zone name.')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+
+      name = args.name
+      network_id = args.network_id
+      subnet_id = args.subnet_id
+      ip_address = args.ip_address
+      az = args.az
+      dump = args.dump
+
+    main(name=name, network_id=network_id, subnet_id=subnet_id, ip_address=ip_address, az=az, dump=dump)
+
+  # 実行
+  run_main()

@@ -123,17 +123,36 @@ def main(name="", nc_pool_id="", tenant_id="", dump=False):
 
 
 if __name__ == '__main__':
-  # 作成するネットワークコネクタの名前
-  # name = "iida-test-network-connecotor"
 
-  # 所属させるネットワークコネクタプールID
-  # nc_pool_id = "e0a80446-203e-4b28-abec-d4b031d5b63e"
+  def run_main(DEBUG=False):
+    """メイン関数を呼び出します"""
+    if DEBUG:
+      # 作成するネットワークコネクタの名前
+      name = "iida-test-network-connecotor"
 
-  # 所属させるテナントID
-  # tenant_id = k5config.TENANT_ID
+      # 所属させるネットワークコネクタプールID
+      nc_pool_id = "e0a80446-203e-4b28-abec-d4b031d5b63e"
 
-  main(
-    name="iida-test-network-connecotor",
-    nc_pool_id="e0a80446-203e-4b28-abec-d4b031d5b63e",
-    tenant_id=k5config.TENANT_ID,
-    dump=False)
+      # 所属させるテナントID
+      tenant_id = k5config.TENANT_ID
+
+      # jsonをダンプ
+      dump = False
+
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='Create network connector.')
+      parser.add_argument('--name', required=True, help='The network connector name.')
+      parser.add_argument('--nc_pool_id', required=True, help='The network connector pool id.')
+      parser.add_argument('--tenant_id', required=True, help='The tenant id.')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+      name = args.name
+      nc_pool_id = args.nc_pool_id
+      tenant_id = args.tenant_id
+      dump = args.dump
+
+    main(name=name, nc_pool_id=nc_pool_id, tenant_id=tenant_id, dump=dump)
+
+  # 実行
+  run_main()

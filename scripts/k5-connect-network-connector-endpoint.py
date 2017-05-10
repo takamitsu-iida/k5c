@@ -101,13 +101,30 @@ def main(ncep_id="", port_id="", dump=False):
 
 if __name__ == '__main__':
 
-  # 対象のコネクタエンドポイントID
-  # ncep_id="ed44d452-cbc4-4f4c-9c87-03fdf4a7c965"
+  def run_main(DEBUG=False):
+    """メイン関数を呼び出します"""
+    if DEBUG:
 
-  # 接続するポートID
-  # port_id="305485fb-3bff-4230-a1f6-f594ec4ea1fb"
+      # 対象のコネクタエンドポイントID
+      ncep_id = "ed44d452-cbc4-4f4c-9c87-03fdf4a7c965"
 
-  main(
-    ncep_id="ed44d452-cbc4-4f4c-9c87-03fdf4a7c965",
-    port_id="305485fb-3bff-4230-a1f6-f594ec4ea1fb",
-    dump=False)
+      # 接続するポートID
+      port_id = "305485fb-3bff-4230-a1f6-f594ec4ea1fb"
+
+      # jsonをダンプ
+      dump = False
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='Connect network connector endpoint.')
+      parser.add_argument('--ncep_id', required=True, help='Network connector endpoint id.')
+      parser.add_argument('--port_id', required=True, help='Port id.')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+      ncep_id = args.ncep_id
+      port_id = args.port_id
+      dump = args.dump
+
+    main(ncep_id=ncep_id, port_id=port_id, dump=dump)
+
+  # 実行
+  run_main()

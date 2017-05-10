@@ -79,6 +79,8 @@ except ImportError as e:
 #
 def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=None, dump=False):
   """メイン関数"""
+  # pylint: disable=too-many-arguments
+
   # 接続先
   url = k5config.EP_NETWORK + "/v2.0/subnets"
 
@@ -165,46 +167,48 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=N
   return r
 
 
-def run_main(DEBUG=False):
-  """メイン関数を呼び出します"""
-  if DEBUG:
-    # 作成するサブネットの名前
-    a_name = "iida-subnet-1"
-
-    # 所属させるネットワークID
-    a_network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
-
-    # サブネットのアドレス
-    a_cidr = "192.168.0.0/24"
-
-    # 作成する場所
-    a_az = "jp-east-1a"
-    # a_az = "jp-east-1b"
-
-    # DNSサーバは環境にあわせて設定する
-    a_dns = ["133.162.193.9", "133.162.193.10"]  # AZ1の場合
-    # a_dns = ["133.162.201.9", "133.162.201.10"]  # AZ2の場合
-    # a_dns = ["8.8.8.7", "8.8.8.8"]  # GoogleのDNS
-
-  else:
-    # 実行時に引数としてパラメータを渡す
-    import argparse
-    parser = argparse.ArgumentParser(description='Create subnet')
-    parser.add_argument('--name', required=True, help='The subnet name.')
-    parser.add_argument('--network_id', required=True, help='The ID of the attached network.')
-    parser.add_argument('--cidr', required=True, help='The CIDR.')
-    parser.add_argument('--az', required=True, help='The Availability Zone name.')
-    parser.add_argument('--dns', nargs='*', default=[], help='DNS server')
-    args = parser.parse_args()
-
-    a_name = args.name
-    a_network_id = args.network_id
-    a_cidr = args.network_id
-    a_az = args.az
-    a_dns = args.dns
-
-  main(name=a_name, network_id=a_network_id, cidr=a_cidr, dns_nameservers=a_dns, az=a_az, dump=False)
-
-
 if __name__ == '__main__':
+
+  def run_main(DEBUG=False):
+    """メイン関数を呼び出します"""
+    if DEBUG:
+      # 作成するサブネットの名前
+      name = "iida-subnet-1"
+
+      # 所属させるネットワークID
+      network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+
+      # サブネットのアドレス
+      cidr = "192.168.0.0/24"
+
+      # 作成する場所
+      az = "jp-east-1a"
+      # az = "jp-east-1b"
+
+      # DNSサーバは環境にあわせて設定する
+      dns = ["133.162.193.9", "133.162.193.10"]  # AZ1の場合
+      # dns = ["133.162.201.9", "133.162.201.10"]  # AZ2の場合
+      # dns = ["8.8.8.7", "8.8.8.8"]  # GoogleのDNS
+
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='Create subnet.')
+      parser.add_argument('--name', required=True, help='The subnet name.')
+      parser.add_argument('--network_id', required=True, help='The ID of the attached network.')
+      parser.add_argument('--cidr', required=True, help='The CIDR.')
+      parser.add_argument('--az', required=True, help='The Availability Zone name.')
+      parser.add_argument('--dns', nargs='*', default=[], help='DNS server')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+
+      name = args.name
+      network_id = args.network_id
+      cidr = args.network_id
+      az = args.az
+      dns = args.dns
+      dump = args.dump
+
+    main(name=name, network_id=network_id, cidr=cidr, dns_nameservers=dns, az=az, dump=dump)
+
+  # 実行
   run_main()

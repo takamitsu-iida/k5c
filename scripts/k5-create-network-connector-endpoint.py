@@ -155,28 +155,50 @@ def main(name="", nc_id="", endpoint_type="availability_zone", az="", tenant_id=
 
 if __name__ == '__main__':
 
-  # 作成するネットワークコネクタの名前
-  # name = "iida-test-network-connecotor-endpoint-1"
+  def run_main(DEBUG=False):
+    """メイン関数を呼び出します"""
+    if DEBUG:
+      # 作成するネットワークコネクタエンドポイントの名前
+      name = "iida-test-network-connecotor-endpoint-1"
 
-  # 所属させるネットワークコネクタID
-  # nc_id = "eceb05fd-8aee-470b-bdca-95f789f181c1"
+      # 所属させるネットワークコネクタID
+      nc_id = "eceb05fd-8aee-470b-bdca-95f789f181c1"
 
-  # エンドポイントタイプ
-  # "availability_zone" or "remote"
-  # ここではazで固定
-  # endpoint_type = "availability_zone"
+      # エンドポイントタイプ
+      # "availability_zone" or "remote"
+      # ここではazで固定
+      endpoint_type = "availability_zone"
 
-  # ロケーション
-  # エンドポイントタイプがavailability_zoneの場合はその名前
-  # az = "jp-east-1a"  # or "jp-east-1b"
+      # ロケーション
+      # エンドポイントタイプがavailability_zoneの場合はその名前
+      az = "jp-east-1a"  # or "jp-east-1b"
 
-  # 所属させるテナントID
-  # tenant_id = k5config.TENANT_ID
+      # 所属させるテナントID
+      tenant_id = k5config.TENANT_ID
 
-  main(
-    name="iida-test-network-connecotor-endpoint-1",
-    nc_id="eceb05fd-8aee-470b-bdca-95f789f181c1",
-    endpoint_type="availability_zone",
-    az="jp-east-1a",
-    tenant_id=k5config.TENANT_ID,
-    dump=False)
+      # jsonをダンプ
+      dump = False
+
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='Create network connector endpoint.')
+      parser.add_argument('--name', required=True, help='The network connector endpoint name.')
+      parser.add_argument('--nc_id', required=True, help='The network connector id.')
+      parser.add_argument('--az', required=True, help='The availability zone.')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+      name = args.name
+      nc_id = args.nc_id
+      az = args.az
+      dump = args.dump
+
+      # エンドポイントタイプ "availability_zone" or "remote"
+      endpoint_type = "availability_zone"
+
+      # 所属させるテナントID
+      tenant_id = k5config.TENANT_ID
+
+    main(name=name, nc_id=nc_id, az=az, endpoint_type=endpoint_type, tenant_id=tenant_id, dump=dump)
+
+  # 実行
+  run_main()

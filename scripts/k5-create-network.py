@@ -118,11 +118,31 @@ def main(name="", az="", dump=False):
 
 
 if __name__ == '__main__':
-  # 作成するネットワークの名前
-  # name = "iida-test-network-1"
 
-  # 作成する場所
-  # az = "jp-east-1a"
+  def run_main(DEBUG=False):
+    """メイン関数を呼び出します"""
+    if DEBUG:
+      # 作成するネットワークの名前
+      name = "iida-test-network-1"
+
+      # 作成する場所
+      az = "jp-east-1a"
+
+      # jsonをダンプ
+      dump = False
+
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='Create network.')
+      parser.add_argument('--name', required=True, help='The network name.')
+      parser.add_argument('--az', required=True, help='The Availability Zone name.')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+      name = args.name
+      az = args.az
+      dump = args.dump
+
+    main(name=name, az=az, dump=dump)
 
   # 実行
-  main(name="iida-test-network-1", az="jp-east-1a", dump=False)
+  run_main()

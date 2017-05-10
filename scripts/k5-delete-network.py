@@ -78,8 +78,15 @@ def main(network_id=''):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "network_id"))
-    exit(1)
 
-  main(network_id=sys.argv[1])
+  def run_main():
+    """メイン関数を実行します"""
+    import argparse
+    parser = argparse.ArgumentParser(description='Delete network.')
+    parser.add_argument('network_id, help="Network id')
+    args = parser.parse_args()
+    network_id = args.network_id
+    main(network_id=network_id)
+
+  # 実行
+  run_main()

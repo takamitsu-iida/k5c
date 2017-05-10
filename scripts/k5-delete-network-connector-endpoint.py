@@ -97,8 +97,15 @@ def main(ncep_id=''):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "network_connector_endpoint_id"))
-    exit(1)
 
-  main(ncep_id=sys.argv[1])
+  def run_main():
+    """メイン関数を実行します"""
+    import argparse
+    parser = argparse.ArgumentParser(description='Delete network connector endpoint.')
+    parser.add_argument('ncep_id, help="Network connector endpoint id')
+    args = parser.parse_args()
+    ncep_id = args.ncep_id
+    main(ncep_id=ncep_id)
+
+  # 実行
+  run_main()
