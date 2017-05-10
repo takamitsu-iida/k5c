@@ -25,10 +25,6 @@ import logging
 import os
 import sys
 
-# 通常はWARN
-# 多めに情報を見たい場合はINFO
-logging.basicConfig(level=logging.WARN)
-
 def here(path=''):
   """相対パスを絶対パスに変換して返却します"""
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
@@ -40,20 +36,19 @@ sys.path.append(here("../lib/site-packages"))
 try:
   from k5c import k5c
 except ImportError as e:
-  logging.error("k5cモジュールのインポートに失敗しました")
-  logging.error(e)
+  logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
 try:
   from k5c import k5config  # need info in k5config.py
-except ImportError:
-  logging.error("k5configモジュールの読み込みに失敗しました。")
+except ImportError as e:
+  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
   exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
-  logging.error("tabulateモジュールのインポートに失敗しました")
+  logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
 #
@@ -115,7 +110,22 @@ def main(ncep_id, dump=False):
 
 if __name__ == '__main__':
 
-  # 対象のコネクタエンドポイントID
-  # ncep_id="ed44d452-cbc4-4f4c-9c87-03fdf4a7c965"
+  def run_main(DEBUG=False):
+    """メイン関数を実行します"""
+    if DEBUG:
+      dump = False
+      # 対象のコネクタエンドポイントID
+      ncep_id = "ed44d452-cbc4-4f4c-9c87-03fdf4a7c965"
+    else:
+      import argparse
+      parser = argparse.ArgumentParser(description='List connected interfaces of network connector endpoint.')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      parser.add_argument('ncep_id', help='network connector endpoint id')
+      args = parser.parse_args()
+      dump = args.dump
+      ncep_id = args.ncep_id
 
-  main(ncep_id="ed44d452-cbc4-4f4c-9c87-03fdf4a7c965", dump=False)
+    main(dump=dump, ncep_id=ncep_id)
+
+  # 実行
+  run_main()

@@ -9,6 +9,9 @@ import os
 import pickle
 from threading import RLock
 
+# ロガー
+logger = logging.getLogger(__package__)
+
 
 class K5TokenManager(object):
   """接続状態を管理します"""
@@ -45,7 +48,7 @@ class K5TokenManager(object):
       with open(self.TOKEN_FILENAME, 'wb') as f:
         pickle.dump(token, f)
     except IOError as e:
-      logging.error(e)
+      logger.exception(e)
 
   def loadToken(self):
     """pickleでファイルに保存されているトークンを復元します"""
@@ -57,9 +60,9 @@ class K5TokenManager(object):
         token = pickle.load(f)
         return token
     except IOError as e:
-      logging.error(e)
+      logger.exception(e)
     except ValueError as e:
-      logging.error(e)
+      logger.exception(e)
     return None
 
   def isNotExpired(self, token):
@@ -95,24 +98,24 @@ class K5TokenManager(object):
     # まずはメモリキャッシュの有無を確認して、あればそれを返却
     token = self._token_json
     if token and self.isNotExpired(token):
-      logging.info("found token on memory cache")
+      logger.info("found token on memory cache")
       return token
-    logging.info("there is no token on memory cache")
+    logger.info("there is no token on memory cache")
 
     # メモリキャッシュにない場合は、ディスクから探す
     token = self.loadToken()
 
     # トークンがディスクに保存されていない
     if not token:
-      logging.info("there is no token on disk cache")
+      logger.info("there is no token on disk cache")
       return None
 
     # トークンの有効期間が切れてないか確認する
     if self.isNotExpired(token):
-      logging.info("found token on disk cache")
+      logger.info("found token on disk cache")
       self._token_json = token
       return token
-    logging.info("there is no available token on disk cache")
+    logger.info("there is no available token on disk cache")
     return None
 
   def lock(self):

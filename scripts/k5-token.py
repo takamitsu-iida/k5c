@@ -22,10 +22,6 @@ import logging
 import os
 import sys
 
-# 通常はWARN
-# 多めに情報を見たい場合はINFO
-logging.basicConfig(level=logging.WARN)
-
 def here(path=''):
   """相対パスを絶対パスに変換して返却します"""
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
@@ -37,9 +33,8 @@ sys.path.append(here("../lib/site-packages"))
 try:
   from k5c import k5c
 except ImportError as e:
-  logging.error("k5cモジュールのインポートに失敗しました")
-  logging.error(e)
-  exit()
+  logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
+  exit(1)
 
 
 def main():

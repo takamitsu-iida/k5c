@@ -48,10 +48,6 @@ import logging
 import os
 import sys
 
-# 通常はWARN
-# 多めに情報を見たい場合はINFO
-logging.basicConfig(level=logging.WARN)
-
 def here(path=''):
   """相対パスを絶対パスに変換して返却します"""
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
@@ -63,20 +59,19 @@ sys.path.append(here("../lib/site-packages"))
 try:
   from k5c import k5c
 except ImportError as e:
-  logging.error("k5cモジュールのインポートに失敗しました")
-  logging.error(e)
+  logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
 try:
   from k5c import k5config  # need info in k5config.py
-except ImportError:
-  logging.error("k5configモジュールの読み込みに失敗しました。")
+except ImportError as e:
+  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
   exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
-  logging.error("tabulateモジュールのインポートに失敗しました")
+  logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
 #
@@ -100,7 +95,7 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=N
   }
 
   # DNSが指定されていたら追加
-  if dns_nameservers:
+  if dns_nameservers and len(dns_nameservers) > 0:
     subnet_object['dns_nameservers'] = dns_nameservers
 
   # Clientクラスをインスタンス化
@@ -170,32 +165,46 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=N
   return r
 
 
+def run_main(DEBUG=False):
+  """メイン関数を呼び出します"""
+  if DEBUG:
+    # 作成するサブネットの名前
+    a_name = "iida-subnet-1"
+
+    # 所属させるネットワークID
+    a_network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+
+    # サブネットのアドレス
+    a_cidr = "192.168.0.0/24"
+
+    # 作成する場所
+    a_az = "jp-east-1a"
+    # a_az = "jp-east-1b"
+
+    # DNSサーバは環境にあわせて設定する
+    a_dns = ["133.162.193.9", "133.162.193.10"]  # AZ1の場合
+    # a_dns = ["133.162.201.9", "133.162.201.10"]  # AZ2の場合
+    # a_dns = ["8.8.8.7", "8.8.8.8"]  # GoogleのDNS
+
+  else:
+    # 実行時に引数としてパラメータを渡す
+    import argparse
+    parser = argparse.ArgumentParser(description='Create subnet')
+    parser.add_argument('--name', required=True, help='The subnet name.')
+    parser.add_argument('--network_id', required=True, help='The ID of the attached network.')
+    parser.add_argument('--cidr', required=True, help='The CIDR.')
+    parser.add_argument('--az', required=True, help='The Availability Zone name.')
+    parser.add_argument('--dns', nargs='*', default=[], help='DNS server')
+    args = parser.parse_args()
+
+    a_name = args.name
+    a_network_id = args.network_id
+    a_cidr = args.network_id
+    a_az = args.az
+    a_dns = args.dns
+
+  main(name=a_name, network_id=a_network_id, cidr=a_cidr, dns_nameservers=a_dns, az=a_az, dump=False)
+
+
 if __name__ == '__main__':
-  # 作成するサブネットの名前
-  # name="iida-subnet-1"
-
-  # 所属させるネットワークID
-  # network_id="93a83e0e-424e-4e7d-8299-4bdea906354e"
-
-  # サブネットのアドレス
-  # cidr = "192.168.0.0/24"
-
-  # 作成する場所
-  # az = "jp-east-1a"
-  # az = "jp-east-1b"
-
-  # DNSサーバは環境にあわせて設定する
-  # AZ1の場合
-  # dns_nameservers=["133.162.193.9", "133.162.193.10"]
-  # AZ2の場合
-  # dns_nameservers=["133.162.201.9", "133.162.201.10"]
-  # それ以外
-  # dns_nameservers=["8.8.8.7", "8.8.8.8"]
-
-  main(
-    name="iida-subnet-1",
-    network_id="93a83e0e-424e-4e7d-8299-4bdea906354e",
-    cidr="192.168.0.0/24",
-    dns_nameservers=["133.162.193.9", "133.162.193.10"],  # AZ1
-    az="jp-east-1a",
-    dump=False)
+  run_main()

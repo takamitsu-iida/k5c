@@ -30,10 +30,6 @@ import logging
 import os
 import sys
 
-# 通常はWARN
-# 多めに情報を見たい場合はINFO
-logging.basicConfig(level=logging.WARN)
-
 def here(path=''):
   """相対パスを絶対パスに変換して返却します"""
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
@@ -45,20 +41,19 @@ sys.path.append(here("../lib/site-packages"))
 try:
   from k5c import k5c
 except ImportError as e:
-  logging.error("k5cモジュールのインポートに失敗しました")
-  logging.error(e)
+  logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
 try:
   from k5c import k5config  # need info in k5config.py
-except ImportError:
-  logging.error("k5configモジュールの読み込みに失敗しました。")
+except ImportError as e:
+  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
   exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
-  logging.error("tabulateモジュールのインポートに失敗しました")
+  logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
 #
@@ -126,8 +121,17 @@ def main(network_connector_id='', dump=False):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) == 1:
-    print("Usage: {0} {1}".format(sys.argv[0], "network_connector_id"))
-    exit(1)
 
-  main(network_connector_id=sys.argv[1], dump=False)
+  def run_main():
+    """メイン関数を実行します"""
+    import argparse
+    parser = argparse.ArgumentParser(description='Show network connector.')
+    parser.add_argument('network_connector_id', help='Network connector id.')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
+    network_connector_id = args.network_connector_id
+    dump = args.dump
+    main(network_connector_id=network_connector_id, dump=dump)
+
+  # 実行
+  run_main()

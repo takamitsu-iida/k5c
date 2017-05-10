@@ -10,28 +10,86 @@ K5のREST APIへの接続機能を提供します。
 import functools  # デコレータを作るのに必要
 import json
 import logging
+import os
+import sys
 
-logging.basicConfig(level=logging.INFO)
+def here(path=''):
+  """相対パスを絶対パスに変換して返却します"""
+  return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+
+# アプリケーションのホームディレクトリ
+app_home = here("../..")
+
+# 自身の名前から拡張子を除いてプログラム名を得る
+app_name = os.path.splitext(os.path.basename(__file__))[0]
+
+# ログファイルの名前
+log_file = app_name + ".log"
+
+# ログファイルを置くディレクトリ
+log_dir = os.path.join(app_home, "log")
+try:
+  if not os.path.isdir(log_dir):
+    os.makedirs(log_dir)
+except OSError:
+  pass
+
+# ロギングの設定
+# レベルはこの順で下にいくほど詳細になる
+#   logging.CRITICAL
+#   logging.ERROR
+#   logging.WARNING --- 初期値はこのレベル
+#   logging.INFO
+#   logging.DEBUG
+#
+# ログの出力方法
+# logger.debug("debugレベルのログメッセージ")
+# logger.info("infoレベルのログメッセージ")
+# logger.warning("warningレベルのログメッセージ")
+
+# ロガーを取得
+logger = logging.getLogger(__package__)
+
+# ログレベル設定
+logger.setLevel(logging.INFO)
+
+# フォーマット
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# 標準出力へのハンドラ
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setFormatter(formatter)
+stdout_handler.setLevel(logging.WARNING)
+logger.addHandler(stdout_handler)
+
+# ログファイルのハンドラ
+file_handler = logging.FileHandler(os.path.join(log_dir, log_file), 'a+')
+file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+
+try:
+  from .k5tokenmanager import k5tokenmanager
+except ImportError as e:
+  logger.error("k5tokenmanagerモジュールのインポートに失敗しました。")
+  logger.exception(e)
+  exit(1)
+
+try:
+  from . import k5config  # need info in k5config.py
+except ImportError as e:
+  logger.error("k5configモジュールの読み込みに失敗しました。")
+  logger.exception(e)
+  exit(1)
 
 try:
   import requests
   # HTTPSを使用した場合に、証明書関連の警告を無視する
   requests.packages.urllib3.disable_warnings()
-except ImportError:
-  logging.error("requestsモジュールのインポートに失敗しました。")
-  exit()
-
-try:
-  from .k5tokenmanager import k5tokenmanager
-except ImportError:
-  logging.error("k5tokenmanagerモジュールのインポートに失敗しました。")
-  exit()
-
-try:
-  from . import k5config  # need info in k5config.py
-except ImportError:
-  logging.error("k5configモジュールの読み込みに失敗しました。")
-  exit()
+except ImportError as e:
+  logger.error("requestsモジュールのインポートに失敗しました。")
+  logger.exception(e)
+  exit(1)
 
 
 class Client(object):
@@ -65,7 +123,7 @@ class Client(object):
       return token
 
     # 有効なキャッシュはなかった
-    logging.info("trying to get new token from api endpoint")
+    logger.info("trying to get new token from api endpoint")
 
     # ヘッダ情報
     headers = {
@@ -102,7 +160,7 @@ class Client(object):
     try:
       r = requests.post(self._url_token, timeout=self._timeout, proxies=self._proxies, headers=headers, data=auth_json, verify=True)
     except requests.exceptions.RequestException as e:
-      logging.error(e)
+      logger.exception(e)
       return None
 
     # 応答をチェック
@@ -113,6 +171,8 @@ class Client(object):
     token = r.headers.get('X-Subject-Token', None)
     if not token:
       return None
+
+    logger.info("get new token, %s", token)
 
     # JSON形式のコンテンツを期待
     j = r.json()
@@ -155,7 +215,7 @@ class Client(object):
         # トークンを取得
         token = self.getToken()
         if not token:
-          logging.error("failed to get token to access rest api")
+          logger.error("failed to get token to access rest api")
           result['status_code'] = -100
           result['data'] = None
           return result
@@ -183,7 +243,7 @@ class Client(object):
         #
 
         if r is None:
-          logging.error("failed to access rest api")
+          logger.error("failed to access rest api")
           result['status_code'] = -1
           result['data'] = None
           return result
@@ -222,11 +282,11 @@ class Client(object):
     if not url:
       return None
 
-    logging.info("GET '%s'", url)
+    logger.info("GET '%s'", url)
     try:
       return requests.get(url, params=params, **kwargs)
     except requests.exceptions.RequestException as e:
-      logging.error(e)
+      logger.exception(e)
     return None
 
 
@@ -236,11 +296,11 @@ class Client(object):
     if not url:
       return None
 
-    logging.info("POST '%s'", url)
+    logger.info("POST '%s'", url)
     try:
       return requests.post(url, json.dumps(data), **kwargs)
     except requests.exceptions.RequestException as e:
-      logging.error(e)
+      logger.exception(e)
     return None
 
 
@@ -250,11 +310,11 @@ class Client(object):
     if not url:
       return None
 
-    logging.info("PUT '%s'", url)
+    logger.info("PUT '%s'", url)
     try:
       return requests.put(url, json.dumps(data), **kwargs)
     except requests.exceptions.RequestException as e:
-      logging.error(e)
+      logger.exception(e)
     return None
 
 
@@ -264,11 +324,11 @@ class Client(object):
     if not url:
       return None
 
-    logging.info("DELETE '%s'", url)
+    logger.info("DELETE '%s'", url)
     try:
       return requests.delete(url, **kwargs)
     except requests.exceptions.RequestException as e:
-      logging.error(e)
+      logger.exception(e)
     return None
 
   #
