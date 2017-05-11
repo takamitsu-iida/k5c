@@ -157,14 +157,22 @@ class Client(object):
 
     # POSTを発行
     # この処理は最長でself._timeout秒かかる
+    r = None
     try:
       r = requests.post(self._url_token, timeout=self._timeout, proxies=self._proxies, headers=headers, data=auth_json, verify=True)
+    except requests.exceptions.ConnectionError:
+      logger.error("requests.exceptions.ConnectionError occured")
+    except requests.exceptions.HTTPError:
+      logger.error("requests.exceptions.HTTPError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
-      return None
 
     # 応答をチェック
-    if not r.ok:
+    if not r or not r.ok:
       return None
 
     # トークンはHTTPヘッダに格納されているので、それを取り出す
@@ -285,6 +293,14 @@ class Client(object):
     logger.info("GET '%s'", url)
     try:
       return requests.get(url, params=params, **kwargs)
+    except requests.exceptions.ConnectionError:
+      logger.error("requests.exceptions.ConnectionError occured")
+    except requests.exceptions.HTTPError:
+      logger.error("requests.exceptions.HTTPError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None
@@ -299,6 +315,14 @@ class Client(object):
     logger.info("POST '%s'", url)
     try:
       return requests.post(url, json.dumps(data), **kwargs)
+    except requests.exceptions.ConnectionError:
+      logger.error("requests.exceptions.ConnectionError occured")
+    except requests.exceptions.HTTPError:
+      logger.error("requests.exceptions.HTTPError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None
@@ -313,6 +337,14 @@ class Client(object):
     logger.info("PUT '%s'", url)
     try:
       return requests.put(url, json.dumps(data), **kwargs)
+    except requests.exceptions.ConnectionError:
+      logger.error("requests.exceptions.ConnectionError occured")
+    except requests.exceptions.HTTPError:
+      logger.error("requests.exceptions.HTTPError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None
@@ -327,6 +359,14 @@ class Client(object):
     logger.info("DELETE '%s'", url)
     try:
       return requests.delete(url, **kwargs)
+    except requests.exceptions.ConnectionError:
+      logger.error("requests.exceptions.ConnectionError occured")
+    except requests.exceptions.HTTPError:
+      logger.error("requests.exceptions.HTTPError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None

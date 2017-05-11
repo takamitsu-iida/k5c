@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
     else:
       import argparse
-      parser = argparse.ArgumentParser(description='Create network connector.')
+      parser = argparse.ArgumentParser(description='Create a network connector.')
       parser.add_argument('--name', required=True, help='The network connector name.')
       parser.add_argument('--nc_pool_id', required=True, help='The network connector pool id.')
       parser.add_argument('--tenant_id', required=True, help='The tenant id.')

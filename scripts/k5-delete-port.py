@@ -90,7 +90,7 @@ if __name__ == '__main__':
   def run_main():
     """メイン関数を実行します"""
     import argparse
-    parser = argparse.ArgumentParser(description='Delete port.')
+    parser = argparse.ArgumentParser(description='Deletes a specified port.')
     parser.add_argument('port_id, help="Port id')
     args = parser.parse_args()
     port_id = args.port_id

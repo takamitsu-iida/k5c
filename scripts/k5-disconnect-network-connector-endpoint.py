@@ -100,7 +100,7 @@ if __name__ == '__main__':
       dump = False
     else:
       import argparse
-      parser = argparse.ArgumentParser(description='Disconnect network connector endpoint.')
+      parser = argparse.ArgumentParser(description='Disconnect interface to a specified network connector endpoint.')
       parser.add_argument('--ncep_id', required=True, help='Network connector endpoint id.')
       parser.add_argument('--port_id', required=True, help='Port id.')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')

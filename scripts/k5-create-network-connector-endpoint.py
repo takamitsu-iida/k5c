@@ -181,7 +181,7 @@ if __name__ == '__main__':
 
     else:
       import argparse
-      parser = argparse.ArgumentParser(description='Create network connector endpoint.')
+      parser = argparse.ArgumentParser(description='Create a network connector endpoint.')
       parser.add_argument('--name', required=True, help='The network connector endpoint name.')
       parser.add_argument('--nc_id', required=True, help='The network connector id.')
       parser.add_argument('--az', required=True, help='The availability zone.')

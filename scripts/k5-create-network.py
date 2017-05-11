@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
     else:
       import argparse
-      parser = argparse.ArgumentParser(description='Create network.')
+      parser = argparse.ArgumentParser(description='Create a network.')
       parser.add_argument('--name', required=True, help='The network name.')
       parser.add_argument('--az', required=True, help='The Availability Zone name.')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')

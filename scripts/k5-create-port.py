@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
     else:
       import argparse
-      parser = argparse.ArgumentParser(description='Create port.')
+      parser = argparse.ArgumentParser(description='Creates a port on a specified network.')
       parser.add_argument('--name', required=True, help='The port name.')
       parser.add_argument('--network_id', required=True, help='The ID of the the network.')
       parser.add_argument('--subnet_id', required=True, help='The ID of the the subnet.')

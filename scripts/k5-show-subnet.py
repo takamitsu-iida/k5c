@@ -136,7 +136,7 @@ if __name__ == '__main__':
   def run_main():
     """メイン関数を実行します"""
     import argparse
-    parser = argparse.ArgumentParser(description='Show subnet.')
+    parser = argparse.ArgumentParser(description='Shows information for a specified subnet.')
     parser.add_argument('subnet_id', help='Subnet id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()

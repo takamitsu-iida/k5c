@@ -118,7 +118,7 @@ if __name__ == '__main__':
       ncep_id = "ed44d452-cbc4-4f4c-9c87-03fdf4a7c965"
     else:
       import argparse
-      parser = argparse.ArgumentParser(description='List connected interfaces of network connector endpoint.')
+      parser = argparse.ArgumentParser(description='Lists interfaces which connects to a specified network connector endpoint.')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
       parser.add_argument('ncep_id', help='network connector endpoint id')
       args = parser.parse_args()

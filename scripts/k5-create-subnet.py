@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     else:
       import argparse
-      parser = argparse.ArgumentParser(description='Create subnet.')
+      parser = argparse.ArgumentParser(description='Creates a subnet on a specified network.')
       parser.add_argument('--name', required=True, help='The subnet name.')
       parser.add_argument('--network_id', required=True, help='The ID of the attached network.')
       parser.add_argument('--cidr', required=True, help='The CIDR.')

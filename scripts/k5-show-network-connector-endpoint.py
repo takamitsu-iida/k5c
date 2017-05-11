@@ -121,7 +121,7 @@ if __name__ == '__main__':
   def run_main():
     """メイン関数を実行します"""
     import argparse
-    parser = argparse.ArgumentParser(description='Show network connector endpoint.')
+    parser = argparse.ArgumentParser(description='Shows a specified network connector endpoint.')
     parser.add_argument('ncep_id', help='Network connector endpoint id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
