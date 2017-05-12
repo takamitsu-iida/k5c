@@ -100,7 +100,7 @@ if __name__ == '__main__':
     """メイン関数を実行します"""
     import argparse
     parser = argparse.ArgumentParser(description='Deletes a specified network connector.')
-    parser.add_argument('network_connector_id, help="Network connector id')
+    parser.add_argument('network_connector_id', help='The network connector id.')
     args = parser.parse_args()
     network_connector_id = args.network_connector_id
     main(network_connector_id=network_connector_id)

@@ -83,7 +83,7 @@ if __name__ == '__main__':
     """メイン関数を実行します"""
     import argparse
     parser = argparse.ArgumentParser(description='Deletes a specified network and its associated resources.')
-    parser.add_argument('network_id, help="Network id')
+    parser.add_argument('network_id', help='The network id.')
     args = parser.parse_args()
     network_id = args.network_id
     main(network_id=network_id)

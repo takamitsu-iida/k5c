@@ -196,7 +196,7 @@ if __name__ == '__main__':
       parser.add_argument('--name', required=True, help='The subnet name.')
       parser.add_argument('--network_id', required=True, help='The ID of the attached network.')
       parser.add_argument('--cidr', required=True, help='The CIDR.')
-      parser.add_argument('--az', required=True, help='The Availability Zone name.')
+      parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
       parser.add_argument('--dns', nargs='*', default=[], help='DNS server')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
       args = parser.parse_args()

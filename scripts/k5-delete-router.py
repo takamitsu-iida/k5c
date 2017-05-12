@@ -88,7 +88,7 @@ if __name__ == '__main__':
     """メイン関数を実行します"""
     import argparse
     parser = argparse.ArgumentParser(description='Deletes a logical router and, if present, its external gateway interface.')
-    parser.add_argument('subnet_id, help="Router id')
+    parser.add_argument('subnet_id', help='The router id.')
     args = parser.parse_args()
     router_id = args.router_id
     main(router_id=router_id)

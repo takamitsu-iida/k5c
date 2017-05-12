@@ -93,7 +93,7 @@ if __name__ == '__main__':
     """メイン関数を実行します"""
     import argparse
     parser = argparse.ArgumentParser(description='Deletes a specified subnet.')
-    parser.add_argument('subnet_id, help="Subnet id')
+    parser.add_argument('subnet_id', help='The subnet id.')
     args = parser.parse_args()
     subnet_id = args.subnet_id
     main(subnet_id=subnet_id)

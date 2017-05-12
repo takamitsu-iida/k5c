@@ -28,7 +28,8 @@ class K5TokenManager(object):
   # トークンを保存するファイル名(中身はjsonではなくpickle形式)
   TOKEN_FILENAME = ".k5-token.pickle"
 
-  # 時刻表示のフォーマット
+  # 時刻表示のフォーマットはISO 8601形式
+  # Tはセパレータ、ZはZuluの略でUTCを意味する
   DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
   def __init__(self):
@@ -67,7 +68,7 @@ class K5TokenManager(object):
 
   def isNotExpired(self, token):
     """有効期限が切れていないことを確認します"""
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
 
     # 有効期限を取り出す
     # 'expires_at': '2017-05-02T09:11:58.198526Z',
@@ -81,12 +82,8 @@ class K5TokenManager(object):
     expires_at = datetime.datetime.strptime(expires_at_str, self.DATE_FORMAT)
 
     # dirty hack
-    # JSTにいるものと仮定して+9時間を加算する
-    expires_at += datetime.timedelta(hours=9)
-
-    # dirty hack
-    # 誤差を考えて3分を減算する
-    expires_at -= datetime.timedelta(minutes=3)
+    # 誤差と処理遅延を考えて5分を減算する
+    expires_at -= datetime.timedelta(minutes=5)
 
     if now < expires_at:
       return True
