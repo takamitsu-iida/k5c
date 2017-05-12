@@ -559,24 +559,28 @@ issued_atとexpires_atの差分が3時間ほどありますので、トークン
 
 ### k5-list-xxx.py
 
+一覧表示します。
+
 ### k5-create-xxx.py
+
+作成します。
 
 ### k5-delete-xxx.py
 
+削除します。
+
 ### k5-show-xxx.py
 
-### k5-connect-xxx.py
+詳細表示します。
 
 ### k5-update-router.py
 
+外部ネットワークと接続します。
 
 ### k5-connect-network-connector-endpoint.py
 
+コネクターエンドポイントを内部ネットワークに接続します。
+
 ### k5-disconnect-network-connector-endpoint.py
 
-コネクタエンドポイントとポートの接続を解消します。
-
-> 注意！
->
-> 実行するとポートそのものが削除されてしまいます！
-
+コネクターエンドポイントと内部ネットワークを切り離します。
