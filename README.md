@@ -118,6 +118,8 @@ K5のコンポーネントで構成するとこのようになります。
 
 外部ネットワークとネットワークコネクタプールは事業者側で用意するもので、自分では作成できません。それらのIDが必要になりますので、最初にやることは、この調査です。
 
+![fig030](https://cloud.githubusercontent.com/assets/21165341/25983610/d59c79f6-3720-11e7-88c5-c8ab332e13f3.png)
+
 外部ネットワークは複数用意されています。
 どれを使ってもいいのですが、-net01や-net02あたりはグローバルアドレスの空きがなく、使えない可能性が高いです。
 
@@ -125,19 +127,19 @@ K5のコンポーネントで構成するとこのようになります。
 
 名前を決めてルータを作成します。作成したらIDをメモしておきます。
 
-![fig030](https://cloud.githubusercontent.com/assets/21165341/25983610/d59c79f6-3720-11e7-88c5-c8ab332e13f3.png)
+![fig040](https://cloud.githubusercontent.com/assets/21165341/25983622/e8ecfc38-3720-11e7-8349-c07a878317dd.png)
 
 ## ネットワークを作成する
 
 名前を決めてネットワークを作成します。作成したらIDをメモしておきます。
 
-![fig040](https://cloud.githubusercontent.com/assets/21165341/25983622/e8ecfc38-3720-11e7-8349-c07a878317dd.png)
+![fig050](https://cloud.githubusercontent.com/assets/21165341/25983724/824dc0c4-3721-11e7-990f-55360455cfa3.png)
 
 ## サブネットを作成する
 
 ネットワークとサブネットは1:1の関係です。親になるネットワークのIDを指定してサブネットを作成します。このときに指定するパラメータは多数ありますが、アドレス情報は必須です。
 
-![fig050](https://cloud.githubusercontent.com/assets/21165341/25983724/824dc0c4-3721-11e7-990f-55360455cfa3.png)
+![fig060](https://cloud.githubusercontent.com/assets/21165341/25983760/a816664e-3721-11e7-80ca-f75f4284733e.png)
 
 ## ポートを作成する
 
@@ -145,13 +147,13 @@ K5のコンポーネントで構成するとこのようになります。
 IPアドレスを指定することもできます。
 指定しなければ自動採番されます。
 
-![fig060](https://cloud.githubusercontent.com/assets/21165341/25983760/a816664e-3721-11e7-80ca-f75f4284733e.png)
+![fig070](https://cloud.githubusercontent.com/assets/21165341/25983776/bfdc2b7e-3721-11e7-899b-75a370cdc1a5.png)
 
 ## ルータとポートを接続する
 
 作成済みのポートIDを指定してルータの情報を更新します。
 
-![fig070](https://cloud.githubusercontent.com/assets/21165341/25983776/bfdc2b7e-3721-11e7-899b-75a370cdc1a5.png)
+![fig080](https://cloud.githubusercontent.com/assets/21165341/25983791/d2e6ce54-3721-11e7-9b52-8a71bd9a3804.png)
 
 ## ネットワークコネクタを作成する
 
@@ -159,14 +161,12 @@ IPアドレスを指定することもできます。
 
 ネットワークコネクタが外部の物理ネットワークとの境界になると考えられます。
 
-![fig080](https://cloud.githubusercontent.com/assets/21165341/25983791/d2e6ce54-3721-11e7-9b52-8a71bd9a3804.png)
+![fig090](https://cloud.githubusercontent.com/assets/21165341/25983801/e2b0d442-3721-11e7-8e6d-1a02097d6681.png)
 
 ## コネクタエンドポイントを作成する
 
 ネットワークコネクタを指定してコネクタエンドポイントを作成します。
 これは論理ルータと同じイメージです。
-
-![fig090](https://cloud.githubusercontent.com/assets/21165341/25983801/e2b0d442-3721-11e7-8e6d-1a02097d6681.png)
 
 ![fig100](https://cloud.githubusercontent.com/assets/21165341/25983809/f380dd58-3721-11e7-95bb-bfe656baa525.png)
 
