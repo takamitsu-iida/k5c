@@ -118,6 +118,9 @@ K5のコンポーネントで構成するとこのようになります。
 
 外部ネットワークとネットワークコネクタプールは事業者側で用意するもので、自分では作成できません。それらのIDが必要になりますので、最初にやることは、この調査です。
 
+- k5-list-networks.py
+- k5-list-network-connector-pools.py
+
 ![fig030](https://cloud.githubusercontent.com/assets/21165341/25983610/d59c79f6-3720-11e7-88c5-c8ab332e13f3.png)
 
 外部ネットワークは複数用意されています。
@@ -127,17 +130,23 @@ K5のコンポーネントで構成するとこのようになります。
 
 名前を決めてルータを作成します。作成したらIDをメモしておきます。
 
+- k5-create-router.py
+
 ![fig040](https://cloud.githubusercontent.com/assets/21165341/25983622/e8ecfc38-3720-11e7-8349-c07a878317dd.png)
 
 ## ネットワークを作成する
 
 名前を決めてネットワークを作成します。作成したらIDをメモしておきます。
 
+- k5-create-router.py
+
 ![fig050](https://cloud.githubusercontent.com/assets/21165341/25983724/824dc0c4-3721-11e7-990f-55360455cfa3.png)
 
 ## サブネットを作成する
 
 ネットワークとサブネットは1:1の関係です。親になるネットワークのIDを指定してサブネットを作成します。このときに指定するパラメータは多数ありますが、アドレス情報は必須です。
+
+- k5-create-subnet.py
 
 ![fig060](https://cloud.githubusercontent.com/assets/21165341/25983760/a816664e-3721-11e7-80ca-f75f4284733e.png)
 
@@ -147,17 +156,23 @@ K5のコンポーネントで構成するとこのようになります。
 IPアドレスを指定することもできます。
 指定しなければ自動採番されます。
 
+- k5-create-port.py
+
 ![fig070](https://cloud.githubusercontent.com/assets/21165341/25983776/bfdc2b7e-3721-11e7-899b-75a370cdc1a5.png)
 
 ## ルータとポートを接続する
 
 作成済みのポートIDを指定してルータの情報を更新します。
 
+- k5-connect-router.py
+
 ![fig080](https://cloud.githubusercontent.com/assets/21165341/25983791/d2e6ce54-3721-11e7-9b52-8a71bd9a3804.png)
 
 ## ネットワークコネクタを作成する
 
 事業者が用意するネットワークコネクタプールを指定して、ネットワークコネクタを作成します。
+
+- k5-create-network-connector.py
 
 ネットワークコネクタが外部の物理ネットワークとの境界になると考えられます。
 
@@ -168,11 +183,15 @@ IPアドレスを指定することもできます。
 ネットワークコネクタを指定してコネクタエンドポイントを作成します。
 これは論理ルータと同じイメージです。
 
+- k5-create-network-connector-endpoint.py
+
 ![fig100](https://cloud.githubusercontent.com/assets/21165341/25983809/f380dd58-3721-11e7-95bb-bfe656baa525.png)
 
 ## コネクタエンドポイントとポートを接続する
 
 作成済みのポートとコネクタエンドポイントを接続します。
+
+- k5-connect-network-connector-endpoint.py
 
 ![fig110](https://cloud.githubusercontent.com/assets/21165341/25983816/088d49a2-3722-11e7-8f13-07ee1347f6e5.png)
 
@@ -180,6 +199,8 @@ IPアドレスを指定することもできます。
 
 ルータと外部ネットワークを接続します。
 外部ネットワークの場合にはポートを経由しません。
+
+- k5-update-router.py
 
 ![fig120](https://cloud.githubusercontent.com/assets/21165341/25983834/255b78e2-3722-11e7-801e-11882cc3e436.png)
 
@@ -219,17 +240,18 @@ k5config.py
 # 契約番号
 DOMAIN_NAME = ""  # ここを書き換え
 
-# グループdomainmanagerのドメインID
+# ドメインID(32桁)
+# IaaSポータルから[管理]→[利用者管理]→[グループ]
 DOMAIN_ID = ""  # ここを書き換え
 
-# プロジェクトID
+# プロジェクトID(32桁)
 PROJECT_ID = ""  # ここを書き換え
 
 # ユーザ情報
 USERNAME = ""  # ここを書き換え
 PASSWORD = ""  # ここを書き換え
 
-# 利用リージョン
+# 対象リージョン
 REGION = "jp-east-1"  # ここを書き換え
 ```
 
@@ -239,15 +261,8 @@ REGION = "jp-east-1"  # ここを書き換え
 
 scriptsフォルダに実行用のスクリプトを置いています。
 
-k5-create-系のスクリプトは、作成に必要なパラメータをスクリプト本文に埋め込んでいますので、環境にあわせて修正が必要です（後で直します）。
-
 Windowsのコマンドプロンプトでも実行できますが、画面の横幅が狭いため見苦しい表示になってしまいます。
 TeraTERMでCygwinに接続する、出力をファイルにリダイレクトしてエディタで確認する、といった工夫をするといいと思います。
-
-K5のAPIを操作するためには、事前に認証トークンを取得しなければいけませんが、このスクリプトはトークンを気にせず使えます。
-スクリプト実行時に有効なトークンがキャッシュされていればそれを使います。
-トークンのキャッシュがない、あるいは有効期限が切れている場合には、REST API実行前にトークンを自動的に取りにいきます。
-
 
 ### k5-token.py
 
