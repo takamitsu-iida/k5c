@@ -128,6 +128,36 @@ K5のコンポーネントで構成するとこのようになります。
 
 ![fig030](https://cloud.githubusercontent.com/assets/21165341/25983610/d59c79f6-3720-11e7-88c5-c8ab332e13f3.png)
 
+```
+bash-4.4$ ./k5-list-networks.py | grep inf_az1
+6d9df982-7a89-462a-8b17-8a8e5befa63e  inf_az1_ext-net03  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+92f386c1-59fe-48ca-8cf9-b95f81920466  inf_az1_ext-net02  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+a4715541-c915-444b-bed6-99aa1e8b15c9  inf_az1_ext-net04  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+af4198a9-b392-493d-80ec-a7c6e5a1c22a  inf_az1_ext-net01  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+cd4057bd-f72e-4244-a7dd-1bcb2775dd67  inf_az1_ext-net05  31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+bash-4.4$
+
+bash-4.4$ ./k5-list-network-connector-pools.py
+GET /v2.0/network_connector_pools
+====================================  ============================
+id                                    name
+====================================  ============================
+e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
+====================================  ============================
+```
+
+|name|network_id|
+|:--|:--|
+|inf_az1_ext-net01|af4198a9-b392-493d-80ec-a7c6e5a1c22a|
+|inf_az1_ext-net02|92f386c1-59fe-48ca-8cf9-b95f81920466|
+|inf_az1_ext-net03|6d9df982-7a89-462a-8b17-8a8e5befa63e|
+|inf_az1_ext-net04|a4715541-c915-444b-bed6-99aa1e8b15c9|
+|inf_az1_ext-net05|cd4057bd-f72e-4244-a7dd-1bcb2775dd67|
+
+|name|network_connector_pool_id|
+|:--|:--|
+|jp-east-1a_connector_pool_01|e0a80446-203e-4b28-abec-d4b031d5b63e|
+
 外部ネットワークは複数用意されています。
 どれを使ってもいいのですが、-net01や-net02あたりはグローバルアドレスの空きがなく、使えない可能性が高いです。
 
