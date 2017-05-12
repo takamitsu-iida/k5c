@@ -126,7 +126,7 @@ K5のコンポーネントで構成するとこのようになります。
 - k5-list-networks.py
 - k5-list-network-connector-pools.py
 
-![fig030](https://cloud.githubusercontent.com/assets/21165341/25983610/d59c79f6-3720-11e7-88c5-c8ab332e13f3.png)
+![fig030](https://cloud.githubusercontent.com/assets/21165341/25997591/959fe2ca-3757-11e7-9bba-c94e7d35952e.png)
 
 ```
 bash-4.4$ ./k5-list-networks.py | grep inf_az1
@@ -407,7 +407,7 @@ bash-4.4$
 
 - k5-create-network-connector-endpoint.py
 
-![fig100](https://cloud.githubusercontent.com/assets/21165341/25983809/f380dd58-3721-11e7-95bb-bfe656baa525.png)
+![fig100](https://cloud.githubusercontent.com/assets/21165341/25998521/53b33d3a-375c-11e7-867f-46455985863e.png)
 
 ```
 bash-4.4$ ./k5-create-network-connector-endpoint.py --name iida-az1-ncep --nc_id 88f343e8-a956-4bcc-853f-3c40d53cbb49
