@@ -82,7 +82,7 @@ Availability Zoneの中にはネットワークコネクタプールというも
 
 > NOTE:
 >
-> 2017年5月時点、ネットワークコネクタの作成や操作はAPIを操作しなければいけません
+> 2017年5月時点、ネットワークコネクタの作成はAPIを操作しなければいけません。
 
 ネットワークコネクタには、コネクタエンドポイントを作成します。これが内側との接点になります。ポートのオーナーとしてコネクタエンドポイントを指定することで、内側のネットワークと紐付けられます。
 
@@ -111,12 +111,17 @@ Availability Zoneの中にはネットワークコネクタプールというも
 K5のコンポーネントで構成するとこのようになります。
 ルータ、ポート、ネットワーク、サブネットはそれぞれ独立して作成して、あとからくっつける、という操作になります。
 
+裏側はネットワークコネクタとコネクタエンドポイントで接続します。
+
 ![fig020](https://cloud.githubusercontent.com/assets/21165341/25983573/9d325b80-3720-11e7-86fd-bbf558a9eb97.png
 )
 
 ## 事業者側のIDを調べる
 
-外部ネットワークとネットワークコネクタプールは事業者側で用意するもので、自分では作成できません。それらのIDが必要になりますので、最初にやることは、この調査です。
+外部ネットワークとネットワークコネクタプールは事業者側で用意するもので、自分では作成できません。
+
+最初にやることは、それらのIDの調査です。
+後々使いますので管理資料に記載しておきましょう。頻繁にコピーペーストすることになりますので、コピペしやすい文書が良いと思います。
 
 - k5-list-networks.py
 - k5-list-network-connector-pools.py
@@ -134,6 +139,24 @@ K5のコンポーネントで構成するとこのようになります。
 
 ![fig040](https://cloud.githubusercontent.com/assets/21165341/25983622/e8ecfc38-3720-11e7-8349-c07a878317dd.png)
 
+```
+bash-4.4$ ./k5-create-router.py --name iida-az1-router01
+POST /v2.0/routers
+==============  ====================================
+name            iida-az1-router01
+id              ffbd70be-24cf-4dff-a4f6-661bf892e313
+az              jp-east-1a
+tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
+status          ACTIVE
+admin_state_up  True
+==============  ====================================
+bash-4.4$
+```
+
+|name|router_id|
+|:--|:--|
+|iida-az1-router01|ffbd70be-24cf-4dff-a4f6-661bf892e313|
+
 ## ネットワークを作成する
 
 名前を決めてネットワークを作成します。作成したらIDをメモしておきます。
@@ -141,6 +164,35 @@ K5のコンポーネントで構成するとこのようになります。
 - k5-create-router.py
 
 ![fig050](https://cloud.githubusercontent.com/assets/21165341/25983724/824dc0c4-3721-11e7-990f-55360455cfa3.png)
+
+```
+bash-4.4$ ./k5-create-network.py --name iida-az1-net01
+POST /v2.0/networks
+=========  ====================================
+name       iida-az1-net01
+id         8f15da62-c7e5-47ec-8668-ee502f6d00d2
+az         jp-east-1a
+tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
+status     ACTIVE
+=========  ====================================
+
+bash-4.4$ ./k5-create-network.py --name iida-az1-net02
+POST /v2.0/networks
+=========  ====================================
+name       iida-az1-net02
+id         e3c166c0-7e90-4c6e-857e-87fd985f98ac
+az         jp-east-1a
+tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
+status     ACTIVE
+=========  ====================================
+bash-4.4$
+```
+
+|name|network_id|
+|:--|:--|
+|iida-az1-net01|8f15da62-c7e5-47ec-8668-ee502f6d00d2|
+|iida-az1-net02|e3c166c0-7e90-4c6e-857e-87fd985f98ac|
+
 
 ## サブネットを作成する
 
@@ -150,15 +202,132 @@ K5のコンポーネントで構成するとこのようになります。
 
 ![fig060](https://cloud.githubusercontent.com/assets/21165341/25983760/a816664e-3721-11e7-80ca-f75f4284733e.png)
 
+```
+bash-4.4$ ./k5-create-subnet.py --name iida-az1-subnet01 --network_id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 --cidr 10.1.1.0/24
+POST /v2.0/subnets
+===========  ====================================
+name         iida-az1-subnet01
+id           abbbbcf4-ea8f-4218-bbe7-669231eeba30
+az           jp-east-1a
+cidr         10.1.1.0/24
+gateway_ip   10.1.1.1
+tenant_id    a5001a8b9c4a4712985c11377bd6d4fe
+network_id   8f15da62-c7e5-47ec-8668-ee502f6d00d2
+enable_dhcp  True
+===========  ====================================
+
+bash-4.4$ ./k5-create-subnet.py --name iida-az1-subnet02 --network_id e3c166c0-7e90-4c6e-857e-87fd985f98ac --cidr 10.1.2.0/24
+POST /v2.0/subnets
+===========  ====================================
+name         iida-az1-subnet02
+id           2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+az           jp-east-1a
+cidr         10.1.2.0/24
+gateway_ip   10.1.2.1
+tenant_id    a5001a8b9c4a4712985c11377bd6d4fe
+network_id   e3c166c0-7e90-4c6e-857e-87fd985f98ac
+enable_dhcp  True
+===========  ====================================
+bash-4.4$
+```
+
+|name|subnet_id|cidr|
+|:--|:--|:--|
+|iida-az1-subnet01|abbbbcf4-ea8f-4218-bbe7-669231eeba30|10.1.1.0/24|
+|iida-az1-subnet02|2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6|10.1.2.0/24|
+
+
 ## ポートを作成する
 
 どのネットワークに接続するかを指定してポートを作成します。
 IPアドレスを指定することもできます。
 指定しなければ自動採番されます。
 
+> ルータ用のポートであれば、IPアドレスの第四オクテットを.1にするとよいと思います。指定しないと.2以降が採番されます。
+
 - k5-create-port.py
 
 ![fig070](https://cloud.githubusercontent.com/assets/21165341/25983776/bfdc2b7e-3721-11e7-899b-75a370cdc1a5.png)
+
+```
+bash-4.4$ ./k5-create-port.py --name iida-az1-net01-port01 --network_id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 --subnet_id abbbbcf4-ea8f-4218-bbe7-669231eeba30 --ip_address 10.1.1.1
+POST /v2.0/ports
+=================  ====================================
+name               iida-az1-net01-port01
+id                 430497b1-fdd4-4857-bc43-53286b5a27f5
+az                 jp-east-1a
+tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
+status             DOWN
+admin_state_up     True
+device_owner
+device_id
+network_id         8f15da62-c7e5-47ec-8668-ee502f6d00d2
+binding:vnic_type  normal
+mac_address        fa:16:3e:82:3c:16
+=================  ====================================
+
+============  ====================================
+ip_address    subnet_id
+============  ====================================
+10.1.1.1      abbbbcf4-ea8f-4218-bbe7-669231eeba30
+============  ====================================
+bash-4.4$
+
+bash-4.4$ ./k5-create-port.py --name iida-az1-net02-port01 --network_id e3c166c0-7e90-4c6e-857e-87fd985f98ac --subnet_id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6 --ip_address 1
+0.1.2.1
+POST /v2.0/ports
+=================  ====================================
+name               iida-az1-net02-port01
+id                 bdab1ca6-fd32-4729-9e97-3827b72d7bc5
+az                 jp-east-1a
+tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
+status             DOWN
+admin_state_up     True
+device_owner
+device_id
+network_id         e3c166c0-7e90-4c6e-857e-87fd985f98ac
+binding:vnic_type  normal
+mac_address        fa:16:3e:ea:73:57
+=================  ====================================
+
+============  ====================================
+ip_address    subnet_id
+============  ====================================
+10.1.2.1      2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+============  ====================================
+bash-4.4$
+
+bash-4.4$ ./k5-create-port.py --name iida-az1-net02-port02 --network_id e3c166c0-7e90-4c6e-857e-87fd985f98ac --subnet_id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6 --ip_address 1
+0.1.2.9
+POST /v2.0/ports
+=================  ====================================
+name               iida-az1-net02-port02
+id                 6c73b1a0-ab3d-46e5-9515-f04e9f660423
+az                 jp-east-1a
+tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
+status             DOWN
+admin_state_up     True
+device_owner
+device_id
+network_id         e3c166c0-7e90-4c6e-857e-87fd985f98ac
+binding:vnic_type  normal
+mac_address        fa:16:3e:71:8f:fa
+=================  ====================================
+
+============  ====================================
+ip_address    subnet_id
+============  ====================================
+10.1.2.9      2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+============  ====================================
+bash-4.4$
+```
+
+|name|port_id|address|
+|:--|:--|:--|
+|iida-az1-net01-port01|430497b1-fdd4-4857-bc43-53286b5a27f5|10.1.1.1|
+|iida-az1-net02-port01|bdab1ca6-fd32-4729-9e97-3827b72d7bc5|10.1.2.1|
+|iida-az1-net02-port02|6c73b1a0-ab3d-46e5-9515-f04e9f660423|10.1.2.9|
+
 
 ## ルータとポートを接続する
 

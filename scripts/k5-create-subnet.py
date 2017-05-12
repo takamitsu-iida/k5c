@@ -203,7 +203,7 @@ if __name__ == '__main__':
 
       name = args.name
       network_id = args.network_id
-      cidr = args.network_id
+      cidr = args.cidr
       az = args.az
       dns = args.dns
       dump = args.dump

@@ -212,7 +212,7 @@ if __name__ == '__main__':
       parser.add_argument('--network_id', required=True, help='The ID of the the network.')
       parser.add_argument('--subnet_id', required=True, help='The ID of the the subnet.')
       parser.add_argument('--ip_address', default='', help='Fixed ip address.')
-      parser.add_argument('--az', required=True, help='The Availability Zone name.')
+      parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
       args = parser.parse_args()
 

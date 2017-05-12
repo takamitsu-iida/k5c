@@ -168,6 +168,8 @@ class Client(object):
       logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ProxyError:
       logger.error("requests.exceptions.SSLError occured")
+    except requests.exceptions.ReadTimeout:
+      logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
 
@@ -301,6 +303,8 @@ class Client(object):
       logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ProxyError:
       logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.ReadTimeout:
+      logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None
@@ -323,6 +327,8 @@ class Client(object):
       logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ProxyError:
       logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.ReadTimeout:
+      logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None
@@ -345,6 +351,8 @@ class Client(object):
       logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ProxyError:
       logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.ReadTimeout:
+      logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None
@@ -367,6 +375,8 @@ class Client(object):
       logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ProxyError:
       logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.ReadTimeout:
+      logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
       logger.exception(e)
     return None
