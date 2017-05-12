@@ -184,7 +184,7 @@ if __name__ == '__main__':
       parser = argparse.ArgumentParser(description='Create a network connector endpoint.')
       parser.add_argument('--name', required=True, help='The network connector endpoint name.')
       parser.add_argument('--nc_id', required=True, help='The network connector id.')
-      parser.add_argument('--az', required=True, help='The availability zone.')
+      parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The availability zone. default: jp-east-1a')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
       args = parser.parse_args()
       name = args.name

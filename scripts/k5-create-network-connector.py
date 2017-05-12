@@ -71,7 +71,7 @@ except ImportError as e:
 def main(name="", nc_pool_id="", tenant_id="", dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.EP_NETWORK + "/v2.0/network_connector_endpoints"
+  url = k5config.EP_NETWORK + "/v2.0/network_connectors"
 
   # 作成するネットワークコネクタのオブジェクト
   nc_object = {
@@ -144,7 +144,7 @@ if __name__ == '__main__':
       parser = argparse.ArgumentParser(description='Create a network connector.')
       parser.add_argument('--name', required=True, help='The network connector name.')
       parser.add_argument('--nc_pool_id', required=True, help='The network connector pool id.')
-      parser.add_argument('--tenant_id', required=True, help='The tenant id.')
+      parser.add_argument('--tenant_id', default=k5config.TENANT_ID, help='The tenant id.')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
       args = parser.parse_args()
       name = args.name
