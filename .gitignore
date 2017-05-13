@@ -1,5 +1,6 @@
 ﻿# フォルダ単位で無視
 data/
+log/
 
 # pickleで保存したファイルは無視
 *.pickle
