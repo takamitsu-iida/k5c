@@ -1,0 +1,19 @@
+#
+# k5-update-extra-routes.yaml
+#
+
+# 第一階層のキーは対象ルータのIDにしてください
+
+#
+# iida-az1-subnet01
+#
+ffbd70be-24cf-4dff-a4f6-661bf892e313:
+
+  # 経路情報
+  routes:
+    - destination: 10.0.0.0/8
+      nexthop: 10.1.2.9
+    - destination: 172.16.0.0/12
+      nexthop: 10.1.2.9
+    - destination: 192.168.0.0/16
+      nexthop: 10.1.2.9
