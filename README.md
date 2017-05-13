@@ -483,16 +483,6 @@ tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
 status          ACTIVE
 admin_state_up  True
 ==============  ====================================
-PUT /v2.0/routers/{router_id}
-==============  ====================================
-name            iida-az1-router01
-id              ffbd70be-24cf-4dff-a4f6-661bf892e313
-az              jp-east-1a
-tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
-status          ACTIVE
-admin_state_up  True
-==============  ====================================
-bash-4.4$
 ```
 
 ここではinf_az1_ext-net05を使っています。
