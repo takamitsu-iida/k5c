@@ -42,9 +42,6 @@ class K5TokenManager(object):
 
   def saveToken(self, token):
     """トークンをpickleでファイルに保存します"""
-    if not token:
-      return
-
     try:
       with open(self.TOKEN_FILENAME, 'wb') as f:
         pickle.dump(token, f)

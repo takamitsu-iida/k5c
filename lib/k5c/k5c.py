@@ -261,6 +261,8 @@ class Client(object):
         # トークンを保存
         if r.ok:
           k5tokenmanager.token(token)
+        elif r.status_code == 401:
+          k5tokenmanager.token(None)
 
         # status_codeを保存
         result['status_code'] = r.status_code
