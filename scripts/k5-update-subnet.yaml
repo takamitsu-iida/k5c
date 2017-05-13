@@ -2,9 +2,10 @@
 # k5-update-subnet.yaml
 #
 
+# 第一階層のキーは対象サブネットのIDにしてください
+
 #
-# name = iida-az1-subnet01
-# id = 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+# iida-az1-subnet01
 #
 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6:
   # サブネットの名前
