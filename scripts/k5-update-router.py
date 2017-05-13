@@ -14,6 +14,16 @@ NOTE:
 """
 実行例
 
+bash-4.4$ ./k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+PUT /v2.0/routers/{router_id}
+==============  ====================================
+name            iida-az1-router01
+id              ffbd70be-24cf-4dff-a4f6-661bf892e313
+az              jp-east-1a
+tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
+status          ACTIVE
+admin_state_up  True
+==============  ====================================
 """
 
 import json
