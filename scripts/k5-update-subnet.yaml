@@ -1,0 +1,33 @@
+#
+# k5-update-subnet.yaml
+#
+
+#
+# name = iida-az1-subnet01
+# id = 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+#
+2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6:
+  # サブネットの名前
+  # name: iida-az1-subnet02
+
+  # そのサブネットにおけるデフォルトゲートウェイのIPアドレス
+  # gateway_ip: 10.1.2.1
+
+  # DNSサーバ
+  # AZ1の場合は 133.162.193.9 133.162.193.10
+  # AZ2の場合は 133.162.201.9 133.162.201.10
+  # その他は 8.8.8.7 8.8.8.8
+  dns_nameservers:
+    - 133.162.193.9
+    - 133.162.193.10
+
+  # ホストルート
+  host_routes:
+    - destination: 10.1.1.0/24
+      nexthop: 10.1.2.1
+    - destination: 10.0.0.0/8
+      nexthop: 10.1.2.9
+    - destination: 172.16.0.0/12
+      nexthop: 10.1.2.9
+    - destination: 192.168.0.0/16
+      nexthop: 10.1.2.9
