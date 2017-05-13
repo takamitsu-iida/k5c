@@ -736,6 +736,16 @@ issued_atとexpires_atの差分が3時間ほどありますので、トークン
 
 外部ネットワークと接続します。
 
+### k5-connect-router.py
+
+ルータとポートを接続します。
+
+### k5-disconnect-router.py
+
+ルータとポートを切り離します。
+
+> 実行すると、なぜかポート自体が削除されます。作り直してください。
+
 ### k5-connect-network-connector-endpoint.py
 
 コネクターエンドポイントを内部ネットワークに接続します。
