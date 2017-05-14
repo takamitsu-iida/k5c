@@ -1,3 +1,7 @@
 requests
 tabulate
 pyyaml
+
+# jdcal
+# et-xmlfile
+openpyxl
