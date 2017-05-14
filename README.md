@@ -692,6 +692,7 @@ lib/site-packagesにこれらを含めていますので、インストールは
  - requests
  - tabulate
  - pyyaml
+ - openpyxl (トライ中)
 
 ## 事前に必要な情報
 
@@ -740,7 +741,7 @@ TeraTERMでCygwinに接続する、出力をファイルにリダイレクトし
 ### k5-token.py
 
 APIエンドポイントに接続できるかテストするためのスクリプトで、通常は使いません。
-これがエラーを返すようなら、k5config.pyの設定パラメータに誤りがあります。
+これがエラーを返すようなら、k5config.pyが存在しないか、k5config.pyの設定パラメータに誤りがあります。
 
 ```
 bash-4.4$ ./k5-token.py
