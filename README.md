@@ -741,21 +741,21 @@ FWをルータに適用すると、全ての通信が遮断された状態にな
 
 ルールの例です。
 
-|順序|名前|ルールID|有効/無効|アクション|IPバージョン|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|備考|アベイラビリティゾーン|ポリシーID|
-|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
-|position|name|id|enabled|action|ip_version|protocol|source_ip_address|source_port|destination_ip_address|destination_port|description|availability_zone|firewall_policy_id|
-|1|iida-az1-p01-mgmt01-any-tcp||TRUE|allow|4|tcp|192.168.246.0/24|null|null|null|test|jp-east-1a||
-|2|iida-az1-p01-mgmt01-any-udp||TRUE|allow|4|udp|192.168.246.0/24|null|null|null|test|jp-east-1a||
-|3|iida-az1-p01-mgmt01-any-icmp||TRUE|allow|4|icmp|192.168.246.0/24|null|null|null|test|jp-east-1a||
-|4|iida-az1-p01-net01-any-tcp||TRUE|allow|4|tcp|10.1.1.0/24|null|null|null|test|jp-east-1a||
-|5|iida-az1-p01-net01-any-udp||TRUE|allow|4|udp|10.1.1.0/24|null|null|null|test|jp-east-1a||
-|6|iida-az1-p01-net01-any-icmp||TRUE|allow|4|icmp|10.1.1.0/24|null|null|null|test|jp-east-1a||
-|7|iida-az1-p01-net02-any-tcp||TRUE|allow|4|tcp|10.1.2.0/24|null|null|null|test|jp-east-1a||
-|8|iida-az1-p01-net02-any-udp||TRUE|allow|4|udp|10.1.2.0/24|null|null|null|test|jp-east-1a||
-|9|iida-az1-p01-net02-any-icmp||TRUE|allow|4|icmp|10.1.2.0/24|null|null|null|test|jp-east-1a||
-|10|iida-az1-p01-any-net01-http||TRUE|allow|4|tcp|null|null|10.1.1.0/24|80|test|jp-east-1a||
-|11|iida-az1-p01-any-net01-https||TRUE|allow|4|tcp|null|null|10.1.1.0/24|443|test|jp-east-1a||
-|12|iida-az1-p01-deny-all||TRUE|deny|4|null|null|null|null|null|test|jp-east-1a||
+|順序|名前|ルールID|アクション|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|アベイラビリティゾーン|
+|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
+|position|name|id|action|protocol|source_ip_address|source_port|destination_ip_address|destination_port|availability_zone|
+|1|iida-az1-p01-mgmt01-any-tcp||allow|tcp|192.168.246.0/24|null|null|null|jp-east-1a|
+|2|iida-az1-p01-mgmt01-any-udp||allow|udp|192.168.246.0/24|null|null|null|jp-east-1a|
+|3|iida-az1-p01-mgmt01-any-icmp||allow|icmp|192.168.246.0/24|null|null|null|jp-east-1a|
+|4|iida-az1-p01-net01-any-tcp||allow|tcp|10.1.1.0/24|null|null|null|jp-east-1a|
+|5|iida-az1-p01-net01-any-udp||allow|udp|10.1.1.0/24|null|null|null|jp-east-1a|
+|6|iida-az1-p01-net01-any-icmp||allow|icmp|10.1.1.0/24|null|null|null|jp-east-1a|
+|7|iida-az1-p01-net02-any-tcp||allow|tcp|10.1.2.0/24|null|null|null|jp-east-1a|
+|8|iida-az1-p01-net02-any-udp||allow|udp|10.1.2.0/24|null|null|null|jp-east-1a|
+|9|iida-az1-p01-net02-any-icmp||allow|icmp|10.1.2.0/24|null|null|null|jp-east-1a|
+|10|iida-az1-p01-any-net01-http||allow|tcp|null|null|10.1.1.0/24|80|jp-east-1a|
+|11|iida-az1-p01-any-net01-https||allow|tcp|null|null|10.1.1.0/24|443|jp-east-1a|
+|12|iida-az1-p01-deny-all||deny|null|null|null|null|null|jp-east-1a|
 
 1~3は、管理アドレス(192.168.246.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
 
@@ -766,6 +766,10 @@ FWをルータに適用すると、全ての通信が遮断された状態にな
 10~11は、サーバへの着信通信をピンポイントで穴あけするためのものです。ここでは宛先を/24で指定していますが、サーバのIPアドレスが決まったら、/32に差し替えます。
 
 12は、全遮断を明示的に書いたものです（デフォルトで全遮断）。
+
+あとは必要に応じて穴あけをしていけばいいでしょう。
+イントラ側との通信は追加で許可が必要になると思います。
+
 
 > フローティングIPアドレスを使った場合のルールはどう作ればよいのかわかりません。
 >
