@@ -741,20 +741,20 @@ FWをルータに適用すると、全ての通信が遮断された状態にな
 
 ルールの例です。
 
-|項番|名前|ルールID|アクション|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|
-|:--|:--|:--|:--|:--|:--|:--|:--|:--|
-|1|iida-az1-p01-mgmt01-any-tcp||allow|tcp|192.168.246.0/24|null|null|null|
-|2|iida-az1-p01-mgmt01-any-udp||allow|udp|192.168.246.0/24|null|null|null|
-|3|iida-az1-p01-mgmt01-any-icmp||allow|icmp|192.168.246.0/24|null|null|null|
-|4|iida-az1-p01-net01-any-tcp||allow|tcp|10.1.1.0/24|null|null|null|
-|5|iida-az1-p01-net01-any-udp||allow|udp|10.1.1.0/24|null|null|null|
-|6|iida-az1-p01-net01-any-icmp||allow|icmp|10.1.1.0/24|null|null|null|
-|7|iida-az1-p01-net02-any-tcp||allow|tcp|10.1.2.0/24|null|null|null|
-|8|iida-az1-p01-net02-any-udp||allow|udp|10.1.2.0/24|null|null|null|
-|9|iida-az1-p01-net02-any-icmp||allow|icmp|10.1.2.0/24|null|null|null|
-|10|iida-az1-p01-any-net01-http||allow|tcp|null|null|10.1.1.0/24|80|
-|11|iida-az1-p01-any-net01-https||allow|tcp|null|null|10.1.1.0/24|443|
-|12|iida-az1-p01-deny-all||deny|null|null|null|null|null|
+|項番|名前|アクション|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|
+|:--|:--|:--|:--|:--|:--|:--|:--|
+|1|iida-az1-p01-mgmt01-any-tcp|allow|tcp|192.168.246.0/24|null|null|null|
+|2|iida-az1-p01-mgmt01-any-udp|allow|udp|192.168.246.0/24|null|null|null|
+|3|iida-az1-p01-mgmt01-any-icmp|allow|icmp|192.168.246.0/24|null|null|null|
+|4|iida-az1-p01-net01-any-tcp|allow|tcp|10.1.1.0/24|null|null|null|
+|5|iida-az1-p01-net01-any-udp|allow|udp|10.1.1.0/24|null|null|null|
+|6|iida-az1-p01-net01-any-icmp|allow|icmp|10.1.1.0/24|null|null|null|
+|7|iida-az1-p01-net02-any-tcp|allow|tcp|10.1.2.0/24|null|null|null|
+|8|iida-az1-p01-net02-any-udp|allow|udp|10.1.2.0/24|null|null|null|
+|9|iida-az1-p01-net02-any-icmp|allow|icmp|10.1.2.0/24|null|null|null|
+|10|iida-az1-p01-any-net01-http|allow|tcp|null|null|10.1.1.0/24|80|
+|11|iida-az1-p01-any-net01-https|allow|tcp|null|null|10.1.1.0/24|443|
+|12|iida-az1-p01-deny-all|deny|null|null|null|null|null|
 
 1~3は、管理アドレス(192.168.246.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
 
