@@ -5,7 +5,7 @@
 # 第一階層のキーは対象サブネットのIDにしてください
 
 #
-# iida-az1-subnet01
+# iida-az1-subnet02
 #
 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6:
   # サブネットの名前
