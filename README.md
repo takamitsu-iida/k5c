@@ -507,7 +507,7 @@ admin_state_up  True
 
 ということになります。
 
-![fig130](https://cloud.githubusercontent.com/assets/21165341/26041894/a1a69ba2-396b-11e7-81a0-f389312b6049.png)
+![fig130](https://cloud.githubusercontent.com/assets/21165341/26041996/6e929a94-396c-11e7-84d6-2b6a1cad1345.png)
 
 iida-az1-net02からみたとき、-net01(10.1.1.0/24)はルータ向け、その他の10系のアドレス(10.0.0.0/8)はネットワークコネクタ向け、インターネットはルータ向け、となります。
 
