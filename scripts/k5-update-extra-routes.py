@@ -212,28 +212,30 @@ if __name__ == '__main__':
       ]
 
     else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Updates logical router with routes attribute.')
-      parser.add_argument('--router_id', required=True, help='The ID of the router.')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
-      router_id = args.router_id
-      dump = args.dump
-
       # 自身の名前から拡張子を除いてプログラム名を得る
       app_name = os.path.splitext(os.path.basename(__file__))[0]
 
-      # コンフィグファイルの名前
+      # デフォルトのコンフィグファイルの名前
       config_file = app_name + ".yaml"
 
-      if not os.path.exists(config_file):
-        logging.error("Config file not found. %s", config_file)
+      import argparse
+      parser = argparse.ArgumentParser(description='Updates logical router with routes attribute.')
+      parser.add_argument('router_id', help='The ID of the router.')
+      parser.add_argument('--filename', default=config_file, help='The rule file. default: fw-rules.xlsx')
+      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+      args = parser.parse_args()
+      router_id = args.router_id
+      filename = args.filename
+      dump = args.dump
+
+      if not os.path.exists(filename):
+        logging.error("Config file not found. %s", filename)
         sys.exit(1)
 
       # コンフィグファイルを読み込む
       import codecs
       import yaml
-      with codecs.open(config_file, 'r', 'utf-8') as f:
+      with codecs.open(filename, 'r', 'utf-8') as f:
         try:
           data = yaml.load(f)
         except yaml.YAMLError as e:
