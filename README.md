@@ -664,9 +664,9 @@ destination     nexthop
 
 ## 手順１３．ネットワークコネクタへのルーティング設定
 
-K5と構内で接続するルータを用意して、eBGPピアを張ります。
-申請書にもとづいて手続きを進める必要があります。
+K5と構内で接続するルータを別途用意します。
 
+ネットワークコネクタの設定・変更は利用者ではできませんので、申請書にもとづいて手続きを進めます。
 
 ### コネクタエンドポイント自身のルーティング
 
@@ -704,6 +704,123 @@ eBGPでK5側に伝えられる経路の数には制限があり、上限200経�
 内部で使っているOSPF経路を全てeBGPに変換して伝える、といったことをやると、上限200経路に抵触するリスクが生じます。
 
 だいたいの場合はプライベートIPアドレスを集約して伝えれば問題ないでしょう。
+
+
+<BR>
+<BR>
+
+# ファイアウォールの設定と手順概要
+
+> NOTE:
+>
+> 公開されているドキュメントを読んでもよくわからない部分があります。ここに記載していることは個人的な理解です。
+
+K5のネットワークではFWの利用が推奨となっています。
+
+FWはネットワークの構成要素ではなく、ルータに付与される通信制限の機能です。
+FWでセグメントを分割する、といったことはできません。
+
+一般的なファイアウォール製品は物理ポートやセキュリティグループ、
+inside/outsideといったアイデアを駆使して壁を作っていきますが、
+K5のFWにはそれがなく、ポートを意識しない作りになっています。
+
+FWをルータに適用すると、全ての通信が遮断された状態になりますので、
+この状態から必要な通信を許可していくことになります。
+
+一般的なファイアウォール製品と同じように、
+内側から外側に向けて発信される通信、つまりinside→outside向けの通信は無条件で許可でいいと思います。
+したがって、最初に作成するルールは、K5の中にあるセグメントからany行きの通信を全て許可することです。
+その後、サーバに着信する通信に穴を開けていく、という考えでいいと思います。
+
+<BR>
+
+## 手順１４．ファイアウォールルールの作成
+
+ファイアウォールのルールを作成しても何も起こりません。
+安心して作ったり、消したりできます。
+
+ルールの例です。
+
+|順序|名前|ルールID|有効/無効|アクション|IPバージョン|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|備考|アベイラビリティゾーン|ポリシーID|
+|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|
+|position|name|id|enabled|action|ip_version|protocol|source_ip_address|source_port|destination_ip_address|destination_port|description|availability_zone|firewall_policy_id|
+|1|iida-az1-p01-mgmt01-any-tcp||TRUE|allow|4|tcp|192.168.246.0/24|null|null|null|test|jp-east-1a||
+|2|iida-az1-p01-mgmt01-any-udp||TRUE|allow|4|udp|192.168.246.0/24|null|null|null|test|jp-east-1a||
+|3|iida-az1-p01-mgmt01-any-icmp||TRUE|allow|4|icmp|192.168.246.0/24|null|null|null|test|jp-east-1a||
+|4|iida-az1-p01-net01-any-tcp||TRUE|allow|4|tcp|10.1.1.0/24|null|null|null|test|jp-east-1a||
+|5|iida-az1-p01-net01-any-udp||TRUE|allow|4|udp|10.1.1.0/24|null|null|null|test|jp-east-1a||
+|6|iida-az1-p01-net01-any-icmp||TRUE|allow|4|icmp|10.1.1.0/24|null|null|null|test|jp-east-1a||
+|7|iida-az1-p01-net02-any-tcp||TRUE|allow|4|tcp|10.1.2.0/24|null|null|null|test|jp-east-1a||
+|8|iida-az1-p01-net02-any-udp||TRUE|allow|4|udp|10.1.2.0/24|null|null|null|test|jp-east-1a||
+|9|iida-az1-p01-net02-any-icmp||TRUE|allow|4|icmp|10.1.2.0/24|null|null|null|test|jp-east-1a||
+|10|iida-az1-p01-any-net01-http||TRUE|allow|4|tcp|null|null|10.1.1.0/24|80|test|jp-east-1a||
+|11|iida-az1-p01-any-net01-https||TRUE|allow|4|tcp|null|null|10.1.1.0/24|443|test|jp-east-1a||
+|12|iida-az1-p01-deny-all||TRUE|deny|4|null|null|null|null|null|test|jp-east-1a||
+
+1~3は、管理アドレス(192.168.246.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
+
+4~6は、-net01(10.1.1.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
+
+7~9は、-net02(10.1.2.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
+
+10~11は、サーバへの着信通信をピンポイントで穴あけするためのものです。ここでは宛先を/24で指定していますが、サーバのIPアドレスが決まったら、/32に差し替えます。
+
+12は、全遮断を明示的に書いたものです（デフォルトで全遮断）。
+
+> フローティングIPアドレスを使った場合のルールはどう作ればよいのかわかりません。
+>
+> NAT前のグローバルIPアドレスへの着信を書くのか、NAT後のプライベートIPアドレスへの着信を書くのか・・・
+
+> アプリケーションインスペクションの機能有無がわかりません。
+>
+> FTPを許可した場合、関連するFTP-DATAも自動で許可されるのか・・・
+
+- k5-create-fw-rule.py
+- fw-rules.xlsx
+
+このスクリプトは、エクセルファイルを読み込みます。
+スクリプトの引数で与えたルール名をエクセルファイルから探して、その情報でルールを作成します。
+
+実行例。
+
+```
+bash-4.4$ ./k5-create-fw-rule.py --name iida-az1-p01-mgmt01-any-tcp
+POST /v2.0/fw/firewall_rules
+======================  ====================================
+id                      04f9bbc2-34f3-4b88-8313-def1f6984a9a
+name                    iida-az1-p01-mgmt01-any-tcp
+enabled                 True
+action                  allow
+protocol                tcp
+source_ip_address       192.168.246.0/24
+source_port
+destination_ip_address
+destination_port
+description             test
+availability_zone       jp-east-1a
+tenant_id               a5001a8b9c4a4712985c11377bd6d4fe
+======================  ====================================
+```
+
+<BR>
+
+## 手順１４．ファイアウォールポリシーの作成
+
+未完
+
+<BR>
+
+## 手順１５．ファイアウォールポリシーにルールを紐付け
+
+未完
+
+<BR>
+
+## 手順１６．ルータにファイアウォールを紐付け
+
+未完
+
+
 
 
 <BR>
