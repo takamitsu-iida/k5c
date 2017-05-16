@@ -787,12 +787,17 @@ net02は内部ネットワークを意識してレベルは『高』、
 
 
 ここまでつくっておけば、あとは必要に応じて追加で穴あけをしていけばいいでしょう。
+追加穴あけはこれらよりも先に評価されるようにルールの優先順位を指定します。
 
 > プロトコルにnullを指定するのはまずいようです。
 > APIのマニュアルにはこのように記載されています。
+>
 > > Avoid the use of null when specifying the protocol for
 > > Neutron FWaaS rules. Instead, create multiple rules for
 > > both ‘tcp' and ‘udp' protocols independently.
+>
+> nullを指定できるのはアドレスとポートだけのようです。
+
 
 > フローティングIPアドレスを使った場合のルールはどう作ればよいのかわかりません。
 >
