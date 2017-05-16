@@ -205,6 +205,8 @@ def read_rule(filename="", name=""):
     if not key_allowed(key):
       continue
     value = cell.value
+    if key == 'description' and not value:
+      value = ''
     if str(value).upper() == 'NULL':
       value = None
     result[key] = value
@@ -317,12 +319,15 @@ if __name__ == '__main__':
     # ルールを読み取る
     rule = read_rule(filename=filename, name=name)
 
+    print(json.dumps(rule, indent=2))
+
     if not rule:
       logging.error('no rule found')
       return
 
     # この結果はタプルを返すので、[0]を付けて、必要なところだけを取り出す
     rule_id = main(data=rule, dump=dump)[0]
+
     if rule_id:
       write_rule(filename=filename, name=name, rule_id=rule_id)
 
