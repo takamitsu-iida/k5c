@@ -109,7 +109,7 @@ Availability Zoneの中にはネットワークコネクタプールというも
 簡単な構成です。
 インターネットからの接続を受けつつ、裏側ではイントラとも接続する構成です。
 
-![fig010](https://cloud.githubusercontent.com/assets/21165341/25983547/6f9d7c5e-3720-11e7-9aa0-7fd6be8258ee.png)
+![fig010](https://cloud.githubusercontent.com/assets/21165341/26092739/95c933d4-3a4d-11e7-84f4-8a957f90f589.png)
 
 ## K5の構成に当てはめると
 
@@ -118,8 +118,7 @@ K5のコンポーネントで構成するとこのようになります。
 
 裏側はネットワークコネクタとコネクタエンドポイントで接続します。
 
-![fig020](https://cloud.githubusercontent.com/assets/21165341/25983573/9d325b80-3720-11e7-86fd-bbf558a9eb97.png
-)
+![fig020](https://cloud.githubusercontent.com/assets/21165341/26092779/ca76a3fa-3a4d-11e7-8e95-541d76447e17.png)
 
 ## 手順１．事業者側のIDを調べる
 
@@ -131,7 +130,7 @@ K5のコンポーネントで構成するとこのようになります。
 - k5-list-networks.py
 - k5-list-network-connector-pools.py
 
-![fig030](https://cloud.githubusercontent.com/assets/21165341/25997591/959fe2ca-3757-11e7-9bba-c94e7d35952e.png)
+![fig030](https://cloud.githubusercontent.com/assets/21165341/26092939/842681c6-3a4e-11e7-806e-1cfd0c58a435.png)
 
 ```
 bash-4.4$ ./k5-list-networks.py | grep inf_az1
@@ -176,7 +175,7 @@ e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
 
 - k5-create-router.py
 
-![fig040](https://cloud.githubusercontent.com/assets/21165341/25983622/e8ecfc38-3720-11e7-8349-c07a878317dd.png)
+![fig040](https://cloud.githubusercontent.com/assets/21165341/26093822/62bac796-3a52-11e7-9ab7-997d51abeade.png)
 
 ```
 bash-4.4$ ./k5-create-router.py --name iida-az1-router01
@@ -204,7 +203,7 @@ bash-4.4$
 
 - k5-create-router.py
 
-![fig050](https://cloud.githubusercontent.com/assets/21165341/25983724/824dc0c4-3721-11e7-990f-55360455cfa3.png)
+![fig050](https://cloud.githubusercontent.com/assets/21165341/26093866/90769908-3a52-11e7-8da6-f312f55d15a1.png)
 
 ```
 bash-4.4$ ./k5-create-network.py --name iida-az1-net01
@@ -242,7 +241,7 @@ bash-4.4$
 
 - k5-create-subnet.py
 
-![fig060](https://cloud.githubusercontent.com/assets/21165341/25983760/a816664e-3721-11e7-80ca-f75f4284733e.png)
+![fig060](https://cloud.githubusercontent.com/assets/21165341/26093933/cfd832b4-3a52-11e7-9bb5-93067030f54d.png)
 
 ```
 bash-4.4$ ./k5-create-subnet.py --name iida-az1-subnet01 --network_id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 --cidr 10.1.1.0/24
@@ -290,7 +289,7 @@ IPアドレスを指定することもできます。
 
 - k5-create-port.py
 
-![fig070](https://cloud.githubusercontent.com/assets/21165341/25983776/bfdc2b7e-3721-11e7-899b-75a370cdc1a5.png)
+![fig070](https://cloud.githubusercontent.com/assets/21165341/26094015/262df0d6-3a53-11e7-95a8-2fcd1222cde4.png)
 
 ```
 bash-4.4$ ./k5-create-port.py --name iida-az1-net01-port01 --network_id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 --subnet_id abbbbcf4-ea8f-4218-bbe7-669231eeba30 --ip_address 10.1.1.1
@@ -379,7 +378,7 @@ bash-4.4$
 
 - k5-connect-router.py
 
-![fig080](https://cloud.githubusercontent.com/assets/21165341/25983791/d2e6ce54-3721-11e7-9b52-8a71bd9a3804.png)
+![fig080](https://cloud.githubusercontent.com/assets/21165341/26093499/23dbed94-3a51-11e7-9db8-464309439df4.png)
 
 ```
 bash-4.4$ ./k5-connect-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --port_id 430497b1-fdd4-4857-bc43-53286b5a27f5
@@ -399,7 +398,7 @@ status_code: 200
 
 ネットワークコネクタが外部の物理ネットワークとの境界になると考えられます。ネットワークコネクタに設定すべきパラメータは、申請書にもとづいて変更をかけていきます。
 
-![fig090](https://cloud.githubusercontent.com/assets/21165341/25983801/e2b0d442-3721-11e7-8e6d-1a02097d6681.png)
+![fig090](https://cloud.githubusercontent.com/assets/21165341/26093448/f6268404-3a50-11e7-8cda-72f7469a752b.png)
 
 ```
 bash-4.4$ ./k5-create-network-connector.py --name iida-az1-nc --nc_pool_id e0a80446-203e-4b28-abec-d4b031d5b63e
@@ -425,7 +424,7 @@ bash-4.4$
 
 - k5-create-network-connector-endpoint.py
 
-![fig100](https://cloud.githubusercontent.com/assets/21165341/25998521/53b33d3a-375c-11e7-867f-46455985863e.png)
+![fig100](https://cloud.githubusercontent.com/assets/21165341/26094065/5eb0f35e-3a53-11e7-8125-16e16935b329.png)
 
 ```
 bash-4.4$ ./k5-create-network-connector-endpoint.py --name iida-az1-ncep --nc_id 88f343e8-a956-4bcc-853f-3c40d53cbb49
@@ -453,7 +452,7 @@ bash-4.4$
 
 - k5-connect-network-connector-endpoint.py
 
-![fig110](https://cloud.githubusercontent.com/assets/21165341/25983816/088d49a2-3722-11e7-8f13-07ee1347f6e5.png)
+![fig110](https://cloud.githubusercontent.com/assets/21165341/26093668/cef50dc8-3a51-11e7-9c3b-5be336eddb37.png)
 
 ```
 bash-4.4$ ./k5-connect-network-connector-endpoint.py --ncep_id 848a40c2-7ded-4df8-a43d-e55b912811a2 --port_id 6c73b1a0-ab3d-46e5-9515-f04e9f660423
@@ -470,7 +469,7 @@ status_code: 200
 
 - k5-update-router.py
 
-![fig120](https://cloud.githubusercontent.com/assets/21165341/25983834/255b78e2-3722-11e7-801e-11882cc3e436.png)
+![fig120](https://cloud.githubusercontent.com/assets/21165341/26093743/14d2d2e4-3a52-11e7-826d-b1b752f12993.png)
 
 ```
 bash-4.4$ ./k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id cd4057bd-f72e-4244-a7dd-1bcb2775dd67
@@ -724,13 +723,26 @@ FWでセグメントを分割する、といったことはできません。
 inside/outsideといったアイデアを駆使して壁を作っていきますが、
 K5のFWにはそれがなく、物理ポートを意識しない作りになっています。
 
-FWをルータに適用すると、全ての通信が遮断された状態になりますので、
-この状態から必要な通信を許可していくことになります。
+FWaaSのファイアウォールは暗黙のdenyが入っていますので、適用すると全通信が遮断されます。この状態から必要な通信を許可していくわけですが、一定の制約事項を導入しないと設計が大変です。
 
-一般的なファイアウォール製品と同じように、
-内側から外側に向けて発信される通信、つまりinside→outside向けの通信は無条件で許可でいいと思います。
-したがって、最初に作成するルールは、K5の中にあるセグメントからany行きの通信を全て許可することです。
-その後、サーバに着信する通信に穴を開けていく、という考えでいいと思います。
+K5内のネットワークにセキュリティレベルの概念を導入して、レベルの高いところから低いところ向けは無条件で許可、逆にレベルの低いところから高いところへの通信は全て遮断することにします。
+
+このようにしておけば、サーバで待ち受けているポートへの着信通信をピンポイントで開けていくだけですみます。
+
+たとえば、このようにセキュリティレベルを定義したとします。
+
+![fig150](https://cloud.githubusercontent.com/assets/21165341/26094136/a87afdc2-3a53-11e7-932e-9081fb674efd.png)
+
+インターネットは外部なのでセキュリティレベルは『最低』です。
+net01はDMZを意識してレベルは『中』、
+net02は内部ネットワークを意識してレベルは『高』、
+その他のイントラネットはレベル『低』です。
+
+この場合に定義すべきルールはこのようになります。
+
+![fig160](https://cloud.githubusercontent.com/assets/21165341/26094186/df83fa30-3a53-11e7-84d3-54e699502757.png)
+
+セキュリティレベル『高』には管理LANを入れておくとよいと思います。
 
 <BR>
 
@@ -741,34 +753,46 @@ FWをルータに適用すると、全ての通信が遮断された状態にな
 
 ルールの例です。
 
+高→低（許可）
+
 |項番|名前|アクション|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|
 |:--|:--|:--|:--|:--|:--|:--|:--|
-|1|iida-az1-p01-mgmt01-any-tcp|allow|tcp|192.168.246.0/24|null|null|null|
-|2|iida-az1-p01-mgmt01-any-udp|allow|udp|192.168.246.0/24|null|null|null|
-|3|iida-az1-p01-mgmt01-any-icmp|allow|icmp|192.168.246.0/24|null|null|null|
-|4|iida-az1-p01-net01-any-tcp|allow|tcp|10.1.1.0/24|null|null|null|
-|5|iida-az1-p01-net01-any-udp|allow|udp|10.1.1.0/24|null|null|null|
-|6|iida-az1-p01-net01-any-icmp|allow|icmp|10.1.1.0/24|null|null|null|
-|7|iida-az1-p01-net02-any-tcp|allow|tcp|10.1.2.0/24|null|null|null|
-|8|iida-az1-p01-net02-any-udp|allow|udp|10.1.2.0/24|null|null|null|
-|9|iida-az1-p01-net02-any-icmp|allow|icmp|10.1.2.0/24|null|null|null|
-|10|iida-az1-p01-any-net01-http|allow|tcp|null|null|10.1.1.0/24|80|
-|11|iida-az1-p01-any-net01-https|allow|tcp|null|null|10.1.1.0/24|443|
-|12|iida-az1-p01-deny-all|deny|null|null|null|null|null|
+|1|iida-az1-p01-net02-any-tcp|allow|tcp|10.1.2.0/24|null|null|null|
+|2|iida-az1-p01-net02-any-udp|allow|udp|10.1.2.0/24|null|null|null|
+|3|iida-az1-p01-net02-any-icmp|allow|icmp|10.1.2.0/24|null|null|null|
 
-1~3は、管理アドレス(192.168.246.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
+中→高（遮断）
 
-4~6は、-net01(10.1.1.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
+|項番|名前|アクション|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|
+|:--|:--|:--|:--|:--|:--|:--|:--|
+|4|iida-az1-p01-net01-net02-tcp|deny|tcp|10.1.1.0/24|null|10.1.2.0/24|null|
+|5|iida-az1-p01-net01-net02-udp|deny|udp|10.1.1.0/24|null|10.1.2.0/24|null|
+|6|iida-az1-p01-net01-net02-icmp|deny|icmp|10.1.1.0/24|null|10.1.2.0/24|null|
 
-7~9は、-net02(10.1.2.0/24)を内側と見立てて、内側からの全ての通信を許可しています。
+中→低（遮断）
 
-10~11は、サーバへの着信通信をピンポイントで穴あけするためのものです。ここでは宛先を/24で指定していますが、サーバのIPアドレスが決まったら、/32に差し替えます。
+|項番|名前|アクション|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|
+|:--|:--|:--|:--|:--|:--|:--|:--|
+|7|iida-az1-p01-net01-net02-tcp|allow|tcp|10.1.1.0/24|null|null|null|
+|8|iida-az1-p01-net01-net02-udp|allow|udp|10.1.1.0/24|null|null|null|
+|9|iida-az1-p01-net01-net02-icmp|allow|icmp|10.1.1.0/24|null|null|null|
 
-12は、全遮断を明示的に書いたものです（デフォルトで全遮断）。
+最低/低→中/高（遮断）
 
-あとは必要に応じて穴あけをしていけばいいでしょう。
-イントラ側との通信は追加で許可が必要になると思います。
+|項番|名前|アクション|プロトコル|送信元アドレス|送信元ポート|宛先アドレス|宛先ポート|
+|:--|:--|:--|:--|:--|:--|:--|:--|
+|10|deny-all-tcp|allow|tcp|null|null|null|null|
+|11|deny-all-udp|allow|udp|null|null|null|null|
+|12|deny-all-icmp|allow|icmp|null|null|null|null|
 
+
+ここまでつくっておけば、あとは必要に応じて追加で穴あけをしていけばいいでしょう。
+
+> プロトコルにnullを指定するのはまずいようです。
+> APIのマニュアルにはこのように記載されています。
+> > Avoid the use of null when specifying the protocol for
+> > Neutron FWaaS rules. Instead, create multiple rules for
+> > both ‘tcp' and ‘udp' protocols independently.
 
 > フローティングIPアドレスを使った場合のルールはどう作ればよいのかわかりません。
 >
@@ -780,7 +804,6 @@ FWをルータに適用すると、全ての通信が遮断された状態にな
 
 > 169.254のアドレスは許可しておけ、みたいな話しを小耳に挟んだような気がします・・・
 
-> プロトコルをnoneにすればtcp/ucp/icmp全て許可できるのかな？
 
 - k5-create-fw-rule.py
 - fw-rules.xlsx
