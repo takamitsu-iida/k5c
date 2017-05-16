@@ -885,34 +885,84 @@ lib/site-packagesにこれらを含めていますので、インストールは
 
 <BR>
 
-## スクリプトの設定
+## ディレクトリ構成
 
-lib/k5c/_k5config.py のファイル名をk5config.pyに変更して、上記の情報で書き換えてください。
 
-k5config.py
+```
+k5c
+├─bin
+├─conf
+├─lib
+│  ├─k5c
+│  └─site-packages
+│      ├─et_xmlfile
+│      ├─openpyxl
+│      ├─requests
+│      └─yaml
+└─log
+```
 
-```python
-# 契約番号
-DOMAIN_NAME = ""  # ここを書き換え
+<BR>
 
-# ドメインID(32桁)
+## 設定ファイル
+
+k5c/conf/_k5config.ini のファイル名を k5config.ini に変更して、適宜書き換えてください。
+
+k5config.ini
+
+```ini
+[k5]
+
+# K5関連設定
+
+# 契約番号 ★ここを書き換え
+# 例：DOMAIN_NAME = fXXXXXi
+DOMAIN_NAME =
+
+# ドメインID(32桁) ★ここを書き換え
 # IaaSポータルから[管理]→[利用者管理]→[グループ]
-DOMAIN_ID = ""  # ここを書き換え
+# 例：DOMAIN_ID = exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxc
+DOMAIN_ID =
 
-# プロジェクトID(32桁)
-PROJECT_ID = ""  # ここを書き換え
+# プロジェクトID(32桁) ★ここを書き換え
+# 別名テナントID
+# 例：PROJECT_ID = exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxc
+PROJECT_ID =
 
-# ユーザ情報
-USERNAME = ""  # ここを書き換え
-PASSWORD = ""  # ここを書き換え
+# ユーザ情報 ★ここを書き換え
+USERNAME =
+PASSWORD =
 
 # 対象リージョン
-REGION = "jp-east-1"  # ここを書き換え
+REGION = jp-east-1
+
+[proxy]
+
+# プロキシ設定
+
+# True or False
+USE_PROXY = False
+
+HTTP_PROXY = http://username:password@proxy-server-address:8080
+HTTPS_PROXY = http://username:password@proxy-server-address:8080
+
+[requests]
+
+# requestsモジュール関連設定
+
+TIMEOUT = 15
+
+[k5c]
+
+# k5cモジュールの設定
+
+# True or False
+USE_FILE_HANDLER = True
 ```
 
 ## スクリプトの実行
 
-scriptsフォルダに実行用のスクリプトを置いています。
+binフォルダに実行用のスクリプトを置いています。
 
 Windowsのコマンドプロンプトでも実行できますが、画面の横幅が狭いため見苦しい表示になってしまいます。
 TeraTERMでCygwinに接続する、出力をファイルにリダイレクトしてエディタで確認する、といった工夫をするといいと思います。
