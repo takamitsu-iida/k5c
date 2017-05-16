@@ -149,8 +149,15 @@ def main(data=None, dump=False):
   print("POST /v2.0/fw/firewall_rules")
   print(tabulate(rules, tablefmt='rst'))
 
+
+  #
+  # dirty hack
+  # 得られたidを返却オブジェクトに格納する
+  #
+  r['id'] = rule_id
+
   # 結果を返す
-  return (rule_id, r)
+  return r
 
 
 def read_rule(filename="", name=""):
@@ -318,15 +325,16 @@ if __name__ == '__main__':
 
     # ルールを読み取る
     rule = read_rule(filename=filename, name=name)
-
-    print(json.dumps(rule, indent=2))
+    # print(json.dumps(rule, indent=2))
 
     if not rule:
       logging.error('no rule found')
       return
 
-    # この結果はタプルを返すので、[0]を付けて、必要なところだけを取り出す
-    rule_id = main(data=rule, dump=dump)[0]
+    result = main(data=rule, dump=dump)
+
+    if result:
+      rule_id = result.get('id', None)
 
     if rule_id:
       write_rule(filename=filename, name=name, rule_id=rule_id)
