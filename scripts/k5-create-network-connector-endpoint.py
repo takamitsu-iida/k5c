@@ -68,12 +68,6 @@ except ImportError as e:
   exit(1)
 
 try:
-  from k5c import k5config  # need info in k5config.py
-except ImportError as e:
-  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
-  exit(1)
-
-try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
@@ -85,7 +79,7 @@ except ImportError as e:
 def main(name="", nc_id="", endpoint_type="availability_zone", az="", tenant_id="", dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.EP_NETWORK + "/v2.0/network_connector_endpoints"
+  url = k5c.EP_NETWORK + "/v2.0/network_connector_endpoints"
 
   # 作成するネットワークコネクタエンドポイントのオブジェクト
   ncep_object = {
@@ -174,7 +168,7 @@ if __name__ == '__main__':
       az = "jp-east-1a"  # or "jp-east-1b"
 
       # 所属させるテナントID
-      tenant_id = k5config.TENANT_ID
+      tenant_id = k5c.TENANT_ID
 
       # jsonをダンプ
       dump = False
@@ -196,7 +190,7 @@ if __name__ == '__main__':
       endpoint_type = "availability_zone"
 
       # 所属させるテナントID
-      tenant_id = k5config.TENANT_ID
+      tenant_id = k5c.TENANT_ID
 
     main(name=name, nc_id=nc_id, az=az, endpoint_type=endpoint_type, tenant_id=tenant_id, dump=dump)
 

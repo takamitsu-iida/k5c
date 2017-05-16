@@ -63,12 +63,6 @@ except ImportError as e:
   exit(1)
 
 try:
-  from k5c import k5config  # need info in k5config.py
-except ImportError as e:
-  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
-  exit(1)
-
-try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
@@ -82,7 +76,7 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=N
   # pylint: disable=too-many-arguments
 
   # 接続先
-  url = k5config.EP_NETWORK + "/v2.0/subnets"
+  url = k5c.EP_NETWORK + "/v2.0/subnets"
 
   # 作成するサブネットのオブジェクト
   subnet_object = {

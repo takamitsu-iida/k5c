@@ -6,7 +6,10 @@ log/
 *.pickle
 
 # 内緒の設定ファイル
+config.py
 k5config.py
+config.ini
+k5config.ini
 
 #
 # 以下、giboによる自動生成

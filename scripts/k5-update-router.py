@@ -46,12 +46,6 @@ except ImportError as e:
   exit(1)
 
 try:
-  from k5c import k5config  # need info in k5config.py
-except ImportError as e:
-  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
-  exit(1)
-
-try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
@@ -65,7 +59,7 @@ def main(router_id="", network_id="", dump=False):
   ルータの外部向けのネットワークを設定します。
   """
   # 接続先URL
-  url = k5config.EP_NETWORK +  "/v2.0/routers/" + router_id
+  url = k5c.EP_NETWORK +  "/v2.0/routers/" + router_id
 
   # 設定する外部ネットワークの情報
   if network_id:

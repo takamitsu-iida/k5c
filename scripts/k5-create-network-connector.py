@@ -16,10 +16,6 @@ id                                    name
 ====================================  ============================
 e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
 ====================================  ============================
-
-　・このネットワークコネクタプールIDはスクリプトの中のmain()に記述する
-　・作成するコネクタの名前はスクリプトの中のmain()に記述する
-　・所属させるテナントIDはk5config.pyの中に記述する
 """
 
 """
@@ -54,12 +50,6 @@ except ImportError as e:
   exit(1)
 
 try:
-  from k5c import k5config  # need info in k5config.py
-except ImportError as e:
-  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
-  exit(1)
-
-try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
@@ -71,7 +61,7 @@ except ImportError as e:
 def main(name="", nc_pool_id="", tenant_id="", dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.EP_NETWORK + "/v2.0/network_connectors"
+  url = k5c.EP_NETWORK + "/v2.0/network_connectors"
 
   # 作成するネットワークコネクタのオブジェクト
   nc_object = {
@@ -134,7 +124,7 @@ if __name__ == '__main__':
       nc_pool_id = "e0a80446-203e-4b28-abec-d4b031d5b63e"
 
       # 所属させるテナントID
-      tenant_id = k5config.TENANT_ID
+      tenant_id = k5c.TENANT_ID
 
       # jsonをダンプ
       dump = False
@@ -144,7 +134,7 @@ if __name__ == '__main__':
       parser = argparse.ArgumentParser(description='Create a network connector.')
       parser.add_argument('--name', required=True, help='The network connector name.')
       parser.add_argument('--nc_pool_id', required=True, help='The network connector pool id.')
-      parser.add_argument('--tenant_id', default=k5config.TENANT_ID, help='The tenant id.')
+      parser.add_argument('--tenant_id', default=k5c.TENANT_ID, help='The tenant id.')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
       args = parser.parse_args()
       name = args.name

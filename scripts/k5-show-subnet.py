@@ -44,12 +44,6 @@ except ImportError as e:
   exit(1)
 
 try:
-  from k5c import k5config  # need info in k5config.py
-except ImportError as e:
-  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
-  exit(1)
-
-try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
@@ -61,7 +55,7 @@ except ImportError as e:
 def main(subnet_id='', dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.EP_NETWORK + "/v2.0/subnets/" + subnet_id
+  url = k5c.EP_NETWORK + "/v2.0/subnets/" + subnet_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()

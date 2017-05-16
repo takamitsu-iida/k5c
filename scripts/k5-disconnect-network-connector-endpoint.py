@@ -37,19 +37,13 @@ except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
-try:
-  from k5c import k5config  # need info in k5config.py
-except ImportError as e:
-  logging.exception("k5configモジュールの読み込みに失敗しました: %s", e)
-  exit(1)
-
 #
 # メイン
 #
 def main(ncep_id="", port_id="", dump=False):
   """メイン関数"""
   # 接続先
-  url = k5config.EP_NETWORK + "/v2.0/network_connector_endpoints/" + ncep_id + "/disconnect"
+  url = k5c.EP_NETWORK + "/v2.0/network_connector_endpoints/" + ncep_id + "/disconnect"
 
   # 切断対象となるインタフェースのオブジェクト
   interface_object = {

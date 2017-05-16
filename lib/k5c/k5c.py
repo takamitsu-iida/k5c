@@ -3,10 +3,15 @@
 
 """
 K5のREST APIへの接続機能を提供します。
+
 依存外部モジュール
   requests
 """
 
+try:
+  import configparser  # python3
+except ImportError:
+  import ConfigParser as configparser  # python2
 import functools  # デコレータを作るのに必要
 import json
 import logging
@@ -22,6 +27,67 @@ app_home = here("../..")
 
 # 自身の名前から拡張子を除いてプログラム名を得る
 app_name = os.path.splitext(os.path.basename(__file__))[0]
+
+# 設定ファイルのパス
+# $app_home/conf/k5config.ini
+config_file = os.path.join(app_home, "conf", "k5config.ini")
+if not os.path.exists(config_file):
+  logging.error("File not found %s : ", config_file)
+  exit(1)
+
+# 設定ファイルを読む
+try:
+  cp = configparser.SafeConfigParser()
+  cp.read(config_file, encoding='utf8')
+
+  # [k5] セクション
+  config = cp['k5']
+  DOMAIN_NAME = config['DOMAIN_NAME']
+  DOMAIN_ID = config['DOMAIN_ID']
+  PROJECT_ID = config['PROJECT_ID']
+  REGION = config['REGION']
+  USERNAME = config['USERNAME']
+  PASSWORD = config['PASSWORD']
+
+  # エンドポイント
+  EP_TOKEN = "https://identity." + REGION + ".cloud.global.fujitsu.com"
+  EP_IDENTITY = "https://identity." + REGION + ".cloud.global.fujitsu.com"
+  EP_NETWORK = "https://networking." + REGION + ".cloud.global.fujitsu.com"
+
+  # [proxy] セクション
+  config = cp['proxy']
+  USE_PROXY = config.getboolean('USE_PROXY')
+  if USE_PROXY:
+    PROXIES = {
+      'http': config['HTTP_PROXY'],
+      'https': config['HTTP_PROXY']
+    }
+  else:
+    PROXIES = None
+
+  # [requests] セクション
+  config = cp['requests']
+  TIMEOUT = config.getint('TIMEOUT')
+
+  # [k5c] セクション
+  config = cp['k5c']
+  USE_FILE_HANDLER = config.getboolean('USE_FILE_HANDLER')
+
+except configparser.Error as e:
+  logging.error("k5config.iniの読み込みに失敗しました。")
+  logging.exception(e)
+  exit(1)
+
+try:
+  from .k5tokenmanager import k5tokenmanager
+except ImportError as e:
+  logging.error("k5tokenmanagerモジュールのインポートに失敗しました。")
+  logging.exception(e)
+  exit(1)
+
+#
+# ログ設定
+#
 
 # ログファイルの名前
 log_file = app_name + ".log"
@@ -63,32 +129,19 @@ stdout_handler.setLevel(logging.WARNING)
 logger.addHandler(stdout_handler)
 
 # ログファイルのハンドラ
-file_handler = logging.FileHandler(os.path.join(log_dir, log_file), 'a+')
-file_handler.setFormatter(formatter)
-file_handler.setLevel(logging.INFO)
-logger.addHandler(file_handler)
-
-try:
-  from .k5tokenmanager import k5tokenmanager
-except ImportError as e:
-  logger.error("k5tokenmanagerモジュールのインポートに失敗しました。")
-  logger.exception(e)
-  exit(1)
-
-try:
-  from . import k5config  # need info in k5config.py
-except ImportError as e:
-  logger.error("k5configモジュールの読み込みに失敗しました。")
-  logger.exception(e)
-  exit(1)
+if USE_FILE_HANDLER:
+  file_handler = logging.FileHandler(os.path.join(log_dir, log_file), 'a+')
+  file_handler.setFormatter(formatter)
+  file_handler.setLevel(logging.INFO)
+  logger.addHandler(file_handler)
 
 try:
   import requests
   # HTTPSを使用した場合に、証明書関連の警告を無視する
   requests.packages.urllib3.disable_warnings()
 except ImportError as e:
-  logger.error("requestsモジュールのインポートに失敗しました。")
-  logger.exception(e)
+  logging.error("requestsモジュールのインポートに失敗しました。")
+  logging.exception(e)
   exit(1)
 
 
@@ -100,13 +153,13 @@ class Client(object):
 
   def __init__(self):
     """コンストラクタ"""
-    self._timeout = k5config.TIMEOUT
-    self._username = k5config.USERNAME
-    self._password = k5config.PASSWORD
-    self._proxies = k5config.PROXIES
-    self._url_token = k5config.EP_TOKEN + "/v3/auth/tokens"
-    self._domain_name = k5config.DOMAIN_NAME
-    self._project_id = k5config.PROJECT_ID
+    self._timeout = TIMEOUT
+    self._username = USERNAME
+    self._password = PASSWORD
+    self._proxies = PROXIES
+    self._url_token = EP_TOKEN + "/v3/auth/tokens"
+    self._domain_name = DOMAIN_NAME
+    self._project_id = PROJECT_ID
 
   def getToken(self):
     """スレッドセーフなトークン取得"""
