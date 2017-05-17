@@ -7,13 +7,13 @@ Update extra route
 ルーティング情報をアップデートする
 
 NOTE:
-　・設定ファイルが必要です k5-update-extra-routes.yaml
+　・設定ファイルが必要です conf/extra-routes.yaml
 """
 
 """
 実行例
 
-bash-4.4$ ./k5-update-extra-routes.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313
+bash-4.4$ ./bin/k5-update-extra-routes.py ffbd70be-24cf-4dff-a4f6-661bf892e313 --filename conf/extra-routes.yaml
 PUT /v2.0/routers/{router_id}
 ==============  ====================================
 name            iida-az1-router01
@@ -27,7 +27,7 @@ admin_state_up  True
 external_gateway_info
 ===========  ====================================
 enable_snat  True
-network_id   cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+network_id   92f386c1-59fe-48ca-8cf9-b95f81920466
 ===========  ====================================
 
 routes
@@ -65,47 +65,62 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# リクエストデータを作成する
 #
-def main(router_id="", routes=None, dump=False):
-  """メイン関数"""
-  # pylint: disable=too-many-arguments
+def make_request_data(routes=None):
+  """リクエストデータを作成して返却します"""
+
+  routes_object = {
+    'routes': routes
+  }
+
+  return {'router': routes_object}
+
+
+#
+# APIにアクセスする
+#
+def access_api(router_id="", data=None):
+  """REST APIにアクセスします"""
 
   # 接続先
   url = k5c.EP_NETWORK + "/v2.0/routers/" + router_id
-
-  # 変更するルータのオブジェクト
-  router_object = {
-    'router': {
-      'routes': routes
-    }
-  }
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # PUTメソッドで作成して、結果のオブジェクトを得る
-  r = c.put(url=url, data=router_object)
+  r = c.put(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result=None, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 変更したサブネットの情報はデータオブジェクトの中の'subnet'キーにオブジェクトとして入っている
   # "data": {
@@ -177,73 +192,61 @@ def main(router_id="", routes=None, dump=False):
     print("")
     print("'routes' is not set.")
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
+  import argparse
+  import codecs
+  import yaml
 
-      # 変更対象のrouter_id
-      router_id = "ffbd70be-24cf-4dff-a4f6-661bf892e313"
+  def main():
+    """メイン関数"""
 
-      routes = [
-        {
-          'destination': "10.0.0.0/8",
-          'nexthop': "10.1.2.9"
-        },
-        {
-          'destination': "172.16.0.0/12",
-          'nexthop': "10.1.2.9"
-        },
-        {
-          'destination': "192.168.0.0/16",
-          'nexthop': "10.1.2.9"
-        }
-      ]
+    # アプリケーションのホームディレクトリ
+    app_home = here("..")
 
-    else:
-      # 自身の名前から拡張子を除いてプログラム名を得る
-      app_name = os.path.splitext(os.path.basename(__file__))[0]
+    # デフォルトのコンフィグファイルの名前
+    # $app_home/conf/extra-routes.yaml
+    config_file = os.path.join(app_home, "conf", "extra-routes.yaml")
 
-      # デフォルトのコンフィグファイルの名前
-      config_file = app_name + ".yaml"
+    parser = argparse.ArgumentParser(description='Updates logical router with routes attribute.')
+    parser.add_argument('router_id', help='The ID of the router.')
+    parser.add_argument('--filename', default=config_file, help='The rule file. default: '+config_file)
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
+    router_id = args.router_id
+    filename = args.filename
+    dump = args.dump
 
-      import argparse
-      parser = argparse.ArgumentParser(description='Updates logical router with routes attribute.')
-      parser.add_argument('router_id', help='The ID of the router.')
-      parser.add_argument('--filename', default=config_file, help='The rule file. default: fw-rules.xlsx')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
-      router_id = args.router_id
-      filename = args.filename
-      dump = args.dump
+    if not os.path.exists(filename):
+      logging.error("Config file not found. %s", filename)
+      sys.exit(1)
 
-      if not os.path.exists(filename):
-        logging.error("Config file not found. %s", filename)
+    # コンフィグファイルを読み込む
+    with codecs.open(filename, 'r', 'utf-8') as f:
+      try:
+        yaml_data = yaml.load(f)
+      except yaml.YAMLError as e:
+        logging.exception(e)
         sys.exit(1)
 
-      # コンフィグファイルを読み込む
-      import codecs
-      import yaml
-      with codecs.open(filename, 'r', 'utf-8') as f:
-        try:
-          data = yaml.load(f)
-        except yaml.YAMLError as e:
-          logging.exception(e)
-          sys.exit(1)
+    router_data = yaml_data.get(router_id, {})
+    if not router_data:
+      logging.error("router_id not found in the yaml file.")
+      sys.exit(1)
 
-      config = data.get(router_id, {})
-      if not config:
-        logging.error("router_id not found in the yaml file.")
-        sys.exit(1)
+    routes = router_data.get('routes', [])
 
-      routes = config.get('routes', [])
+    # リクエストデータを作成
+    data = make_request_data(routes=routes)
+    # print(json.dumps(data, indent=2))
 
-    main(router_id=router_id, routes=routes, dump=dump)
+    # 実行
+    result = access_api(router_id=router_id, data=data)
+
+    # 得たデータを処理する
+    print_result(result=result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()

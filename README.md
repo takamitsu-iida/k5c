@@ -510,10 +510,15 @@ admin_state_up  True
 
 iida-az1-net02からみたとき、-net01(10.1.1.0/24)はルータ向け、その他の10系のアドレス(10.0.0.0/8)はネットワークコネクタ向け、インターネットはルータ向け、となります。
 
-- k5-update-subnet.py
-- k5-update-subnet.yaml
+- bin/k5-update-subnet.py
+- conf/subnet.yaml
 
 このスクリプトは設定パラメータが多いだけでなく、形式が複雑なので、YAML形式の設定ファイルを作って読み込ませます。
+第一階層のキーは対象サブネットのIDを指定してください（最後のコロンを忘れないように）
+
+> (自分メモ)
+>
+> キーはサブネットの名前にした方がいいかも
 
 ```yaml
 # 第一階層のキーは対象サブネットのIDにしてください
@@ -605,11 +610,10 @@ destination     nexthop
 >
 > スタティックルーティングはたいへん面倒です。
 
-- k5-update-extra-routes.py
-- k5-update-extra-routes.yaml
+- bin/k5-update-extra-routes.py
+- conf/extra-routes.yaml
 
 このスクリプトはYAML形式の設定ファイルを作って読み込ませます。
-ルータごとにYAMLファイルを作成しておくとよいでしょう。
 
 ```yaml
 # 第一階層のキーは対象ルータのIDにしてください
@@ -1016,6 +1020,11 @@ issued_atとexpires_atの差分が3時間ほどありますので、トークン
 ### k5-update-router.py
 
 外部ネットワークと接続します。
+
+このスクリプトは二度APIを叩きます。
+一度目はexternal_gateway_infoを空っぽにします。
+その後、external_gateway_infoを指定値に変更します。
+
 
 ### k5-connect-router.py
 

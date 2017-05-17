@@ -224,7 +224,6 @@ if __name__ == '__main__':
     app_home = here("..")
 
     # デフォルトのコンフィグファイルの名前
-    # 設定ファイルのパス
     # $app_home/conf/subnet.yaml
     config_file = os.path.join(app_home, "conf", "subnet.yaml")
 
