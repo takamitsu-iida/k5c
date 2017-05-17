@@ -70,15 +70,13 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
-#
-# メイン
-#
-def main(subnet_id="", name=None, gateway_ip=None, dns_nameservers=None, host_routes=None, dump=False):
-  """メイン関数"""
-  # pylint: disable=too-many-arguments
 
-  # 接続先
-  url = k5c.EP_NETWORK + "/v2.0/subnets/" + subnet_id
+#
+# リクエストデータを作成する
+#
+def make_request_data(name=None, gateway_ip=None, dns_nameservers=None, host_routes=None):
+  """リクエストデータを作成して返却します"""
+  # pylint: disable=too-many-arguments
 
   # 作成するサブネットのオブジェクト
   subnet_object = {}
@@ -99,30 +97,51 @@ def main(subnet_id="", name=None, gateway_ip=None, dns_nameservers=None, host_ro
   if host_routes and len(host_routes) > 0:
     subnet_object['host_routes'] = host_routes
 
+  return {'subnet': subnet_object}
+
+
+#
+# APIにアクセスする
+#
+def access_api(subnet_id="", data=None):
+  """メイン関数"""
+
+  # 接続先
+  url = k5c.EP_NETWORK + "/v2.0/subnets/" + subnet_id
+
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # PUTメソッドで作成して、結果のオブジェクトを得る
-  r = c.put(url=url, data={'subnet': subnet_object})
+  r = c.put(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result=None, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 変更したサブネットの情報はデータオブジェクトの中の'subnet'キーにオブジェクトとして入っている
   # "data": {
@@ -191,67 +210,68 @@ def main(subnet_id="", name=None, gateway_ip=None, dns_nameservers=None, host_ro
   print("\n")
   print(tabulate(routes_list, headers=['destination', 'nexthop'], tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
+  import argparse
+  import codecs
+  import yaml
 
-      # 作成するサブネットの名前
-      name = "iida-subnet-1"
+  def main():
+    """メイン関数"""
 
-      # 変更対象のsubnet_id
-      subnet_id = "e3c166c0-7e90-4c6e-857e-87fd985f98ac"
+    # アプリケーションのホームディレクトリ
+    app_home = here("..")
 
-      # DNSサーバは環境にあわせて設定する
-      dns_nameservers = ["133.162.193.9", "133.162.193.10"]  # AZ1の場合
-      # dns_nameservers = ["133.162.201.9", "133.162.201.10"]  # AZ2の場合
-      # dns_nameservers = ["8.8.8.7", "8.8.8.8"]  # GoogleのDNS
+    # 自身の名前から拡張子を除いてプログラム名を得る
+    app_name = os.path.splitext(os.path.basename(__file__))[0]
 
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Updates a specified subnet.')
-      parser.add_argument('--subnet_id', required=True, help='The ID of the subnet.')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
-      subnet_id = args.subnet_id
-      dump = args.dump
+    # デフォルトのコンフィグファイルの名前
+    # 設定ファイルのパス
+    # $app_home/conf/update-subnet.yaml
+    config_file = os.path.join(app_home, app_name + ".yaml")
 
-      # 自身の名前から拡張子を除いてプログラム名を得る
-      app_name = os.path.splitext(os.path.basename(__file__))[0]
+    parser = argparse.ArgumentParser(description='Updates a specified subnet.')
+    parser.add_argument('--subnet_id', required=True, help='The ID of the subnet.')
+    parser.add_argument('-f', '--filename', default=config_file, help='The configuration file. default: '+config_file)
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
+    subnet_id = args.subnet_id
+    dump = args.dump
 
-      # コンフィグファイルの名前
-      config_file = app_name + ".yaml"
+    if not os.path.exists(config_file):
+      logging.error("Config file not found. %s", config_file)
+      sys.exit(1)
 
-      if not os.path.exists(config_file):
-        logging.error("Config file not found. %s", config_file)
+    with codecs.open(config_file, 'r', 'utf-8') as f:
+      try:
+        data = yaml.load(f)
+      except yaml.YAMLError as e:
+        logging.exception(e)
         sys.exit(1)
 
-      # コンフィグファイルを読み込む
-      import codecs
-      import yaml
-      with codecs.open(config_file, 'r', 'utf-8') as f:
-        try:
-          data = yaml.load(f)
-        except yaml.YAMLError as e:
-          logging.exception(e)
-          sys.exit(1)
+    config = data.get(subnet_id, {})
+    if not config:
+      logging.error("subnet_id not found in the yaml file.")
+      sys.exit(1)
 
-      config = data.get(subnet_id, {})
-      if not config:
-        logging.error("subnet_id not found in the yaml file.")
-        sys.exit(1)
+    name = config.get('name', '')
+    gateway_ip = config.get('gateway_ip', '')
+    dns_nameservers = config.get('dns_nameservers', [])
+    host_routes = config.get('host_routes', [])
 
-      name = config.get('name', '')
-      gateway_ip = config.get('gateway_ip', '')
-      dns_nameservers = config.get('dns_nameservers', [])
-      host_routes = config.get('host_routes', [])
+    data = make_request_data(name=name, gateway_ip=gateway_ip, dns_nameservers=dns_nameservers, host_routes=host_routes)
 
-    main(subnet_id=subnet_id, name=name, gateway_ip=gateway_ip, dns_nameservers=dns_nameservers, host_routes=host_routes, dump=dump)
+    if not data:
+      logging.error('no rule found.')
+      return
+
+    # 実行
+    result = access_api(subnet_id=subnet_id, data=data)
+
+    # 得たデータを処理する
+    print_result(result=result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()

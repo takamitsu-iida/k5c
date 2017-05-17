@@ -66,45 +66,64 @@ except ImportError as e:
   logging.exception("openpyxlモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# リクエストデータを作成
 #
-def main(data=None, dump=False):
-  """
-  ファイアウォールルールを作成します。
-  """
-  # 接続先URL
-  url = k5c.EP_NETWORK + "/v2.0/fw/firewall_rules"
+def make_request_data(filename="", name=""):
+  """リクエストデータを作成して返却します"""
+  rule = read_rule(filename=filename, name=name)
+  if not rule:
+    return None
 
   # 作成するルールのオブジェクト
-  firewall_rule_object = {
-    'firewall_rule': data
+  request_data = {
+    'firewall_rule': rule
   }
+
+  return request_data
+
+
+#
+# APIにアクセス
+#
+def access_api(data=None):
+  """REST APIにアクセスします"""
+  # 接続先URL
+  url = k5c.EP_NETWORK + "/v2.0/fw/firewall_rules"
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # POSTメソッドで作成して、結果のオブジェクトを得る
-  r = c.post(url=url, data=firewall_rule_object)
+  r = c.post(url=url, data=data)
+
+  return r
+
+#
+# 結果を表示
+#
+def print_result(result=None, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 作成したルールの情報はデータオブジェクトの中の'firewall_rule'キーにオブジェクトとして入っている
   #"data": {
@@ -150,14 +169,13 @@ def main(data=None, dump=False):
   print(tabulate(rules, tablefmt='rst'))
 
 
-  #
-  # dirty hack
-  # 得られたidを返却オブジェクトに格納する
-  #
-  r['id'] = rule_id
-
-  # 結果を返す
-  return r
+def get_rule_id(result=None):
+  """rule_idを探して返却します"""
+  data = result.get('data', None)
+  if not data:
+    return None
+  rule = data.get('firewall_rule', {})
+  return rule.get('id', '')
 
 
 def read_rule(filename="", name=""):
@@ -212,6 +230,7 @@ def read_rule(filename="", name=""):
     if not key_allowed(key):
       continue
     value = cell.value
+    # quick hack, description key must be string
     if key == 'description' and not value:
       value = ''
     if str(value).upper() == 'NULL':
@@ -223,6 +242,8 @@ def read_rule(filename="", name=""):
 
 def write_rule(filename="", name="", rule_id=None):
   """ルールIDをファイルに書き込みます"""
+  if not rule_id:
+    return
 
   # Excelのブックファイルを読み出す
   try:
@@ -311,34 +332,48 @@ def find_cell(ws=None, row=None, col=None, value=None):
 
 if __name__ == '__main__':
 
-  def run_main():
-    """メイン関数を呼び出します"""
-    import argparse
+  import argparse
+
+  def main():
+    """メイン関数"""
+
+    # アプリケーションのホームディレクトリ
+    app_home = here("..")
+
+    # 設定ファイルのパス
+    # $app_home/conf/fw-rules.xlsx
+    config_file = os.path.join(app_home, "conf", "fw-rules.xlsx")
+
     parser = argparse.ArgumentParser(description='Creates a firewall rule.')
-    parser.add_argument('--name', required=True, help='The rule name.')
-    parser.add_argument('--filename', default='fw-rules.xlsx', help='The rule file. default: fw-rules.xlsx')
+    parser.add_argument('-n', '--name', required=True, help='The rule name.')
+    parser.add_argument('-f', '--filename', default=config_file, help='The rule file. default: '+config_file)
+    parser.add_argument('-w', '--write', action='store_true', default=False, help='Write rule-id to excel file.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     name = args.name
     filename = args.filename
+    write = args.write
     dump = args.dump
 
-    # ルールを読み取る
-    rule = read_rule(filename=filename, name=name)
-    # print(json.dumps(rule, indent=2))
+    # ファイルからルールを読み取ってリクエストデータを作る
+    data = make_request_data(name=name, filename=filename)
+    # print(json.dumps(data, indent=2))
 
-    if not rule:
-      logging.error('no rule found')
+    if not data:
+      logging.error('no rule found.')
       return
 
-    result = main(data=rule, dump=dump)
+    # 実行
+    result = access_api(data=data)
 
-    if result:
-      rule_id = result.get('id', None)
+    # 得たデータを処理する
+    print_result(result=result, dump=dump)
 
-    if rule_id:
+    # 結果をエクセルに書く
+    if write:
+      rule_id = get_rule_id(result)
       write_rule(filename=filename, name=name, rule_id=rule_id)
 
 
   # 実行
-  run_main()
+  main()
