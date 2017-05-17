@@ -226,7 +226,7 @@ if __name__ == '__main__':
     # デフォルトのコンフィグファイルの名前
     # 設定ファイルのパス
     # $app_home/conf/subnet.yaml
-    config_file = os.path.join(app_home, "subnet.yaml")
+    config_file = os.path.join(app_home, "conf", "subnet.yaml")
 
     parser = argparse.ArgumentParser(description='Updates a specified subnet.')
     parser.add_argument('--subnet_id', required=True, help='The ID of the subnet.')
