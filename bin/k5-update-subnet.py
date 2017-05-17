@@ -7,7 +7,7 @@ Update subnet
 指定されたサブネットを更新する
 
 NOTE:
-　・設定ファイルが必要です k5-update-subnet.yaml
+　・設定ファイルが必要です $app_home/conf/subnet.yaml
 """
 
 """
@@ -223,13 +223,10 @@ if __name__ == '__main__':
     # アプリケーションのホームディレクトリ
     app_home = here("..")
 
-    # 自身の名前から拡張子を除いてプログラム名を得る
-    app_name = os.path.splitext(os.path.basename(__file__))[0]
-
     # デフォルトのコンフィグファイルの名前
     # 設定ファイルのパス
-    # $app_home/conf/update-subnet.yaml
-    config_file = os.path.join(app_home, app_name + ".yaml")
+    # $app_home/conf/subnet.yaml
+    config_file = os.path.join(app_home, "subnet.yaml")
 
     parser = argparse.ArgumentParser(description='Updates a specified subnet.')
     parser.add_argument('--subnet_id', required=True, help='The ID of the subnet.')
