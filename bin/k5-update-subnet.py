@@ -104,7 +104,7 @@ def make_request_data(name=None, gateway_ip=None, dns_nameservers=None, host_rou
 # APIにアクセスする
 #
 def access_api(subnet_id="", data=None):
-  """メイン関数"""
+  """REST APIにアクセスします"""
 
   # 接続先
   url = k5c.EP_NETWORK + "/v2.0/subnets/" + subnet_id
@@ -260,11 +260,8 @@ if __name__ == '__main__':
     dns_nameservers = config.get('dns_nameservers', [])
     host_routes = config.get('host_routes', [])
 
+    # リクエストデータを作成
     data = make_request_data(name=name, gateway_ip=gateway_ip, dns_nameservers=dns_nameservers, host_routes=host_routes)
-
-    if not data:
-      logging.error('no rule found.')
-      return
 
     # 実行
     result = access_api(subnet_id=subnet_id, data=data)

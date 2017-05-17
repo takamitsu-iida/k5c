@@ -12,9 +12,32 @@ NOTE:
 """
 
 """
-実行例
+実行例（external_gateway_infoを削除する場合）
 
-bash-4.4$ ./k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+bash-4.4$ ./bin/k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id ""
+
+PUT /v2.0/routers/{router_id}
+==============  ====================================
+name            iida-az1-router01
+id              ffbd70be-24cf-4dff-a4f6-661bf892e313
+az              jp-east-1a
+tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
+status          ACTIVE
+admin_state_up  True
+==============  ====================================
+
+実行例（external_gateway_infoを設定する場合）
+
+bash-4.4$ ./bin/k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id af4198a9-b392-493d-80ec-a7c6e5a1c22a
+PUT /v2.0/routers/{router_id}
+==============  ====================================
+name            iida-az1-router01
+id              ffbd70be-24cf-4dff-a4f6-661bf892e313
+az              jp-east-1a
+tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
+status          ACTIVE
+admin_state_up  True
+==============  ====================================
 PUT /v2.0/routers/{router_id}
 ==============  ====================================
 name            iida-az1-router01
@@ -51,60 +74,72 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
-#
-# メイン
-#
-def main(router_id="", network_id="", dump=False):
-  """
-  ルータの外部向けのネットワークを設定します。
-  """
-  # 接続先URL
-  url = k5c.EP_NETWORK +  "/v2.0/routers/" + router_id
 
-  # 設定する外部ネットワークの情報
+#
+# リクエストデータを作成する
+#
+def make_request_data(network_id=""):
+  """リクエストデータを作成して返却します"""
+  # pylint: disable=too-many-arguments
+
+  router_object = {}
+
   if network_id:
-    router_object = {
-      'router': {
-        'external_gateway_info': {
-          'network_id': network_id
-        }
-      }
+    router_object['external_gateway_info'] = {
+      'network_id': network_id
     }
   else:
-    router_object = {
-      'router': {
-        'external_gateway_info': None
-      }
-    }
+    router_object['external_gateway_info'] = None
+
+  return {'router': router_object}
+
+
+#
+# APIにアクセスする
+#
+def access_api(router_id="", data=None):
+  """REST APIにアクセスします"""
+
+  # 接続先URL
+  url = k5c.EP_NETWORK +  "/v2.0/routers/" + router_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # PUTメソッド
-  r = c.put(url=url, data=router_object)
+  r = c.put(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result=None, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
+    print(json.dumps(result, indent=2))
     # ステータスコードが503の場合は2分後に実行を促す
     if status_code == 503:
       print("\nNOTE:")
       print("External gateway is being configured. Please try it again about 2 minutes later.")
-    return r
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 変更したルータの情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
   #"data": {
@@ -133,59 +168,49 @@ def main(router_id="", network_id="", dump=False):
   print("PUT /v2.0/routers/{router_id}")
   print(tabulate(rtrs, tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
+  def main():
+    """メイン関数"""
 
-      # 対象ルータ
-      # bash-4.4$ ./k5-list-routers.py
-      # GET /v2.0/routers
-      # ====================================  =================  ================================  ==========  ========
-      # id                                    name               tenant_id                         az          status
-      # ====================================  =================  ================================  ==========  ========
-      # 05dbac99-4058-4f60-a9cc-a7593a681d7b  iida-ext-router-1  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a  ACTIVE
-      # ====================================  =================  ================================  ==========  ========
+    import argparse
 
-      router_id = "05dbac99-4058-4f60-a9cc-a7593a681d7b"
+    parser = argparse.ArgumentParser(description='Updates a logical router.')
+    parser.add_argument('--router_id', required=True, help='The router id.')
+    parser.add_argument('--network_id', nargs='?', default='', required=True, help='The network_id, for the external gateway.')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
 
-      # 外部向けネットワーク
-      # グローバルIPが枯渇しているとエラーになる
-      # bash-4.4$ ./k5-list-networks.py | grep jp-east-1a
-      # 6d9df982-7a89-462a-8b17-8a8e5befa63e  inf_az1_ext-net03    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-      # 92f386c1-59fe-48ca-8cf9-b95f81920466  inf_az1_ext-net02    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-      # a4715541-c915-444b-bed6-99aa1e8b15c9  inf_az1_ext-net04    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-      # af4198a9-b392-493d-80ec-a7c6e5a1c22a  inf_az1_ext-net01    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
-      # cd4057bd-f72e-4244-a7dd-1bcb2775dd67  inf_az1_ext-net05    31ceb599e8ff48aeb66f2fd748988960  jp-east-1a  ACTIVE
+    router_id = args.router_id
+    network_id = args.network_id
+    dump = args.dump
 
-      network_id = "6d9df982-7a89-462a-8b17-8a8e5befa63e"  # inf_az1_ext-net03
-
-      # jsonをダンプ
-      dump = False
-
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Updates a logical router.')
-      parser.add_argument('--router_id', required=True, help='The router id.')
-      parser.add_argument('--network_id', nargs='?', default='', required=True, help='The network_id, for the external gateway.')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
-
-      router_id = args.router_id
-      network_id = args.network_id
-      dump = args.dump
+    # DEBUG
+    # router_id = "05dbac99-4058-4f60-a9cc-a7593a681d7b"
+    # network_id = "6d9df982-7a89-462a-8b17-8a8e5befa63e"  # inf_az1_ext-net03
+    # dump = False
 
     # まずはexternal_gateway_infoを空っぽにする
-    main(router_id=router_id, network_id="", dump=dump)
+
+    print("set external_gateway_info to null")
+
+    # 空っぽのリクエストデータを作成して
+    data = make_request_data(network_id="")
+
+    # 実行
+    result = access_api(router_id=router_id, data=data)
+
+    # 得たデータを処理する
+    print_result(result=result, dump=dump)
 
     # 次にexternal_gateway_infoを設定する
     if network_id:
-      main(router_id=router_id, network_id=network_id, dump=dump)
+      print("set external_gateway_info to {}".format(network_id))
+      data = make_request_data(network_id=network_id)
+      result = access_api(router_id=router_id, data=data)
+      print_result(result=result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()
