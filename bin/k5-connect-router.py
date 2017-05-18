@@ -133,8 +133,8 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Adds an internal interface to a logical router.')
-    parser.add_argument('--router-id', dest='router_id', metavar='', required=True, help='The router id.')
-    parser.add_argument('--port-id', dest='port_id', metavar='', required=True, help='The port id.')
+    parser.add_argument('--router-id', dest='router_id', metavar='id', required=True, help='The router id.')
+    parser.add_argument('--port-id', dest='port_id', metavar='id', required=True, help='The port id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     router_id = args.router_id

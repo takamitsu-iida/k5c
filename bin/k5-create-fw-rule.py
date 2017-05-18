@@ -345,9 +345,9 @@ if __name__ == '__main__':
     config_file = os.path.join(app_home, "conf", "fw-rules.xlsx")
 
     parser = argparse.ArgumentParser(description='Creates a firewall rule.')
-    parser.add_argument('-n', '--name', required=True, help='The rule name.')
-    parser.add_argument('-f', '--filename', default=config_file, help='The rule file. default: '+config_file)
-    parser.add_argument('-w', '--write', action='store_true', default=False, help='Write rule-id to excel file.')
+    parser.add_argument('--name', metavar='name', required=True, help='The rule name.')
+    parser.add_argument('--filename', metavar='file', default=config_file, help='The rule file. default: '+config_file)
+    parser.add_argument('--write', action='store_true', default=False, help='Write rule-id to excel file.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     name = args.name
