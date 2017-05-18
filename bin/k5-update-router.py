@@ -115,7 +115,7 @@ def access_api(router_id="", data=None):
 #
 # 結果を表示する
 #
-def print_result(result=None, dump=False):
+def print_result(result, dump=False):
   """結果を表示します"""
 
   # 中身を確認
@@ -202,14 +202,14 @@ if __name__ == '__main__':
     result = access_api(router_id=router_id, data=data)
 
     # 得たデータを処理する
-    print_result(result=result, dump=dump)
+    print_result(result, dump=dump)
 
     # 次にexternal_gateway_infoを設定する
     if network_id:
       print("set external_gateway_info to {}".format(network_id))
       data = make_request_data(network_id=network_id)
       result = access_api(router_id=router_id, data=data)
-      print_result(result=result, dump=dump)
+      print_result(result, dump=dump)
 
 
   # 実行
