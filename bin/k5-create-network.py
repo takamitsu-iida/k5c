@@ -13,11 +13,12 @@ NOTE:
 
 """
 実行例
-bash-4.4$ ./k5-create-network.py
+
+bash-4.4$ ./bin/k5-create-network.py --name iida-az1-net03
 POST /v2.0/networks
 =========  ====================================
-name       iida-test-network-1
-id         93a83e0e-424e-4e7d-8299-4bdea906354e
+name       iida-az1-net03
+id         01158253-4c9c-4cf5-b228-dc3a715b5c0b
 az         jp-east-1a
 tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
 status     ACTIVE
@@ -49,15 +50,13 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# リクエストデータを作成する
 #
-def main(name="", az="", dump=False):
-  """
-  ネットワークを作成します。
-  """
-  # 接続先URL
-  url = k5c.EP_NETWORK + "/v2.0/networks"
+def make_request_data(name="", az=""):
+  """リクエストデータを作成して返却します"""
+  # pylint: disable=too-many-arguments
 
   # 作成するネットワークのオブジェクト
   network_object = {
@@ -67,30 +66,51 @@ def main(name="", az="", dump=False):
     }
   }
 
+  return network_object
+
+
+#
+# APIにアクセスする
+#
+def access_api(data=None):
+  """REST APIにアクセスします"""
+
+  # 接続先URL
+  url = k5c.EP_NETWORK + "/v2.0/networks"
+
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # POSTメソッドで作成して、結果のオブジェクトを得る
-  r = c.post(url=url, data=network_object)
+  r = c.post(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 作成したネットワークの情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
   nw = data.get('network', {})
@@ -107,36 +127,40 @@ def main(name="", az="", dump=False):
   print("POST /v2.0/networks")
   print(tabulate(nws, tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
-      # 作成するネットワークの名前
-      name = "iida-test-network-1"
+  import argparse
 
-      # 作成する場所
-      az = "jp-east-1a"
+  def main():
+    """メイン関数"""
+    parser = argparse.ArgumentParser(description='Create a network.')
+    parser.add_argument('--name', metavar='name', required=True, help='The network name.')
+    parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
+    name = args.name
+    az = args.az
+    dump = args.dump
 
-      # jsonをダンプ
-      dump = False
+    # 作成するネットワークの名前
+    # name = "iida-test-network-1"
+    #
+    # 作成する場所
+    # az = "jp-east-1a"
+    #
+    # jsonをダンプ
+    # dump = False
 
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Create a network.')
-      parser.add_argument('--name', required=True, help='The network name.')
-      parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
-      name = args.name
-      az = args.az
-      dump = args.dump
+    # リクエストデータを作成
+    data = make_request_data(name=name, az=az)
 
-    main(name=name, az=az, dump=dump)
+    # 実行
+    result = access_api(data=data)
+
+    # 得たデータを処理する
+    print_result(result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()

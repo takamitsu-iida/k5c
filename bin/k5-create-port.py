@@ -16,27 +16,31 @@ NOTE:
 """
 実行例
 
-bash-4.4$ ./k5-create-port.py
+bash-4.4$ ./bin/k5-create-port.py --name iida-az1-net02-port02 \
+--network-id e3c166c0-7e90-4c6e-857e-87fd985f98ac \
+--subnet-id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6 \
+--ip-address 10.1.2.9
+
 POST /v2.0/ports
 =================  ====================================
-name               iida-network-1-port-1
-id                 802c2a2d-5e3e-41c8-8a94-c6430bf48a80
+name               iida-az1-net02-port02
+id                 74233502-90d1-47f7-976e-f3def361d2a1
 az                 jp-east-1a
 tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
 status             DOWN
 admin_state_up     True
 device_owner
 device_id
-network_id         93a83e0e-424e-4e7d-8299-4bdea906354e
+network_id         e3c166c0-7e90-4c6e-857e-87fd985f98ac
 binding:vnic_type  normal
-mac_address        fa:16:3e:49:02:6d
+mac_address        fa:16:3e:2a:5a:58
 =================  ====================================
 
-=============  ====================================
-ip_address     subnet_id
-=============  ====================================
-192.168.0.100  38701f66-4610-493f-9c15-78f81917f362
-=============  ====================================
+============  ====================================
+ip_address    subnet_id
+============  ====================================
+10.1.2.9      2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+============  ====================================
 """
 
 import json
@@ -64,15 +68,13 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
-#
-# メイン
-#
-def main(name="", network_id="", subnet_id="", ip_address="", admin_state_up=True, az="", dump=False):
-  """メイン関数"""
-  # pylint: disable=too-many-arguments
 
-  # 接続先
-  url = k5c.EP_NETWORK + "/v2.0/ports"
+#
+# リクエストデータを作成する
+#
+def make_request_data(name="", network_id="", subnet_id="", ip_address="", admin_state_up=True, az=""):
+  """リクエストデータを作成して返却します"""
+  # pylint: disable=too-many-arguments
 
   # 作成するポートのオブジェクト
   port_object = {
@@ -91,30 +93,52 @@ def main(name="", network_id="", subnet_id="", ip_address="", admin_state_up=Tru
       'ip_address': ip_address
     }]
 
+  return port_object
+
+
+#
+# APIにアクセスする
+#
+def access_api(data=None):
+  """REST APIにアクセスします"""
+
+  # 接続先
+  url = k5c.EP_NETWORK + "/v2.0/ports"
+
+
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # POSTメソッドで作成して、結果のオブジェクトを得る
-  r = c.post(url=url, data=port_object)
+  r = c.post(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 作成したポートの情報はデータオブジェクトの中の'port'キーにオブジェクトとして入っている
   #"data": {
@@ -169,55 +193,59 @@ def main(name="", network_id="", subnet_id="", ip_address="", admin_state_up=Tru
   print("")
   print(tabulate(fixed_ips, headers=['ip_address', 'subnet_id'], tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
-      # 作成するポートの名前
-      name = "iida-network-1-port-1"
+  import argparse
 
-      # 所属させるネットワークID
-      network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+  def main():
+    """メイン関数"""
+    parser = argparse.ArgumentParser(description='Creates a port on a specified network.')
+    parser.add_argument('--name', metavar='name', required=True, help='The port name.')
+    parser.add_argument('--network-id', dest='network_id', metavar='id', required=True, help='The ID of the the network.')
+    parser.add_argument('--subnet-id', dest='subnet_id', metavar='id', required=True, help='The ID of the the subnet.')
+    parser.add_argument('--ip-address', dest='ip_address', metavar='addr', default='', help='Fixed ip address.')
+    parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
 
-      # 固定IPを指定する場合に必要
-      # そのネットワークに対応付けられるサブネットID
-      subnet_id = "38701f66-4610-493f-9c15-78f81917f362"
+    name = args.name
+    network_id = args.network_id
+    subnet_id = args.subnet_id
+    ip_address = args.ip_address
+    az = args.az
+    dump = args.dump
 
-      # 固定IPを指定する場合に必要
-      # そのサブネットの中からこのポートに割り当てたいIPアドレスを指定する
-      ip_address = "192.168.0.100"
+    # 作成するポートの名前
+    # name = "iida-network-1-port-1"
+    #
+    # 所属させるネットワークID
+    # network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+    #
+    # 固定IPを指定する場合に必要
+    # そのネットワークに対応付けられるサブネットID
+    # subnet_id = "38701f66-4610-493f-9c15-78f81917f362"
+    #
+    # 固定IPを指定する場合に必要
+    # そのサブネットの中からこのポートに割り当てたいIPアドレスを指定する
+    # ip_address = "192.168.0.100"
+    #
+    # 作成する場所
+    # az = "jp-east-1a"
+    # az = "jp-east-1b"
+    #
+    # jsonをダンプ
+    # dump = False
 
-      # 作成する場所
-      az = "jp-east-1a"
-      # az = "jp-east-1b"
+    # リクエストデータを作成
+    data = make_request_data(name=name, network_id=network_id, subnet_id=subnet_id, ip_address=ip_address, az=az)
 
-      # jsonをダンプ
-      dump = False
+    # 実行
+    result = access_api(data=data)
 
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Creates a port on a specified network.')
-      parser.add_argument('--name', required=True, help='The port name.')
-      parser.add_argument('--network_id', required=True, help='The ID of the the network.')
-      parser.add_argument('--subnet_id', required=True, help='The ID of the the subnet.')
-      parser.add_argument('--ip_address', default='', help='Fixed ip address.')
-      parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
+    # 得たデータを処理する
+    print_result(result, dump=dump)
 
-      name = args.name
-      network_id = args.network_id
-      subnet_id = args.subnet_id
-      ip_address = args.ip_address
-      az = args.az
-      dump = args.dump
-
-    main(name=name, network_id=network_id, subnet_id=subnet_id, ip_address=ip_address, az=az, dump=dump)
 
   # 実行
-  run_main()
+  main()

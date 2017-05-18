@@ -19,26 +19,16 @@ NOTE:
 """
 実行例
 
-ネットワークIDを調べる
-bash-4.4$ ./k5-list-networks.py
-GET /v2.0/networks
-====================================  ===================  ================================  ==========  ========
-id                                    name                 tenant_id                         az          status
-====================================  ===================  ================================  ==========  ========
-93a83e0e-424e-4e7d-8299-4bdea906354e  iida-test-network-1  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a  ACTIVE
-
-このネットワークIDに対応付けるサブネットを作成する。
-
-bash-4.4$ ./k5-create-subnet.py
+bash-4.4$ ./k5-create-subnet.py --name iida-az1-subnet03 --network-id 7758033d-5a07-49ef-83e1-25ccdf732cc3 --cidr 10.1.3.0/24
 POST /v2.0/subnets
 ===========  ====================================
-name         iida-subnet-1
-id           38701f66-4610-493f-9c15-78f81917f362
+name         iida-az1-subnet03
+id           f707e1bc-c49c-412d-b2f3-379eb250b6c6
 az           jp-east-1a
-cidr         192.168.0.0/24
-gateway_ip   192.168.0.1
+cidr         10.1.3.0/24
+gateway_ip   10.1.3.1
 tenant_id    a5001a8b9c4a4712985c11377bd6d4fe
-network_id   93a83e0e-424e-4e7d-8299-4bdea906354e
+network_id   7758033d-5a07-49ef-83e1-25ccdf732cc3
 enable_dhcp  True
 ===========  ====================================
 """
@@ -68,22 +58,20 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
-#
-# メイン
-#
-def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=None, dump=False):
-  """メイン関数"""
-  # pylint: disable=too-many-arguments
 
-  # 接続先
-  url = k5c.EP_NETWORK + "/v2.0/subnets"
+#
+# リクエストデータを作成する
+#
+def make_request_data(name="", network_id="", cidr="", dns_nameservers=None, az=""):
+  """リクエストデータを作成して返却します"""
+  # pylint: disable=too-many-arguments
 
   # 作成するサブネットのオブジェクト
   subnet_object = {
     'subnet': {
       'name': name,
       'network_id': network_id,
-      'ip_version': ip_version,
+      'ip_version': 4,  # 常時4
       'cidr': cidr,
       'enable_dhcp': True,  # 常時True
       'availability_zone': az
@@ -94,30 +82,50 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=N
   if dns_nameservers and len(dns_nameservers) > 0:
     subnet_object['dns_nameservers'] = dns_nameservers
 
+  return subnet_object
+
+#
+# APIにアクセスする
+#
+def access_api(data=None):
+  """REST APIにアクセスします"""
+
+  # 接続先
+  url = k5c.EP_NETWORK + "/v2.0/subnets"
+
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # POSTメソッドで作成して、結果のオブジェクトを得る
-  r = c.post(url=url, data=subnet_object)
+  r = c.post(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 作成したネットワークの情報はデータオブジェクトの中の'subnet'キーにオブジェクトとして入っている
   # "data": {
@@ -157,52 +165,55 @@ def main(name="", network_id="", ip_version=4, cidr="", az="", dns_nameservers=N
   print("POST /v2.0/subnets")
   print(tabulate(subnets, tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
-      # 作成するサブネットの名前
-      name = "iida-subnet-1"
+  import argparse
 
-      # 所属させるネットワークID
-      network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+  def main():
+    """メイン関数"""
+    parser = argparse.ArgumentParser(description='Creates a subnet on a specified network.')
+    parser.add_argument('--name', metavar='name', required=True, help='The subnet name.')
+    parser.add_argument('--network-id', dest='network_id', metavar='id', required=True, help='The ID of the attached network.')
+    parser.add_argument('--cidr', metavar='addr/mask', required=True, help='The CIDR.')
+    parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
+    parser.add_argument('--dns', nargs='*', default=[], help='DNS server')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
+    name = args.name
+    network_id = args.network_id
+    cidr = args.cidr
+    az = args.az
+    dns = args.dns
+    dump = args.dump
 
-      # サブネットのアドレス
-      cidr = "192.168.0.0/24"
+    # 作成するサブネットの名前
+    # name = "iida-az1-net01-subnet01"
+    #
+    # 所属させるネットワークID
+    # network_id = "93a83e0e-424e-4e7d-8299-4bdea906354e"
+    #
+    # サブネットのアドレス
+    # cidr = "192.168.0.0/24"
+    #
+    # 作成する場所
+    # az = "jp-east-1a"
+    # az = "jp-east-1b"
+    #
+    # DNSサーバは環境にあわせて設定する
+    # dns = ["133.162.193.9", "133.162.193.10"]  # AZ1の場合
+    # dns = ["133.162.201.9", "133.162.201.10"]  # AZ2の場合
+    # dns = ["8.8.8.7", "8.8.8.8"]  # GoogleのDNS
 
-      # 作成する場所
-      az = "jp-east-1a"
-      # az = "jp-east-1b"
+    # リクエストデータを作成
+    data = make_request_data(name=name, network_id=network_id, cidr=cidr, dns_nameservers=dns, az=az)
 
-      # DNSサーバは環境にあわせて設定する
-      dns = ["133.162.193.9", "133.162.193.10"]  # AZ1の場合
-      # dns = ["133.162.201.9", "133.162.201.10"]  # AZ2の場合
-      # dns = ["8.8.8.7", "8.8.8.8"]  # GoogleのDNS
+    # 実行
+    result = access_api(data=data)
 
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Creates a subnet on a specified network.')
-      parser.add_argument('--name', metavar='name', required=True, help='The subnet name.')
-      parser.add_argument('--network-id', dest='network_id', metavar='id', required=True, help='The ID of the attached network.')
-      parser.add_argument('--cidr', metavar='addr/mask', required=True, help='The CIDR.')
-      parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
-      parser.add_argument('--dns', nargs='*', default=[], help='DNS server')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
+    # 得たデータを処理する
+    print_result(result, dump=dump)
 
-      name = args.name
-      network_id = args.network_id
-      cidr = args.cidr
-      az = args.az
-      dns = args.dns
-      dump = args.dump
-
-    main(name=name, network_id=network_id, cidr=cidr, dns_nameservers=dns, az=az, dump=dump)
 
   # 実行
-  run_main()
+  main()

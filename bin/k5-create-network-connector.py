@@ -21,13 +21,17 @@ e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
 """
 実行例
 
-bash-4.4$ ./k5-create-network-connector.py
+bash-4.4$ ./bin/k5-create-network-connector.py \
+> --name iida-az1-nc \
+> --nc-pool-id e0a80446-203e-4b28-abec-d4b031d5b63e
+
 POST /v2.0/network_connectors
 =======  ====================================
-name     iida-test-network-connecotor
-id       385bc7f5-bcc4-4521-ad41-de2074143355
+name     iida-az1-nc
+id       50641619-d56e-41f2-9d97-6e0808b139c1
 pool_id  e0a80446-203e-4b28-abec-d4b031d5b63e
 =======  ====================================
+bash-4.4$
 """
 
 import json
@@ -55,13 +59,13 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# リクエストデータを作成する
 #
-def main(name="", nc_pool_id="", tenant_id="", dump=False):
-  """メイン関数"""
-  # 接続先
-  url = k5c.EP_NETWORK + "/v2.0/network_connectors"
+def make_request_data(name="", nc_pool_id="", tenant_id=""):
+  """リクエストデータを作成して返却します"""
+  # pylint: disable=too-many-arguments
 
   # 作成するネットワークコネクタのオブジェクト
   nc_object = {
@@ -72,30 +76,51 @@ def main(name="", nc_pool_id="", tenant_id="", dump=False):
     }
   }
 
+  return nc_object
+
+
+#
+# APIにアクセスする
+#
+def access_api(data=None):
+  """REST APIにアクセスします"""
+
+  # 接続先
+  url = k5c.EP_NETWORK + "/v2.0/network_connectors"
+
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # POSTメソッドで作成して、結果のオブジェクトを得る
-  r = c.post(url=url, data=nc_object)
+  r = c.post(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 作成したネットワークコネクタの情報はdataの中の'network_connector'キーにオブジェクトとして入っている
   nc = data.get('network_connector', {})
@@ -108,41 +133,45 @@ def main(name="", nc_pool_id="", tenant_id="", dump=False):
   print("POST /v2.0/network_connectors")
   print(tabulate(ncs, tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
-      # 作成するネットワークコネクタの名前
-      name = "iida-test-network-connecotor"
+  import argparse
 
-      # 所属させるネットワークコネクタプールID
-      nc_pool_id = "e0a80446-203e-4b28-abec-d4b031d5b63e"
+  def main():
+    """メイン関数"""
+    parser = argparse.ArgumentParser(description='Create a network connector.')
+    parser.add_argument('--name', metavar='name', required=True, help='The network connector name.')
+    parser.add_argument('--nc-pool-id', dest='nc_pool_id', metavar='id', required=True, help='The network connector pool id.')
+    parser.add_argument('--tenant-id', dest='tenant_id', metavar='id', default=k5c.TENANT_ID, help='The tenant id.')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
+    name = args.name
+    nc_pool_id = args.nc_pool_id
+    tenant_id = args.tenant_id
+    dump = args.dump
 
-      # 所属させるテナントID
-      tenant_id = k5c.TENANT_ID
+    # 作成するネットワークコネクタの名前
+    # name = "iida-test-network-connecotor"
+    #
+    # 所属させるネットワークコネクタプールID
+    # nc_pool_id = "e0a80446-203e-4b28-abec-d4b031d5b63e"
+    #
+    # 所属させるテナントID
+    # tenant_id = k5c.TENANT_ID
+    #
+    # jsonをダンプ
+    # dump = False
 
-      # jsonをダンプ
-      dump = False
+    # リクエストデータを作成
+    data = make_request_data(name=name, nc_pool_id=nc_pool_id, tenant_id=tenant_id)
 
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Create a network connector.')
-      parser.add_argument('--name', required=True, help='The network connector name.')
-      parser.add_argument('--nc_pool_id', required=True, help='The network connector pool id.')
-      parser.add_argument('--tenant_id', default=k5c.TENANT_ID, help='The tenant id.')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
-      name = args.name
-      nc_pool_id = args.nc_pool_id
-      tenant_id = args.tenant_id
-      dump = args.dump
+    # 実行
+    result = access_api(data=data)
 
-    main(name=name, nc_pool_id=nc_pool_id, tenant_id=tenant_id, dump=dump)
+    # 得たデータを処理する
+    print_result(result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()

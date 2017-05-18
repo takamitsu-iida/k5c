@@ -12,11 +12,11 @@ NOTE:
 """
 実行例
 
-bash-4.4$ ./k5-create-router.py
+bash-4.4$ ./bin/k5-create-router.py --name iida-az1-router02
 POST /v2.0/routers
 ==============  ====================================
-name            iida-test-router-1
-id              5359cce0-cd5c-48e8-891a-659c5ae62f65
+name            iida-az1-router02
+id              c78bcffe-10ca-4cb6-a67e-0712249fcc0e
 az              jp-east-1a
 tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
 status          ACTIVE
@@ -49,49 +49,67 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# リクエストデータを作成する
 #
-def main(name="", az="", dump=False):
-  """
-  ルータを作成します。
-  """
-  # 接続先URL
-  url = k5c.EP_NETWORK +  "/v2.0/routers"
+def make_request_data(name="", az=""):
+  """リクエストデータを作成して返却します"""
 
   # 作成するルータの情報
   router_object = {
     'router': {
       'name': name,
-      'admin_state_up': True,
+      'admin_state_up': True,  # 常時True
       'availability_zone': az
     }
   }
+
+  return router_object
+
+
+#
+# APIにアクセスする
+#
+def access_api(data=None):
+  """REST APIにアクセスします"""
+
+  # 接続先URL
+  url = k5c.EP_NETWORK +  "/v2.0/routers"
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
 
   # POSTメソッドで作成して、結果のオブジェクトを得る
-  r = c.post(url=url, data=router_object)
+  r = c.post(url=url, data=data)
+
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
 
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 作成したルータの情報はデータオブジェクトの中の'router'キーにオブジェクトとして入っている
   #"data": {
@@ -120,38 +138,41 @@ def main(name="", az="", dump=False):
   print("POST /v2.0/routers")
   print(tabulate(rtrs, tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を呼び出します"""
-    if DEBUG:
-      # 作成するルータの名前
-      name = "iida-ext-router-1"
+  import argparse
 
-      # 作成する場所
-      az = "jp-east-1a"
-      # az = "jp-east-1b"
+  def main():
+    """メイン関数"""
+    parser = argparse.ArgumentParser(description='Creates a logical router.')
+    parser.add_argument('--name', metavar='name', required=True, help='The router name.')
+    parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    args = parser.parse_args()
+    name = args.name
+    az = args.az
+    dump = args.dump
 
-      # jsonをダンプ
-      dump = False
+    # 作成するルータの名前
+    # name = "iida-ext-router-1"
+    #
+    # 作成する場所
+    # az = "jp-east-1a"
+    # az = "jp-east-1b"
+    #
+    # jsonをダンプ
+    # dump = False
 
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Creates a logical router.')
-      parser.add_argument('--name', required=True, help='The router name.')
-      parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      args = parser.parse_args()
+    # リクエストデータを作成
+    data = make_request_data(name=name, az=az)
 
-      name = args.name
-      az = args.az
-      dump = args.dump
+    # 実行
+    result = access_api(data=data)
 
-    main(name=name, az=az, dump=dump)
+    # 得たデータを処理する
+    print_result(result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()

@@ -13,7 +13,7 @@ NOTE:
 """
 実行例
 
-bash-4.4$ ./k5-disconnect-router.py  --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --port_id  0001dda0-872e-4f13-9bcd-0eadd27e6b37
+bash-4.4$ ./k5-disconnect-router.py  --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 --port-id 0001dda0-872e-4f13-9bcd-0eadd27e6b37
 status_code: 200
 PUT /v2.0/routers/{router_id}/add_router_interface
 =========  ====================================
