@@ -249,7 +249,11 @@ bash-4.4$
 ![fig060](https://cloud.githubusercontent.com/assets/21165341/26093933/cfd832b4-3a52-11e7-9bb5-93067030f54d.png)
 
 ```
-bash-4.4$ ./k5-create-subnet.py --name iida-az1-subnet01 --network_id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 --cidr 10.1.1.0/24
+bash-4.4$ ./k5-create-subnet.py \
+--name iida-az1-subnet01 \
+--network-id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 \
+--cidr 10.1.1.0/24
+
 POST /v2.0/subnets
 ===========  ====================================
 name         iida-az1-subnet01
@@ -262,7 +266,11 @@ network_id   8f15da62-c7e5-47ec-8668-ee502f6d00d2
 enable_dhcp  True
 ===========  ====================================
 
-bash-4.4$ ./k5-create-subnet.py --name iida-az1-subnet02 --network_id e3c166c0-7e90-4c6e-857e-87fd985f98ac --cidr 10.1.2.0/24
+bash-4.4$ ./k5-create-subnet.py \
+--name iida-az1-subnet02 \
+--network-id e3c166c0-7e90-4c6e-857e-87fd985f98ac \
+--cidr 10.1.2.0/24
+
 POST /v2.0/subnets
 ===========  ====================================
 name         iida-az1-subnet02
@@ -297,7 +305,12 @@ IPアドレスを指定することもできます。
 ![fig070](https://cloud.githubusercontent.com/assets/21165341/26094015/262df0d6-3a53-11e7-95a8-2fcd1222cde4.png)
 
 ```
-bash-4.4$ ./k5-create-port.py --name iida-az1-net01-port01 --network_id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 --subnet_id abbbbcf4-ea8f-4218-bbe7-669231eeba30 --ip_address 10.1.1.1
+bash-4.4$ ./k5-create-port.py \
+--name iida-az1-net01-port01 \
+--network-id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 \
+--subnet-id abbbbcf4-ea8f-4218-bbe7-669231eeba30 \
+--ip-address 10.1.1.1
+
 POST /v2.0/ports
 =================  ====================================
 name               iida-az1-net01-port01
@@ -320,8 +333,12 @@ ip_address    subnet_id
 ============  ====================================
 bash-4.4$
 
-bash-4.4$ ./k5-create-port.py --name iida-az1-net02-port01 --network_id e3c166c0-7e90-4c6e-857e-87fd985f98ac --subnet_id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6 --ip_address 1
-0.1.2.1
+bash-4.4$ ./k5-create-port.py \
+--name iida-az1-net02-port01 \
+--network-id e3c166c0-7e90-4c6e-857e-87fd985f98ac \
+--subnet-id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6 \
+--ip-address 10.1.2.1
+
 POST /v2.0/ports
 =================  ====================================
 name               iida-az1-net02-port01
@@ -344,8 +361,12 @@ ip_address    subnet_id
 ============  ====================================
 bash-4.4$
 
-bash-4.4$ ./k5-create-port.py --name iida-az1-net02-port02 --network_id e3c166c0-7e90-4c6e-857e-87fd985f98ac --subnet_id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6 --ip_address 1
-0.1.2.9
+bash-4.4$ ./k5-create-port.py \
+--name iida-az1-net02-port02 \
+--network-id e3c166c0-7e90-4c6e-857e-87fd985f98ac \
+--subnet-id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6 \
+--ip-address 10.1.2.9
+
 POST /v2.0/ports
 =================  ====================================
 name               iida-az1-net02-port02
@@ -386,10 +407,16 @@ bash-4.4$
 ![fig080](https://cloud.githubusercontent.com/assets/21165341/26093499/23dbed94-3a51-11e7-9db8-464309439df4.png)
 
 ```
-bash-4.4$ ./k5-connect-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --port_id 430497b1-fdd4-4857-bc43-53286b5a27f5
+bash-4.4$ ./k5-connect-router.py \
+--router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 \
+--port-id 430497b1-fdd4-4857-bc43-53286b5a27f5
+
 status_code: 200
 
-bash-4.4$ ./k5-connect-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --port_id bdab1ca6-fd32-4729-9e97-3827b72d7bc5
+bash-4.4$ ./k5-connect-router.py \
+--router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 \
+--port-id bdab1ca6-fd32-4729-9e97-3827b72d7bc5
+
 status_code: 200
 ```
 
@@ -406,7 +433,10 @@ status_code: 200
 ![fig090](https://cloud.githubusercontent.com/assets/21165341/26093448/f6268404-3a50-11e7-8cda-72f7469a752b.png)
 
 ```
-bash-4.4$ ./k5-create-network-connector.py --name iida-az1-nc --nc_pool_id e0a80446-203e-4b28-abec-d4b031d5b63e
+bash-4.4$ ./k5-create-network-connector.py \
+--name iida-az1-nc \
+--nc-pool-id e0a80446-203e-4b28-abec-d4b031d5b63e
+
 POST /v2.0/network_connectors
 =======  ====================================
 name     iida-az1-nc
@@ -432,7 +462,10 @@ bash-4.4$
 ![fig100](https://cloud.githubusercontent.com/assets/21165341/26094065/5eb0f35e-3a53-11e7-8125-16e16935b329.png)
 
 ```
-bash-4.4$ ./k5-create-network-connector-endpoint.py --name iida-az1-ncep --nc_id 88f343e8-a956-4bcc-853f-3c40d53cbb49
+bash-4.4$ ./k5-create-network-connector-endpoint.py
+--name iida-az1-ncep \
+--nc-id 88f343e8-a956-4bcc-853f-3c40d53cbb49
+
 POST /v2.0/network_connector_endpoints
 =============  ====================================
 name           iida-az1-ncep
@@ -460,7 +493,10 @@ bash-4.4$
 ![fig110](https://cloud.githubusercontent.com/assets/21165341/26093668/cef50dc8-3a51-11e7-9c3b-5be336eddb37.png)
 
 ```
-bash-4.4$ ./k5-connect-network-connector-endpoint.py --ncep_id 848a40c2-7ded-4df8-a43d-e55b912811a2 --port_id 6c73b1a0-ab3d-46e5-9515-f04e9f660423
+bash-4.4$ ./k5-connect-network-connector-endpoint.py \
+--ncep-id 848a40c2-7ded-4df8-a43d-e55b912811a2 \
+--port-id 6c73b1a0-ab3d-46e5-9515-f04e9f660423
+
 status_code: 200
 {'interface': {'port_id': '6c73b1a0-ab3d-46e5-9515-f04e9f660423'}}
 ```
@@ -477,7 +513,10 @@ status_code: 200
 ![fig120](https://cloud.githubusercontent.com/assets/21165341/26093743/14d2d2e4-3a52-11e7-826d-b1b752f12993.png)
 
 ```
-bash-4.4$ ./k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+bash-4.4$ ./k5-update-router.py
+--router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 \
+--network-id cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+
 PUT /v2.0/routers/{router_id}
 ==============  ====================================
 name            iida-az1-router01
@@ -561,7 +600,7 @@ iida-az1-net02からみたとき、-net01(10.1.1.0/24)はルータ向け、そ�
 実行結果。
 
 ```
-bash-4.4$ ./k5-update-subnet.py --subnet_id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+bash-4.4$ ./k5-update-subnet.py --subnet-id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
 PUT /v2.0/subnets/{subnet_id}
 ===========  ====================================
 name         iida-az1-subnet02
@@ -641,7 +680,10 @@ ffbd70be-24cf-4dff-a4f6-661bf892e313:
 実行結果。
 
 ```
-bash-4.4$ ./k5-update-extra-routes.py --filename r1.yaml ffbd70be-24cf-4dff-a4f6-661bf892e313
+bash-4.4$ ./k5-update-extra-routes.py \
+--filename r1.yaml \
+ffbd70be-24cf-4dff-a4f6-661bf892e313
+
 PUT /v2.0/routers/{router_id}
 ==============  ====================================
 name            iida-az1-router01
