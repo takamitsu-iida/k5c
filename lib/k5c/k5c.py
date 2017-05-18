@@ -45,6 +45,7 @@ try:
   DOMAIN_NAME = config['DOMAIN_NAME']
   DOMAIN_ID = config['DOMAIN_ID']
   PROJECT_ID = config['PROJECT_ID']
+  TENANT_ID = config['PROJECT_ID']
   REGION = config['REGION']
   USERNAME = config['USERNAME']
   PASSWORD = config['PASSWORD']

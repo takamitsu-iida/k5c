@@ -187,9 +187,9 @@ if __name__ == '__main__':
     else:
       import argparse
       parser = argparse.ArgumentParser(description='Creates a subnet on a specified network.')
-      parser.add_argument('--name', required=True, help='The subnet name.')
-      parser.add_argument('--network_id', required=True, help='The ID of the attached network.')
-      parser.add_argument('--cidr', required=True, help='The CIDR.')
+      parser.add_argument('--name', metavar='name', required=True, help='The subnet name.')
+      parser.add_argument('--network-id', dest='network_id', metavar='id', required=True, help='The ID of the attached network.')
+      parser.add_argument('--cidr', metavar='addr/mask', required=True, help='The CIDR.')
       parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
       parser.add_argument('--dns', nargs='*', default=[], help='DNS server')
       parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')

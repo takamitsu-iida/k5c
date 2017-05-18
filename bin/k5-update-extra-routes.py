@@ -211,7 +211,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Updates logical router with routes attribute.')
     parser.add_argument('router_id', help='The ID of the router.')
-    parser.add_argument('--filename', default=config_file, help='The rule file. default: '+config_file)
+    parser.add_argument('--filename', dest='filename', metavar='file', default=config_file, help='The rule file. default: '+config_file)
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     router_id = args.router_id

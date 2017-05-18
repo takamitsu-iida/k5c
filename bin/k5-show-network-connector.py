@@ -135,7 +135,7 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Shows information for a specified network connector.')
-    parser.add_argument('network_connector_id', help='Network connector id.')
+    parser.add_argument('network_connector_id', metavar='network-connector-id', help='Network connector id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     network_connector_id = args.network_connector_id

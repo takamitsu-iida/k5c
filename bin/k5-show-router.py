@@ -188,7 +188,7 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Shows details for a specified router.')
-    parser.add_argument('router_id', help='Router id.')
+    parser.add_argument('router_id', metavar='router-id', help='Router id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     router_id = args.router_id

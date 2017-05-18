@@ -44,11 +44,13 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# APIにアクセスする
 #
-def main(dump=False):
-  """メイン関数"""
+def access_api():
+  """REST APIにアクセスします"""
+
   # 接続先
   url = k5c.EP_NETWORK + "/v2.0/network_connectors"
 
@@ -58,26 +60,48 @@ def main(dump=False):
   # GETメソッドで取得して、結果のオブジェクトを得る
   r = c.get(url=url)
 
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
+
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # ネットワークコネクタ一覧はデータオブジェクトの中の'network_connectors'キーに配列として入っている
+  #"data": {
+  #  "network_connectors": [
+  #    {
+  #      "id": "88f343e8-a956-4bcc-853f-3c40d53cbb49",
+  #      "network_connector_pool_id": "e0a80446-203e-4b28-abec-d4b031d5b63e",
+  #      "name": "iida-az1-nc",
+  #      "network_connector_endpoints": [
+  #        "848a40c2-7ded-4df8-a43d-e55b912811a2"
+  #      ],
+  #      "tenant_id": "a5001a8b9c4a4712985c11377bd6d4fe"
+  #    }
+  #  ]
+  #},
   nc_list = []
   for item in data.get('network_connectors', []):
     nc_list.append([item.get('id', ''), item.get('name', ''), item.get('network_connector_pool_id', '')])
@@ -86,21 +110,23 @@ def main(dump=False):
   print("GET /v2.0/network_connectors")
   print(tabulate(nc_list, headers=['id', 'name', 'pool_id'], tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main():
-    """メイン関数を実行します"""
-    import argparse
+  import argparse
+
+  def main():
+    """メイン関数"""
     parser = argparse.ArgumentParser(description='List network connectors.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     dump = args.dump
 
-    main(dump=dump)
+    # 実行
+    result = access_api()
+
+    # 得たデータを処理する
+    print_result(result, dump=dump)
 
   # 実行
-  run_main()
+  main()

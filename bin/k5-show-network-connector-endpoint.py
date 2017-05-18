@@ -91,12 +91,6 @@ def print_result(result, dump=False):
     logging.error("no data found")
     return
 
-  # データは'data'キーに格納
-  data = result.get('data', None)
-  if not data:
-    logging.error("no data found")
-    return
-
   # ネットワークコネクタエンドポイント情報はデータオブジェクトの中の'network_connector_endpoint'キーにオブジェクトとして入っている
   #"data": {
   #  "network_connector_endpoint": {
@@ -131,7 +125,7 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Shows a specified network connector endpoint.')
-    parser.add_argument('ncep_id', help='Network connector endpoint id.')
+    parser.add_argument('ncep_id', metavar='ncep-id', help='Network connector endpoint id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     ncep_id = args.ncep_id

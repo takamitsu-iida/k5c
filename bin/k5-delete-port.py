@@ -49,11 +49,13 @@ except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# APIにアクセスする
 #
-def main(port_id=''):
-  """メイン関数"""
+def access_api(port_id=""):
+  """REST APIにアクセスします"""
+
   # 接続先
   url = k5c.EP_NETWORK + "/v2.0/ports/" + port_id
 
@@ -63,32 +65,52 @@ def main(port_id=''):
   # DELETEメソッドで削除して、結果のオブジェクトを得る
   r = c.delete(url=url)
 
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
+
+  # 中身を確認
+  if dump:
+    print(json.dumps(result, indent=2))
+    return
+
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # 結果表示
-  print("status_code: {0}".format(r.get('status_code', "")))
-  print(r.get('data', ""))
-
-  # 結果を返す
-  return r
+  print("status_code: {0}".format(result.get('status_code', "")))
+  print(result.get('data', ""))
 
 
 if __name__ == '__main__':
 
-  def run_main():
-    """メイン関数を実行します"""
-    import argparse
+  import argparse
+
+  def main():
+    """メイン関数"""
     parser = argparse.ArgumentParser(description='Deletes a specified port.')
-    parser.add_argument('port_id', help='The port id.')
+    parser.add_argument('port_id', metavar='id', help='The port id.')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     port_id = args.port_id
-    main(port_id=port_id)
+    dump = args.dump
+
+    # 実行
+    result = access_api(port_id=port_id)
+
+    # 得たデータを処理する
+    print_result(result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()

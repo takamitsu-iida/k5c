@@ -45,11 +45,13 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# APIにアクセスする
 #
-def main(ncep_id, dump=False):
-  """メイン関数"""
+def access_api(ncep_id=""):
+  """REST APIにアクセスします"""
+
   # 接続先
   url = k5c.EP_NETWORK + "/v2.0/network_connector_endpoints/" + ncep_id + "/interfaces"
 
@@ -59,24 +61,33 @@ def main(ncep_id, dump=False):
   # GETメソッドで取得して、結果のオブジェクトを得る
   r = c.get(url=url)
 
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
+
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # 接続しているポートの一覧はデータオブジェクトの中の'network_connector_endpoints'キーにオブジェクトとして入っている
   #"data": {
@@ -98,28 +109,25 @@ def main(ncep_id, dump=False):
   print("GET /v2.0/network_connector_endpoints/{network connector endpoint id}/interfaces")
   print(tabulate(interfaces, headers=['port_id'], tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main(DEBUG=False):
-    """メイン関数を実行します"""
-    if DEBUG:
-      dump = False
-      # 対象のコネクタエンドポイントID
-      ncep_id = "ed44d452-cbc4-4f4c-9c87-03fdf4a7c965"
-    else:
-      import argparse
-      parser = argparse.ArgumentParser(description='Lists interfaces which connects to a specified network connector endpoint.')
-      parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
-      parser.add_argument('ncep_id', help='network connector endpoint id')
-      args = parser.parse_args()
-      dump = args.dump
-      ncep_id = args.ncep_id
+  import argparse
 
-    main(dump=dump, ncep_id=ncep_id)
+  def main():
+    """メイン関数"""
+    parser = argparse.ArgumentParser(description='Lists interfaces which connects to a specified network connector endpoint.')
+    parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
+    parser.add_argument('ncep_id', help='network connector endpoint id')
+    args = parser.parse_args()
+    dump = args.dump
+    ncep_id = args.ncep_id
+
+    # 実行
+    result = access_api(ncep_id=ncep_id)
+
+    # 得たデータを処理する
+    print_result(result, dump=dump)
 
   # 実行
-  run_main()
+  main()

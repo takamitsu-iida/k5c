@@ -14,8 +14,8 @@ NOTE:
 """
 実行例（external_gateway_infoを削除する場合）
 
-bash-4.4$ ./bin/k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id ""
-
+bash-4.4$ ./bin/k5-update-router.py --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network-id ""
+set external_gateway_info to null
 PUT /v2.0/routers/{router_id}
 ==============  ====================================
 name            iida-az1-router01
@@ -25,10 +25,11 @@ tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
 status          ACTIVE
 admin_state_up  True
 ==============  ====================================
+bash-4.4$
 
 実行例（external_gateway_infoを設定する場合）
 
-bash-4.4$ ./bin/k5-update-router.py --router_id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network_id af4198a9-b392-493d-80ec-a7c6e5a1c22a
+bash-4.4$ ./bin/k5-update-router.py --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network-id af4198a9-b392-493d-80ec-a7c6e5a1c22a
 PUT /v2.0/routers/{router_id}
 ==============  ====================================
 name            iida-az1-router01
@@ -47,6 +48,34 @@ tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
 status          ACTIVE
 admin_state_up  True
 ==============  ====================================
+
+実行例（external_gateway_infoを設定する場合）エラー
+
+bash-4.4$ ./bin/k5-update-router.py --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 --network-id af4198a9-b392-493d-80ec-a7c6e5a1c22a
+set external_gateway_info to null
+PUT /v2.0/routers/{router_id}
+==============  ====================================
+name            iida-az1-router01
+id              ffbd70be-24cf-4dff-a4f6-661bf892e313
+az              jp-east-1a
+tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
+status          ACTIVE
+admin_state_up  True
+==============  ====================================
+set external_gateway_info to af4198a9-b392-493d-80ec-a7c6e5a1c22a
+{
+  "status_code": 409,
+  "data": {
+    "NeutronError": {
+      "message": "No more IP addresses available on network af4198a9-b392-493d-80ec-a7c6e5a1c22a.",
+      "type": "IpAddressGenerationFailure",
+      "detail": ""
+    }
+  },
+  "Content-Type": "application/json;charset=UTF-8"
+}
+bash-4.4$
+
 """
 
 import json
@@ -177,8 +206,8 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='Updates a logical router.')
-    parser.add_argument('--router_id', required=True, help='The router id.')
-    parser.add_argument('--network_id', nargs='?', default='', required=True, help='The network_id, for the external gateway.')
+    parser.add_argument('--router-id', dest='router_id', metavar='id', required=True, help='The router id.')
+    parser.add_argument('--network-id', dest='network_id', metavar='id', nargs='?', default='', required=True, help='The network_id, for the external gateway.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
 

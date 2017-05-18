@@ -13,7 +13,7 @@ NOTE:
 """
 実行例
 
-bash-4.4$ ./k5-update-subnet.py --subnet_id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+bash-4.4$ ./bin/k5-update-subnet.py --subnet-id 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
 PUT /v2.0/subnets/{subnet_id}
 ===========  ====================================
 name         iida-az1-subnet02
@@ -40,6 +40,7 @@ destination     nexthop
 ==============  =========
 172.16.0.0/12   10.1.2.9
 192.168.0.0/16  10.1.2.9
+10.1.1.0/24     10.1.2.1
 10.0.0.0/8      10.1.2.9
 ==============  =========
 bash-4.4$
@@ -228,8 +229,8 @@ if __name__ == '__main__':
     config_file = os.path.join(app_home, "conf", "subnet.yaml")
 
     parser = argparse.ArgumentParser(description='Updates a specified subnet.')
-    parser.add_argument('--subnet_id', required=True, help='The ID of the subnet.')
-    parser.add_argument('-f', '--filename', default=config_file, help='The configuration file. default: '+config_file)
+    parser.add_argument('--subnet-id', dest='subnet_id', metavar='id', required=True, help='The ID of the subnet.')
+    parser.add_argument('--filename', metavar='file', default=config_file, help='The configuration file. default: '+config_file)
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     subnet_id = args.subnet_id

@@ -118,7 +118,7 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Shows information for a specified network.')
-    parser.add_argument('network_id', help='Network id.')
+    parser.add_argument('network_id', metavar='network-id', help='Network id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     network_id = args.network_id

@@ -164,7 +164,7 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Shows information for a specified port.')
-    parser.add_argument('port_id', help='Port id.')
+    parser.add_argument('port_id', metavar='port-id', help='Port id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     port_id = args.port_id

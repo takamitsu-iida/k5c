@@ -43,11 +43,13 @@ except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
   exit(1)
 
+
 #
-# メイン
+# APIにアクセスする
 #
-def main(dump=False):
-  """メイン関数"""
+def access_api():
+  """REST APIにアクセスします"""
+
   # 接続先
   url = k5c.EP_IDENTITY + "/v3/users?domain_id=" + k5c.DOMAIN_ID
 
@@ -57,26 +59,53 @@ def main(dump=False):
   # GETメソッドで取得して、結果のオブジェクトを得る
   r = c.get(url=url)
 
+  return r
+
+
+#
+# 結果を表示する
+#
+def print_result(result, dump=False):
+  """結果を表示します"""
+
   # 中身を確認
   if dump:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # ステータスコードは'status_code'キーに格納
-  status_code = r.get('status_code', -1)
+  status_code = result.get('status_code', -1)
 
   # ステータスコードが異常な場合
   if status_code < 0 or status_code >= 400:
-    print(json.dumps(r, indent=2))
-    return r
+    print(json.dumps(result, indent=2))
+    return
 
   # データは'data'キーに格納
-  data = r.get('data', None)
+  data = result.get('data', None)
   if not data:
     logging.error("no data found")
-    return r
+    return
 
   # ユーザ一覧はデータオブジェクトの中の'users'キーに配列として入っている
+  #"data": {
+  #  "links": {
+  #    "next": null,
+  #    "previous": null,
+  #    "self": "http://identity.jp-east-1.cloud.global.fujitsu.com/v3/users"
+  #  },
+  #  "users": [
+  #    {
+  #      "id": "f48b476f23d84952ae981d264e895aad",
+  #      "links": {
+  #        "self": "http://identity.jp-east-1.cloud.global.fujitsu.com/v3/users/f48b476f23d84952ae981d264e895aad"
+  #      },
+  #      "default_project_id": "a5001a8b9c4a4712985c11377bd6d4fe",
+  #      "domain_id": "e6eb13c4e52b4a60ac17aa925d1aa14c",
+  #      "enabled": true,
+  #      "locale": "ja",
+  #      "name": "admin"
+  #    },
   users_list = []
   for item in data.get('users', []):
     users_list.append([item.get('name', ''), item.get('id', ''), item.get('locale', ''), item.get('domain_id', '')])
@@ -84,20 +113,24 @@ def main(dump=False):
   # ユーザ一覧を表示
   print(tabulate(users_list, headers=['name', 'id', 'locale', 'domain_id'], tablefmt='rst'))
 
-  # 結果を返す
-  return r
-
 
 if __name__ == '__main__':
 
-  def run_main():
-    """メイン関数を実行します"""
-    import argparse
+  import argparse
+
+  def main():
+    """メイン関数"""
     parser = argparse.ArgumentParser(description='Get users.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     dump = args.dump
-    main(dump=dump)
+
+    # 実行
+    result = access_api()
+
+    # 得たデータを処理する
+    print_result(result, dump=dump)
+
 
   # 実行
-  run_main()
+  main()
