@@ -40,8 +40,11 @@ def here(path=''):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
 
 # libフォルダにおいたpythonスクリプトを読みこませるための処理
-sys.path.append(here("../lib"))
-sys.path.append(here("../lib/site-packages"))
+if not here("../lib") in sys.path:
+  sys.path.append(here("../lib"))
+
+if not here("../lib/site-packages") in sys.path:
+  sys.path.append(here("../lib/site-packages"))
 
 try:
   from k5c import k5c

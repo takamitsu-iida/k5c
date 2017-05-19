@@ -8,7 +8,7 @@ Create firewall rule
 
 NOTE:
 　・ルールはエクセルで作成します
-　・ルールファイルのデフォルトのファイル名はfw-rules.xlsxです
+　・ルールファイルのデフォルトのファイル名は$app_home/conf/fw-rules.xlsxです
 　・エクセル内の同じ名前のルールを作成します
 　・ルールの作成に成功すると、得られたIDをエクセルファイルに追記します
 """
@@ -44,8 +44,11 @@ def here(path=''):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
 
 # libフォルダにおいたpythonスクリプトを読みこませるための処理
-sys.path.append(here("../lib"))
-sys.path.append(here("../lib/site-packages"))
+if not here("../lib") in sys.path:
+  sys.path.append(here("../lib"))
+
+if not here("../lib/site-packages") in sys.path:
+  sys.path.append(here("../lib/site-packages"))
 
 try:
   from k5c import k5c
