@@ -73,9 +73,8 @@ except ImportError as e:
 #
 # リクエストデータを作成
 #
-def make_request_data(filename="", name=""):
+def make_request_data(rule=None):
   """リクエストデータを作成して返却します"""
-  rule = read_rule(filename=filename, name=name)
   if not rule:
     return None
 
@@ -173,7 +172,7 @@ def print_result(result=None, dump=False):
 
 
 def get_rule_id(result=None):
-  """rule_idを探して返却します"""
+  """REST APIからの戻り値からrule_idを探して返却します"""
   data = result.get('data', None)
   if not data:
     return None
@@ -181,8 +180,8 @@ def get_rule_id(result=None):
   return rule.get('id', '')
 
 
-def read_rule(filename="", name=""):
-  """ファイルからルールを読みます"""
+def read_rule_all(filename=""):
+  """ファイルからIDの割り当てられていないルールを全て読んで配列にして返します"""
 
   # Excelのブックファイルを読み出す
   try:
@@ -200,47 +199,51 @@ def read_rule(filename="", name=""):
     return None
   name_column_letter = cell.column  # C
   # name_column_index = column_index_from_string(name_column_letter)  # C -> 2
-  name_row = cell.row  # 7
+  name_row_index = cell.row  # 7
 
   # 同じ行から 'id' という値のセルを探す
-  cell = find_cell(row=ws[name_row], value='id')
+  cell = find_cell(row=ws[name_row_index], value='id')
   if not cell:
     return None
   id_column_letter = cell.column  # D
 
-  # 'name' 列を上から舐めて、指定された名前のものがあるか探す
-  cell = find_cell(col=ws[name_column_letter], value=name)
-  if not cell:
-    return None
-  rule_row_index = cell.row
+  # 結果配列
+  result_list = []
 
-  # ルールが記載された行を取り出す
-  rule_row = ws[rule_row_index]
-
-  # IDが既に記載されているかチェック
-  id_value = ws[id_column_letter + str(rule_row_index)].value
-  if id_value:
-    logging.error("id is already assigned, %s ", id_value)
-    return None
-
-  # 返却値
-  result = {}
-
-  # nameと同じ行からキーを拾いながら戻り値のオブジェクトを作成する
-  # POSTで新規作成するときはpositionやidキーを含めてはならないので取り除く
-  for cell in rule_row:
-    key = ws[cell.column + str(name_row)].value
-    if not key_allowed(key):
+  # 名前が記載された列を上から順に確認する
+  for cell in ws[name_column_letter]:
+    if cell.row <= name_row_index:
       continue
-    value = cell.value
-    # quick hack, description key must be string
-    if key == 'description' and not value:
-      value = ''
-    if str(value).upper() == 'NULL':
-      value = None
-    result[key] = value
+    if cell.row > 1024:
+      break
+    if not cell.value:
+      continue
 
-  return result
+    # IDが既に記載されているものは飛ばす
+    if ws[id_column_letter + str(cell.row)].value:
+      continue
+
+    # ルールが記載された行を取り出す
+    rule_row = ws[cell.row]
+
+    # nameと同じ行からキーを拾いながらオブジェクトを作成する
+    # POSTで新規作成するときはpositionやidキーを含めてはならないので取り除く
+    rule_object = {}
+    for cell in rule_row:
+      key = ws[cell.column + str(name_row_index)].value
+      if not key_allowed(key):
+        continue
+      value = cell.value
+      # quick hack, description key must be string
+      if key == 'description' and not value:
+        value = ''
+      if str(value).upper() == 'NULL':
+        value = None
+      rule_object[key] = value
+
+    result_list.append(rule_object)
+
+  return result_list
 
 
 def write_rule(filename="", name="", rule_id=None):
@@ -358,24 +361,28 @@ if __name__ == '__main__':
     write = args.write
     dump = args.dump
 
-    # ファイルからルールを読み取ってリクエストデータを作る
-    data = make_request_data(name=name, filename=filename)
-    # print(json.dumps(data, indent=2))
+    # エクセルファイルからIDが空白のルールを全て取り出す
+    rules = read_rule_all(filename=filename)
+    # for rule in rules:
+    #   print(json.dumps(rule, indent=2))
 
-    if not data:
-      logging.error('no rule found.')
-      return
+    # 順に処理
+    for rule in rules:
+      if name == 'all' or name == rule.get('name', ""):
+        data = make_request_data(rule)
+        if not data:
+          continue
 
-    # 実行
-    result = access_api(data=data)
+        # 実行
+        result = access_api(data=data)
 
-    # 得たデータを処理する
-    print_result(result=result, dump=dump)
+        # 得たデータを処理する
+        print_result(result=result, dump=dump)
 
-    # 結果をエクセルに書く
-    if write:
-      rule_id = get_rule_id(result)
-      write_rule(filename=filename, name=name, rule_id=rule_id)
+        # 結果をエクセルに書く
+        if write:
+          rule_id = get_rule_id(result)
+          write_rule(filename=filename, name=rule.get('name', ""), rule_id=rule_id)
 
 
   # 実行
