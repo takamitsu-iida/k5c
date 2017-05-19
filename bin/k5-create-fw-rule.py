@@ -246,7 +246,7 @@ def read_rule_all(filename=""):
   return result_list
 
 
-def write_rule(filename="", name="", rule_id=None):
+def save_rule(filename="", name="", rule_id=None):
   """ルールIDをファイルに書き込みます"""
   if not rule_id:
     return
@@ -291,7 +291,10 @@ def write_rule(filename="", name="", rule_id=None):
   ws[id_column_letter + str(cell.row)].value = rule_id
 
   # ファイルを保存
-  wb.save(filename)
+  try:
+    wb.save(filename)
+  except PermissionError as e:
+    logging.error("Failed to save excel file.")
 
 
 def key_allowed(key=''):
@@ -353,12 +356,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Creates a firewall rule.')
     parser.add_argument('--name', metavar='name', required=True, help='The rule name.')
     parser.add_argument('--filename', metavar='file', default=config_file, help='The rule file. default: '+config_file)
-    parser.add_argument('--write', action='store_true', default=False, help='Write rule-id to excel file.')
+    parser.add_argument('--save', action='store_true', default=False, help='Write rule-id to the excel file.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     name = args.name
     filename = args.filename
-    write = args.write
+    save = args.save
     dump = args.dump
 
     # エクセルファイルからIDが空白のルールを全て取り出す
@@ -378,11 +381,12 @@ if __name__ == '__main__':
 
         # 得たデータを処理する
         print_result(result=result, dump=dump)
+        sys.stdout.flush()
 
         # 結果をエクセルに書く
-        if write:
+        if save:
           rule_id = get_rule_id(result)
-          write_rule(filename=filename, name=rule.get('name', ""), rule_id=rule_id)
+          save_rule(filename=filename, name=rule.get('name', ""), rule_id=rule_id)
 
 
   # 実行

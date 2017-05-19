@@ -49,7 +49,7 @@ try:
   from k5c import k5c
 except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 
 #
@@ -94,14 +94,9 @@ def print_result(result, dump=False):
   print(result.get('data', ""))
 
 
-
-
-
-
 if __name__ == '__main__':
 
   import argparse
-  import re
 
   def main():
     """メイン関数"""
@@ -112,10 +107,9 @@ if __name__ == '__main__':
     firewall_rule_id = args.firewall_rule_id
     dump = args.dump
 
-
-    regex = re.compile('^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}).*', re.I)
-
     if firewall_rule_id == '-':
+      import re
+      regex = re.compile('^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}).*', re.I)
       for line in sys.stdin:
         match = regex.match(line)
         if match:
@@ -125,13 +119,17 @@ if __name__ == '__main__':
           result = access_api(firewall_rule_id=uuid)
           # 得たデータを処理する
           print_result(result, dump=dump)
-    else:
-      # 実行
-      result = access_api(firewall_rule_id=firewall_rule_id)
+          sys.stdout.flush()
+      return 0
 
-      # 得たデータを処理する
-      print_result(result, dump=dump)
+    # 実行
+    result = access_api(firewall_rule_id=firewall_rule_id)
+
+    # 得たデータを処理する
+    print_result(result, dump=dump)
+
+    return 0
 
 
   # 実行
-  main()
+  sys.exit(main())
