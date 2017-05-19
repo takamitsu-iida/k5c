@@ -98,13 +98,13 @@ try:
   from k5c import k5c
 except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 
 #
@@ -203,17 +203,15 @@ def print_result(result, dump=False):
 
 if __name__ == '__main__':
 
+  import argparse
+
   def main():
     """メイン関数"""
-
-    import argparse
-
     parser = argparse.ArgumentParser(description='Updates a logical router.')
     parser.add_argument('--router-id', dest='router_id', metavar='id', required=True, help='The router id.')
     parser.add_argument('--network-id', dest='network_id', metavar='id', nargs='?', default='', required=True, help='The network_id, for the external gateway.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
-
     router_id = args.router_id
     network_id = args.network_id
     dump = args.dump
@@ -243,6 +241,8 @@ if __name__ == '__main__':
       result = access_api(router_id=router_id, data=data)
       print_result(result, dump=dump)
 
+    return 0
+
 
   # 実行
-  main()
+  sys.exit(main())

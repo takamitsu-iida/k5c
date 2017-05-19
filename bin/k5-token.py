@@ -37,20 +37,23 @@ try:
   from k5c import k5c
 except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
-  exit(1)
-
-
-def main():
-  """メイン関数"""
-  # Clientクラスをインスタンス化
-  c = k5c.Client()
-
-  # トークンを取得
-  token = c.getToken()
-
-  # tokenオブジェクトをダンプ表示
-  print(json.dumps(token, indent=2))
+  sys.exit(1)
 
 
 if __name__ == '__main__':
-  main()
+
+  def main():
+    """メイン関数"""
+    # Clientクラスをインスタンス化
+    c = k5c.Client()
+
+    # トークンを取得
+    token = c.getToken()
+
+    # tokenオブジェクトをダンプ表示
+    print(json.dumps(token, indent=2))
+
+    return 0
+
+
+  sys.exit(main())

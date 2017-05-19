@@ -53,13 +53,13 @@ try:
   from k5c import k5c
 except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 
 #
@@ -217,6 +217,8 @@ if __name__ == '__main__':
     # 得たデータを処理する
     print_result(result, dump=dump)
 
+    return 0
+
 
   # 実行
-  main()
+  sys.exit(main())

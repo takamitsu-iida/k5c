@@ -66,13 +66,13 @@ try:
   from k5c import k5c
 except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 
 #
@@ -241,19 +241,19 @@ if __name__ == '__main__':
 
     if not os.path.exists(config_file):
       logging.error("Config file not found. %s", config_file)
-      sys.exit(1)
+      return 1
 
     with codecs.open(config_file, 'r', 'utf-8') as f:
       try:
         data = yaml.load(f)
       except yaml.YAMLError as e:
         logging.exception(e)
-        sys.exit(1)
+        return 1
 
     config = data.get(subnet_id, {})
     if not config:
       logging.error("subnet_id not found in the yaml file.")
-      sys.exit(1)
+      return 1
 
     name = config.get('name', '')
     gateway_ip = config.get('gateway_ip', '')
@@ -269,6 +269,8 @@ if __name__ == '__main__':
     # 得たデータを処理する
     print_result(result, dump=dump)
 
+    return 0
+
 
   # 実行
-  main()
+  sys.exit(main())

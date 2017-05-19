@@ -38,20 +38,20 @@ try:
   from k5c import k5c
 except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from openpyxl import load_workbook
   # from openpyxl.utils import column_index_from_string
 except ImportError as e:
   logging.exception("openpyxlモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 
 #
@@ -324,11 +324,11 @@ if __name__ == '__main__':
     # ファイルからルールを読み取ってリクエストデータを作る
     data = make_request_data(filename=filename, name=name, az=az)
     print(json.dumps(data, indent=2))
-    exit()
+    sys.exit(1)
 
     if not data:
       logging.error('no rule found.')
-      return
+      return 1
 
     # 実行
     result = access_api(data=data)
@@ -341,6 +341,8 @@ if __name__ == '__main__':
       rule_id = get_rule_id(result)
       write_rule(filename=filename, name=name, rule_id=rule_id)
 
+    return 0
+
 
   # 実行
-  main()
+  sys.exit(main())

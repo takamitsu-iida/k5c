@@ -54,20 +54,20 @@ try:
   from k5c import k5c
 except ImportError as e:
   logging.exception("k5cモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from tabulate import tabulate
 except ImportError as e:
   logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from openpyxl import load_workbook
   # from openpyxl.utils import column_index_from_string
 except ImportError as e:
   logging.exception("openpyxlモジュールのインポートに失敗しました: %s", e)
-  exit(1)
+  sys.exit(1)
 
 
 #
@@ -388,6 +388,8 @@ if __name__ == '__main__':
           rule_id = get_rule_id(result)
           save_rule(filename=filename, name=rule.get('name', ""), rule_id=rule_id)
 
+    return 0
+
 
   # 実行
-  main()
+  sys.exit(main())
