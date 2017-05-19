@@ -94,9 +94,14 @@ def print_result(result, dump=False):
   print(result.get('data', ""))
 
 
+
+
+
+
 if __name__ == '__main__':
 
   import argparse
+  import re
 
   def main():
     """メイン関数"""
@@ -107,11 +112,25 @@ if __name__ == '__main__':
     firewall_rule_id = args.firewall_rule_id
     dump = args.dump
 
-    # 実行
-    result = access_api(firewall_rule_id=firewall_rule_id)
 
-    # 得たデータを処理する
-    print_result(result, dump=dump)
+    regex = re.compile('^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}).*', re.I)
+
+    if firewall_rule_id == '-':
+      for line in sys.stdin:
+        match = regex.match(line)
+        if match:
+          uuid = match.group(1)
+          # print(uuid)
+          # 実行
+          result = access_api(firewall_rule_id=uuid)
+          # 得たデータを処理する
+          print_result(result, dump=dump)
+    else:
+      # 実行
+      result = access_api(firewall_rule_id=firewall_rule_id)
+
+      # 得たデータを処理する
+      print_result(result, dump=dump)
 
 
   # 実行
