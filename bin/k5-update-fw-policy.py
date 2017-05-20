@@ -204,7 +204,7 @@ if __name__ == '__main__':
       print(json.dumps(result, indent=2))
       return 0
 
-    # 得たデータを処理する
+    # 表示
     print_result(result=result)
 
     return 0

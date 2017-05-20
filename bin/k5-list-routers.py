@@ -10,6 +10,13 @@ List routers
 """
 実行例
 
+bash-4.4$ ./bin/k5-list-routers.py
+GET /v2.0/routers
+====================================  =================  ================================  ==========  ========
+id                                    name               tenant_id                         az          status
+====================================  =================  ================================  ==========  ========
+ffbd70be-24cf-4dff-a4f6-661bf892e313  iida-az1-router01  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a  ACTIVE
+====================================  =================  ================================  ==========  ========
 """
 
 import json
@@ -62,13 +69,8 @@ def access_api():
 #
 # 結果を表示する
 #
-def print_result(result, dump=False):
+def print_result(result):
   """結果を表示します"""
-
-  # 中身を確認
-  if dump:
-    print(json.dumps(result, indent=2))
-    return
 
   # ステータスコードは'status_code'キーに格納
   status_code = result.get('status_code', -1)
@@ -120,8 +122,13 @@ if __name__ == '__main__':
     # 実行
     result = access_api()
 
-    # 得たデータを処理する
-    print_result(result, dump=dump)
+    # 中身を確認
+    if dump:
+      print(json.dumps(result, indent=2))
+      return 0
+
+    # 表示
+    print_result(result)
 
     return 0
 

@@ -74,13 +74,8 @@ def access_api():
 #
 # 結果を表示する
 #
-def print_result(result, dump=False):
+def print_result(result):
   """結果を表示します"""
-
-  # 中身を確認
-  if dump:
-    print(json.dumps(result, indent=2))
-    return
 
   # ステータスコードは'status_code'キーに格納
   status_code = result.get('status_code', -1)
@@ -142,8 +137,13 @@ if __name__ == '__main__':
     # 実行
     result = access_api()
 
-    # 得たデータを処理する
-    print_result(result, dump=dump)
+    # 中身を確認
+    if dump:
+      print(json.dumps(result, indent=2))
+      return 0
+
+    # 表示
+    print_result(result)
 
     return 0
 

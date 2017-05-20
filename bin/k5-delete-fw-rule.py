@@ -76,13 +76,8 @@ def access_api(rule_id=""):
 #
 # 結果を表示する
 #
-def print_result(result, dump=False):
+def print_result(result):
   """結果を表示します"""
-
-  # 中身を確認
-  if dump:
-    print(json.dumps(result, indent=2))
-    return
 
   # ステータスコードは'status_code'キーに格納
   status_code = result.get('status_code', -1)
@@ -121,7 +116,7 @@ if __name__ == '__main__':
           result = access_api(rule_id=uuid)
           # 表示
           print(uuid)
-          print_result(result, dump=dump)
+          print_result(result)
           print("")
           sys.stdout.flush()
       return 0
@@ -129,8 +124,13 @@ if __name__ == '__main__':
     # 実行
     result = access_api(rule_id=rule_id)
 
+    # 中身を確認
+    if dump:
+      print(json.dumps(result, indent=2))
+      return 0
+
     # 表示
-    print_result(result, dump=dump)
+    print_result(result)
 
     return 0
 
