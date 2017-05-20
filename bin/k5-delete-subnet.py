@@ -110,6 +110,27 @@ if __name__ == '__main__':
     subnet_id = args.subnet_id
     dump = args.dump
 
+    if subnet_id == '-':
+      import re
+      rex_str = r'^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})\s+(\S+)\s+.*'
+      regex = re.compile(rex_str, re.I)
+      for line in sys.stdin:
+
+        match = regex.match(line)
+        if match:
+          uuid = match.group(1)
+          name = match.group(2)
+          if name.startswith("inf_az"):
+            continue
+          # print("{} {}".format(uuid, name))
+          # 実行
+          result = access_api(subnet_id=uuid)
+          # 得たデータを処理する
+          print_result(result, dump=dump)
+          print("")
+          sys.stdout.flush()
+      return 0
+
     # 実行
     result = access_api(subnet_id=subnet_id)
 

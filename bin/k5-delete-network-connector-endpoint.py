@@ -119,6 +119,22 @@ if __name__ == '__main__':
     ncep_id = args.ncep_id
     dump = args.dump
 
+    if ncep_id == '-':
+      import re
+      regex = re.compile('^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}).*', re.I)
+      for line in sys.stdin:
+        match = regex.match(line)
+        if match:
+          uuid = match.group(1)
+          # print(uuid)
+          # 実行
+          result = access_api(ncep_id=uuid)
+          # 得たデータを処理する
+          print_result(result, dump=dump)
+          print("")
+          sys.stdout.flush()
+      return 0
+
     # 実行
     result = access_api(ncep_id=ncep_id)
 

@@ -119,6 +119,7 @@ if __name__ == '__main__':
           result = access_api(firewall_rule_id=uuid)
           # 得たデータを処理する
           print_result(result, dump=dump)
+          print("")
           sys.stdout.flush()
       return 0
 
