@@ -5,6 +5,9 @@
 DELETE /v2.0/fw/firewall_rules/{firewall_rule_id}
 Delete firewall rule
 ファイアーウォールのルールを削除する
+
+NOTE:
+　・ポリシーに割り当てたものは削除できません（エラーが戻ります）
 """
 
 """

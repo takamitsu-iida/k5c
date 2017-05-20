@@ -118,60 +118,57 @@ def print_result(result=None, dump=False):
     logging.error("no data found")
     return
 
-  # 作成したルールの情報はデータオブジェクトの中の'firewall_rule'キーにオブジェクトとして入っている
+  # 作成したポリシーの情報はデータオブジェクトの中の'firewall_policy'キーにオブジェクトとして入っている
   #"data": {
-  #  "firewall_rule": {
-  #    "destination_ip_address": null,
-  #    "action": "allow",
-  #    "ip_version": 4,
-  #    "firewall_policy_id": null,
-  #    "position": null,
-  #    "source_ip_address": "133.162.192.0/24",
-  #    "id": "de2bb711-d495-4ae5-9d05-672575d1549a",
-  #    "shared": false,
-  #    "availability_zone": "jp-east-1a",
-  #    "destination_port": null,
-  #    "enabled": true,
-  #    "protocol": "tcp",
-  #    "description": "",
-  #    "name": "iida-az1-p01-mgmt01-any-tcp",
+  #  "firewall_policy": {
+  #    "id": "84417ab6-53ea-4595-9d92-7a9d9a552e12",
   #    "tenant_id": "a5001a8b9c4a4712985c11377bd6d4fe",
-  #    "source_port": null
+  #    "firewall_rules": [
+  #      "867e35c5-2875-4c51-af31-4cf7932f17f6",
+  #      "9597ea56-e39d-4160-bdca-ebf2aca23aab",
+  #      "589d96ad-79e9-4a84-b923-10145469643c",
+  #      "c44321b7-6b04-4ec4-8e62-dc080794f59b",
+  #      "57fbe4aa-6edf-4123-8b6c-c8233cfb3c70",
+  #      "6eb8b10f-0756-460a-8b6a-8dd3db77173d",
+  #      "58dfdc2f-bf23-481b-9f3a-4b96df6232a2",
+  #      "75877f59-7a26-4a59-a343-9e2955dfb49e",
+  #      "8cf91195-d611-489d-b322-e28cab2ba705",
+  #      "acfada3d-0527-43e7-ba4d-6403ca8654fe",
+  #      "3750f08f-5567-4ad7-870f-dd830cc898b0",
+  #      "bc8f66e6-c09c-448f-869c-96f2c0843e81"
+  #    ],  #    "description": "",
+  #    "availability_zone": "jp-east-1a",
+  #    "shared": false,
+  #    "name": "iida",
+  #    "audited": false
   #  }
-  #}
-  rule = data.get('firewall_rule', {})
+  #},
+  fp = data.get('firewall_policy', {})
 
   # 表示用に配列にする
-  rules = []
-  rule_id = rule.get('id', '')
-  rules.append(['id', rule_id])
-  rules.append(['name', rule.get('name', '')])
-  rules.append(['enabled', rule.get('enabled', '')])
-  rules.append(['action', rule.get('action', '')])
-  rules.append(['protocol', rule.get('protocol', '')])
-  rules.append(['source_ip_address', rule.get('source_ip_address', '')])
-  rules.append(['source_port', rule.get('source_port', '')])
-  rules.append(['destination_ip_address', rule.get('destination_ip_address', '')])
-  rules.append(['destination_port', rule.get('destination_port', '')])
-  rules.append(['description', rule.get('description', '')])
-  rules.append(['availability_zone', rule.get('availability_zone', '')])
-  rules.append(['tenant_id', rule.get('tenant_id', '')])
+  disp_keys = ['id', 'name', 'availability_zone', 'tenant_id']
+  fps = []
+  for key in disp_keys:
+    fps.append([key, fp.get(key, '')])
 
   # ファイアウォールポリシー情報を表示
   print("POST /v2.0/fw/firewall_policies")
+  print(tabulate(fps, tablefmt='rst'))
+
+  # ルール一覧を表示
+  rules = []
+  for item in fp.get('firewall_rules', []):
+    rules.append([item])
   print(tabulate(rules, tablefmt='rst'))
 
 
-def get_rule_id(result=None):
-  """rule_idを探して返却します"""
+def get_policy_id(result=None):
+  """firewall_policy_idを探して返却します"""
   data = result.get('data', None)
   if not data:
     return None
-  rule = data.get('firewall_rule', {})
-  return rule.get('id', '')
-
-
-
+  policy = data.get('firewall_policy', {})
+  return policy.get('id', '')
 
 
 if __name__ == '__main__':
@@ -204,12 +201,7 @@ if __name__ == '__main__':
     # ファイルからルールIDの配列を読み取る
     rule_id_list = fwcommon.get_rule_id_list(filename=filename)
     data = make_request_data(name=name, rule_id_list=rule_id_list, az=az)
-    print(json.dumps(data, indent=2))
-    sys.exit(1)
-
-    if not data:
-      logging.error('no rule found.')
-      return 1
+    # print(json.dumps(data, indent=2))
 
     # 実行
     result = access_api(data=data)
@@ -219,8 +211,8 @@ if __name__ == '__main__':
 
     # 結果をエクセルに書く
     if save:
-      rule_id = get_rule_id(result)
-      fwcommon.write_rule(filename=filename, name=name, rule_id=rule_id)
+      policy_id = get_policy_id(result)
+      fwcommon.save_policy(filename=filename, rule_id_list=rule_id_list, policy_id=policy_id)
 
     return 0
 

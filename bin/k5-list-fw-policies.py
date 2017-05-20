@@ -10,6 +10,16 @@ List firewall policies
 """
 実行例
 
+bash-4.4$ ./bin/k5-list-fw-policies.py
+GET /v2.0/fw/firewall_policies
+====================================  ======  ==============  ================================  ==========
+id                                    name      num of rules  tenant_id                         az
+====================================  ======  ==============  ================================  ==========
+48b2d571-a26d-42b3-934b-5c21cc2ee133  test                12  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a
+84417ab6-53ea-4595-9d92-7a9d9a552e12  iida                 0  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a
+b3fbca64-6a97-458f-a92f-36ad899bf87f  test                 0  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a
+c6f4f5f6-734c-4198-b3fe-40a7a5712109  test                 0  a5001a8b9c4a4712985c11377bd6d4fe  jp-east-1a
+====================================  ======  ==============  ================================  ==========
 """
 
 import json
@@ -84,33 +94,39 @@ def print_result(result, dump=False):
     logging.error("no data found")
     return
 
-  # ネットワーク一覧はデータオブジェクトの中の'networks'キーに配列として入っている
+  # ポリシーの一覧はデータオブジェクトの中の'firewall_policies'キーに配列として入っている
   #"data": {
-  #  "networks": [
+  #  "firewall_policies": [
   #    {
-  #      "availability_zone": "jp-east-1b",
-  #      "name": "inf_az2_ext-net01",
-  #      "id": "375c49fa-a706-4676-b55b-2d3554e5db6a",
-  #      "tenant_id": "31ceb599e8ff48aeb66f2fd748988960",
-  #      "admin_state_up": true,
-  #      "status": "ACTIVE",
-  #      "router:external": true,
-  #      "subnets": [
-  #        "5079f324-5db0-44ee-92ac-3a6b7977b23f",
-  #        "a56b6058-0479-43a1-8b27-01c1c05e96a2",
-  #        "c1da3ee7-51c3-4801-bb97-aa03a4383ef0",
-  #        "e96e55b8-84bb-4777-a782-a5d6e8340039",
-  #        "f5e9ec37-88ec-494b-ac55-dae101a54cc1"
+  #      "name": "test",
+  #      "firewall_rules": [
+  #        "867e35c5-2875-4c51-af31-4cf7932f17f6",
+  #        "9597ea56-e39d-4160-bdca-ebf2aca23aab",
+  #        "589d96ad-79e9-4a84-b923-10145469643c",
+  #        "c44321b7-6b04-4ec4-8e62-dc080794f59b",
+  #        "57fbe4aa-6edf-4123-8b6c-c8233cfb3c70",
+  #        "6eb8b10f-0756-460a-8b6a-8dd3db77173d",
+  #        "58dfdc2f-bf23-481b-9f3a-4b96df6232a2",
+  #        "75877f59-7a26-4a59-a343-9e2955dfb49e",
+  #        "8cf91195-d611-489d-b322-e28cab2ba705",
+  #        "acfada3d-0527-43e7-ba4d-6403ca8654fe",
+  #        "3750f08f-5567-4ad7-870f-dd830cc898b0",
+  #        "bc8f66e6-c09c-448f-869c-96f2c0843e81"
   #      ],
-  #      "shared": true
+  #      "audited": false,
+  #      "description": "",
+  #      "tenant_id": "a5001a8b9c4a4712985c11377bd6d4fe",
+  #      "shared": false,
+  #      "availability_zone": "jp-east-1a",
+  #      "id": "48b2d571-a26d-42b3-934b-5c21cc2ee133"
   #    },
-  networks_list = []
-  for item in data.get('networks', []):
-    networks_list.append([item.get('id', ''), item.get('name', ''), item.get('tenant_id', ''), item.get('availability_zone', ''), item.get('status', '')])
+  policy_list = []
+  for item in data.get('firewall_policies', []):
+    policy_list.append([item.get('id', ''), item.get('name', ''), len(item.get('firewall_rules', [])), item.get('tenant_id', ''), item.get('availability_zone', '')])
 
   # 一覧を表示
   print("GET /v2.0/fw/firewall_policies")
-  print(tabulate(networks_list, headers=['id', 'name', 'tenant_id', 'az', 'status'], tablefmt='rst'))
+  print(tabulate(policy_list, headers=['id', 'name', 'num of rules', 'tenant_id', 'az'], tablefmt='rst'))
 
 
 if __name__ == '__main__':

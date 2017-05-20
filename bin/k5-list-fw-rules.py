@@ -13,26 +13,24 @@ NOTE:
 """
 実行例
 
+bash-4.4$ ./bin/k5-list-fw-rules.py
 /v2.0/fw/firewall_rules
-====================================  ================================  ==========  ========  ==========  =============  ===================
-id                                    name                              position    action    protocol    description    availability_zone
-====================================  ================================  ==========  ========  ==========  =============  ===================
-00641438-57e2-444c-8f75-227ea11b4598  iida-az1-p01-mgmt01-any-icmp                  allow     icmp        test           jp-east-1a
-04f9bbc2-34f3-4b88-8313-def1f6984a9a  iida-az1-p01-mgmt01-any-tcp                   allow     tcp         test           jp-east-1a
-12a99347-fcd1-4673-8cbb-bf5ae0b41708  iida-az1-p01-private192-any-icmp              allow     icmp        test           jp-east-1a
-15ba5f0e-ee12-4473-9c80-29eb550a644b  iida-az1-p01-any-net01-http                   allow     tcp         test           jp-east-1a
-279cfc37-1312-43c7-8a91-0fe2b11a3417  iida-az1-p01-private172-any-icmp              allow     icmp        test           jp-east-1a
-550a1bed-0eb7-4088-b135-e00a4fd21047  iida-az1-p01-private10-any-icmp               allow     icmp        test           jp-east-1a
-571b7735-8227-4f69-ab64-94e3d3020ae6  iida-az1-p01-net02-any-tcp                    allow     tcp         test           jp-east-1a
-7a0c3d0a-294f-4947-a0f2-2891c1a870b2  iida-az1-p01-net02-any-icmp                   allow     icmp        test           jp-east-1a
-85fa92d0-97a1-4907-9321-80958cca7b89  iida-az1-p01-any-net01-https                  allow     tcp         test           jp-east-1a
-898d75ac-89bc-4cae-bec8-bbf67364e159  iida-az1-p01-net01-any-udp                    allow     udp         test           jp-east-1a
-93aa698a-6ccc-4d78-9407-cce67589ffc0  iida-az1-p01-net02-any-udp                    allow     udp         test           jp-east-1a
-ae35a22e-71f3-4411-b6c1-eebc6e8c8267  iida-az1-p01-deny-all                         deny                  test           jp-east-1a
-dc9f79c7-7793-47f4-95e1-149e54e1b93f  iida-az1-p01-mgmt01-any-udp                   allow     udp         test           jp-east-1a
-f693744d-fd92-4f40-83e4-7e33aa55d87c  iida-az1-p01-net01-any-icmp                   allow     icmp        test           jp-east-1a
-fdae67e1-9f7f-47de-93af-23fad02ff59b  iida-az1-p01-net01-any-tcp                    allow     tcp         test           jp-east-1a
-====================================  ================================  ==========  ========  ==========  =============  ===================
+====================================  =============================  ==========  ========  ==========  ===================
+id                                    name                             position  action    protocol    availability_zone
+====================================  =============================  ==========  ========  ==========  ===================
+618c64c3-f28b-404a-ad62-7bec33d7f48b  iida-az1-p01-net02-any-tcp              1  allow     tcp         jp-east-1a
+b7077240-adb1-4216-8983-6aa3f1e48d01  iida-az1-p01-net02-any-udp              2  allow     udp         jp-east-1a
+9d4138ed-3236-4d50-a637-762b22ffc716  iida-az1-p01-net02-any-icmp             3  allow     icmp        jp-east-1a
+0c48089e-f8f2-4eb5-ab4e-f40bf11b91aa  iida-az1-p01-net01-net02-tcp            4  deny      tcp         jp-east-1a
+76dcbfc1-6593-4c9a-91b9-ff7223f4d358  iida-az1-p01-net01-net02-udp            5  deny      udp         jp-east-1a
+d621e8bf-c9c6-485c-b96c-7a09887935fe  iida-az1-p01-net01-net02-icmp           6  deny      icmp        jp-east-1a
+abded572-ed04-4527-a6b2-1f728a926a81  iida-az1-p01-net01-any-tcp              7  allow     tcp         jp-east-1a
+5ef0625e-3f85-435e-a5e7-e1812ffbc173  iida-az1-p01-net01-any-udp              8  allow     udp         jp-east-1a
+af357dcf-2d4e-4c02-8ec5-3db261665daf  iida-az1-p01-net01-any-icmp             9  allow     icmp        jp-east-1a
+cd2249f9-9f7a-42e5-94cb-8a528abeae04  deny-all-tcp                           10  deny      tcp         jp-east-1a
+5925fef4-392b-4ff6-9962-94a79e8a9973  deny-all-udp                           11  deny      udp         jp-east-1a
+0b429ceb-e665-48f9-b695-2c0ca9357bea  deny-all-icmp                          12  deny      icmp        jp-east-1a
+====================================  =============================  ==========  ========  ==========  ===================
 """
 
 import json
@@ -130,14 +128,28 @@ def print_result(result, dump=False):
   #  ]
   #}
 
-  keys = ['id', 'name', 'position', 'action', 'protocol', 'description', 'availability_zone']
+  # firewall_rulesキーの値を取り出す
+  firewall_rules = data.get('firewall_rules', [])
 
+  # positionキーの値でソートする
+  if firewall_rules:
+    # positionキーの値がNoneだとソートできないので""に置き換える
+    for rule in firewall_rules:
+      if rule.get('position', None) is None:
+        rule['position'] = ""
+    # sorted()を使ってソートする
+    firewall_rules = sorted(firewall_rules, key=lambda x: x.get('position', 0))
+
+  # 表示項目
+  keys = ['id', 'name', 'position', 'action', 'protocol', 'availability_zone']
+
+  # tabulateで表示するための配列
   rules_list = []
-  for item in data.get('firewall_rules', []):
+  for rule in firewall_rules:
     items = []
-    rules_list.append(items)
     for key in keys:
-      items.append(item.get(key, ''))
+      items.append(rule.get(key, ''))
+    rules_list.append(items)
 
   # 一覧を表示
   print("/v2.0/fw/firewall_rules")

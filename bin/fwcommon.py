@@ -178,34 +178,41 @@ def get_rule_id_list(filename=""):
     return None
   # name_column_letter = cell.column  # C
   # name_column_index = column_index_from_string(name_column_letter)  # C -> 2
-  name_row = cell.row  # 7
+  name_row_index = cell.row  # 7
 
   # 同じ行から 'id' という値のセルを探す
-  cell = find_cell(row=ws[name_row], value='id')
+  cell = find_cell(row=ws[name_row_index], value='id')
   if not cell:
     return None
   id_column_letter = cell.column  # D
-  id_row_number = cell.row  # 8
+
+  # 同じ行から 'firewall_policy_id' という値のセルを探す
+  cell = find_cell(row=ws[name_row_index], value='firewall_policy_id')
+  if not cell:
+    return None
+  policy_column_letter = cell.column  # O
 
   # 返却値
   result = []
 
   # ルールIDが記載された列からid値を取り出す
   for cell in ws[id_column_letter]:
-    if cell.row <= id_row_number:
+    if cell.row <= name_row_index:
       continue
     if cell.row > 1024:
       break
     if not cell.value:
+      continue
+    if ws[policy_column_letter + str(cell.row)].value:
       continue
     result.append(cell.value)
 
   return result
 
 
-def write_rule(filename="", name="", rule_id=None):
-  """ルールIDをファイルに書き込みます"""
-  if not rule_id:
+def save_policy(filename="", rule_id_list=None, policy_id=""):
+  """ポリシーIDをファイルに書き込みます"""
+  if not rule_id_list or not policy_id:
     return
 
   # Excelのブックファイルを読み出す
@@ -222,33 +229,37 @@ def write_rule(filename="", name="", rule_id=None):
   cell = find_cell(ws=ws, value='name')
   if not cell:
     return
-  name_column_letter = cell.column  # C
-  name_row = cell.row  # 7
+  name_row_index = cell.row  # 7
 
   # 同じ行の 'id' という値のセルを探す
-  cell = find_cell(row=ws[name_row], value='id')
+  cell = find_cell(row=ws[name_row_index], value='id')
   if not cell:
     return
-  id_column_letter = cell.column  # D
+  id_column_letter = cell.column  # O
 
-  # 'name' 列を上から舐めて、指定された名前のものがあるか探す
-  cell = None
-  for row in ws[name_column_letter]:
-    # 一致したら抜ける
-    if row.value == name:
-      cell = row
-      break
-    # 1024行に達したらそれ以上は無駄なので抜ける
-    if row.row > 1024:
-      break
+  # 同じ行の 'firewall_policy_id' という値のセルを探す
+  cell = find_cell(row=ws[name_row_index], value='firewall_policy_id')
   if not cell:
-    return None
+    return
+  policy_column_letter = cell.column  # O
 
-  # 値をセットして
-  ws[id_column_letter + str(cell.row)].value = rule_id
+  # 'id' 列を上から舐めながらfirewall_policy_id列に値をセットする
+  for cell in ws[id_column_letter]:
+    if cell.row <= name_row_index:
+      continue
+    # 1024行に達したらそれ以上は無駄なので抜ける
+    if cell.row > 1024:
+      break
+
+    rule_id = ws[id_column_letter + str(cell.row)].value
+    if rule_id in rule_id_list:
+      ws[policy_column_letter + str(cell.row)].value = policy_id
 
   # ファイルを保存
-  wb.save(filename)
+  try:
+    wb.save(filename)
+  except PermissionError as e:
+    logging.error("Failed to save excel file.")
 
 
 def save_rule(filename="", name="", rule_id=None):
