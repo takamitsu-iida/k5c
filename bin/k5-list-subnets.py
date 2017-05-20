@@ -121,11 +121,11 @@ def print_result(result, dump=False):
 
   subnets_list = []
   for item in data.get('subnets', []):
-    subnets_list.append([item.get('name', ''), item.get('id', ''), item.get('network_id', ''), item.get('cidr', '')])
+    subnets_list.append([item.get('id', ''), item.get('name', ''), item.get('network_id', ''), item.get('cidr', '')])
 
   # 一覧を表示
   print("GET /v2.0/subnets")
-  print(tabulate(subnets_list, headers=['name', 'id', 'network_id', 'cidr'], tablefmt='rst'))
+  print(tabulate(subnets_list, headers=['id', 'name', 'network_id', 'cidr'], tablefmt='rst'))
 
 
 if __name__ == '__main__':
