@@ -207,6 +207,9 @@ if __name__ == '__main__':
 
     # エクセルファイルからIDが空白のルールを全て取り出す
     rules = fwcommon.get_rules_to_create(filename=filename)
+    if not rules:
+      logging.error("no rule found.")
+      return 1
     # for rule in rules:
     #   print(json.dumps(rule, indent=2))
 

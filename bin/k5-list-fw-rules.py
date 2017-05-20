@@ -82,13 +82,8 @@ def access_api():
 #
 # 結果を表示する
 #
-def print_result(result, dump=False):
+def print_result(result, unused=False):
   """結果を表示します"""
-
-  # 中身を確認
-  if dump:
-    print(json.dumps(result, indent=2))
-    return
 
   # ステータスコードは'status_code'キーに格納
   status_code = result.get('status_code', -1)
@@ -128,32 +123,49 @@ def print_result(result, dump=False):
   #  ]
   #}
 
-  # firewall_rulesキーの値を取り出す
+  # firewall_rulesキーの配列を取り出す
   firewall_rules = data.get('firewall_rules', [])
 
-  # positionキーの値でソートする
-  if firewall_rules:
-    # positionキーの値がNoneだとソートできないので""に置き換える
-    for rule in firewall_rules:
-      if rule.get('position', None) is None:
-        rule['position'] = ""
-    # sorted()を使ってソートする
-    firewall_rules = sorted(firewall_rules, key=lambda x: x.get('position', 0))
+  # positionキーの値がNoneだとソートするときに支障があるので""に置き換えておく
+  for rule in firewall_rules:
+    if rule.get('position', None) is None:
+      rule['position'] = ""
+
+  # 親ごとに分類する
+  policy_object = {}
+  for rule in firewall_rules:
+    key = rule.get('firewall_policy_id', None)
+    # 未使用のルールは'unused'を親にする
+    if key is None:
+      key = 'unused'
+    if key not in policy_object:
+      policy_object[key] = []
+    policy_object[key].append(rule)
 
   # 表示項目
   keys = ['id', 'name', 'position', 'action', 'protocol', 'availability_zone']
 
-  # tabulateで表示するための配列
-  rules_list = []
-  for rule in firewall_rules:
-    items = []
-    for key in keys:
-      items.append(rule.get(key, ''))
-    rules_list.append(items)
+  for pid, rules in policy_object.items():
+    # unusedフラグが立っていたら未使用のルールだけを処理する
+    if unused:
+      if pid != 'unused':
+        continue
 
-  # 一覧を表示
-  print("/v2.0/fw/firewall_rules")
-  print(tabulate(rules_list, headers=keys, tablefmt='rst'))
+    # sorted()を使ってpositionをもとにrulesをソートする
+    rules = sorted(rules, key=lambda x: x.get('position', 0))
+
+    # tabulateで表示するための配列
+    rules_list = []
+    for rule in rules:
+      items = []
+      for key in keys:
+        items.append(rule.get(key, ''))
+      rules_list.append(items)
+
+    # 一覧を表示
+    print("policy : {}".format(pid))
+    print(tabulate(rules_list, headers=keys, tablefmt='rst'))
+    print("")
 
 
 if __name__ == '__main__':
@@ -163,15 +175,21 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Lists firewall rules.')
+    parser.add_argument('--unused', action='store_true', default=False, help='List unused firewall rule.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
+    unused = args.unused
     dump = args.dump
 
     # 実行
     result = access_api()
 
+    if dump:
+      print(json.dumps(result, indent=2))
+      return 0
+
     # 得たデータを処理する
-    print_result(result, dump=dump)
+    print_result(result, unused=unused)
 
     return 0
 

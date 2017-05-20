@@ -212,7 +212,7 @@ if __name__ == '__main__':
     # 結果をエクセルに書く
     if save:
       policy_id = get_policy_id(result)
-      fwcommon.save_policy(filename=filename, rule_id_list=rule_id_list, policy_id=policy_id)
+      fwcommon.save_policy(filename=filename, rule_id_list=rule_id_list, policy_id=policy_id, policy_name=name)
 
     return 0
 

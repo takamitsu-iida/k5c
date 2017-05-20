@@ -32,7 +32,7 @@ def get_rules_to_create(filename=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.exception("ファイルが見つかりません: %s", e)
+    logging.error("ファイルが見つかりません: %s", e)
     return None
 
   # アクティブなシートを取り出す
@@ -104,7 +104,7 @@ def get_rule_to_update(filename="", rule_id=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.exception("ファイルが見つかりません: %s", e)
+    logging.error("ファイルが見つかりません: %s", e)
     return None
 
   # アクティブなシートを取り出す
@@ -166,7 +166,7 @@ def get_rule_id_list(filename=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.exception("ファイルが見つかりません: %s", e)
+    logging.error("ファイルが見つかりません: %s", e)
     return None
 
   # アクティブなシートを取り出す
@@ -210,8 +210,8 @@ def get_rule_id_list(filename=""):
   return result
 
 
-def save_policy(filename="", rule_id_list=None, policy_id=""):
-  """ポリシーIDをファイルに書き込みます"""
+def save_policy(filename="", rule_id_list=None, policy_id="", policy_name=""):
+  """ポリシーIDと名前をファイルに書き込みます"""
   if not rule_id_list or not policy_id:
     return
 
@@ -219,7 +219,7 @@ def save_policy(filename="", rule_id_list=None, policy_id=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.exception("ファイルが見つかりません: %s", e)
+    logging.error("ファイルが見つかりません: %s", e)
     return None
 
   # アクティブなシートを取り出す
@@ -241,7 +241,13 @@ def save_policy(filename="", rule_id_list=None, policy_id=""):
   cell = find_cell(row=ws[name_row_index], value='firewall_policy_id')
   if not cell:
     return
-  policy_column_letter = cell.column  # O
+  policy_id_column_letter = cell.column  # O
+
+  # 同じ行の 'firewall_policy_name' という値のセルを探す
+  cell = find_cell(row=ws[name_row_index], value='firewall_policy_name')
+  if not cell:
+    return
+  policy_name_column_letter = cell.column  # P
 
   # 'id' 列を上から舐めながらfirewall_policy_id列に値をセットする
   for cell in ws[id_column_letter]:
@@ -250,10 +256,10 @@ def save_policy(filename="", rule_id_list=None, policy_id=""):
     # 1024行に達したらそれ以上は無駄なので抜ける
     if cell.row > 1024:
       break
-
     rule_id = ws[id_column_letter + str(cell.row)].value
     if rule_id in rule_id_list:
-      ws[policy_column_letter + str(cell.row)].value = policy_id
+      ws[policy_id_column_letter + str(cell.row)].value = policy_id
+      ws[policy_name_column_letter + str(cell.row)].value = policy_name
 
   # ファイルを保存
   try:
@@ -271,7 +277,7 @@ def save_rule(filename="", name="", rule_id=None):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.exception("ファイルが見つかりません: %s", e)
+    logging.error("ファイルが見つかりません: %s", e)
     return None
 
   # アクティブなシートを取り出す
@@ -338,3 +344,55 @@ def find_cell(ws=None, row=None, col=None, value=None):
       if cell.value == value:
         return cell
   return None
+
+
+def get_policy_rules_to_update(filename="", policy_id=""):
+  """エクセルファイルから指定されたポリシーIDのルールID配列を作成して返却します"""
+
+  # Excelのブックファイルを読み出す
+  try:
+    wb = load_workbook(filename=filename, data_only=True)
+  except FileNotFoundError as e:
+    logging.error("ファイルが見つかりません: %s", e)
+    return None
+
+  # アクティブなシートを取り出す
+  ws = wb.active
+
+  # 'name' という値のセルを探す
+  cell = find_cell(ws=ws, value='name')
+  if not cell:
+    return None
+  # name_column_letter = cell.column  # C
+  # name_column_index = column_index_from_string(name_column_letter)  # C -> 2
+  name_row_index = cell.row  # 7
+
+  # 同じ行から 'id' という値のセルを探す
+  cell = find_cell(row=ws[name_row_index], value='id')
+  if not cell:
+    return None
+  id_column_letter = cell.column  # D
+
+  # 同じ行から 'firewall_policy_id' という値のセルを探す
+  cell = find_cell(row=ws[name_row_index], value='firewall_policy_id')
+  if not cell:
+    return None
+  firewall_policy_id_column_letter = cell.column  # D
+
+  # 返却値
+  result = []
+
+  # firewall_policy_id列からid値を取り出す
+  for cell in ws[firewall_policy_id_column_letter]:
+    if cell.row <= name_row_index:
+      continue
+    if cell.row > 1024:
+      break
+    if not cell.value:
+      continue
+    if cell.value == policy_id:
+      rule_id = ws[id_column_letter + str(cell.row)].value
+      if rule_id:
+        result.append(rule_id)
+
+  return result
