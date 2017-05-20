@@ -62,19 +62,17 @@ except ImportError as e:
   sys.exit(1)
 
 try:
-  from openpyxl import load_workbook
-  # from openpyxl.utils import column_index_from_string
+  import fwcommon
 except ImportError as e:
-  logging.exception("openpyxlモジュールのインポートに失敗しました: %s", e)
+  logging.exception("fwcommon.pyのインポートに失敗しました: %s", e)
   sys.exit(1)
 
 
 #
 # リクエストデータを作成
 #
-def make_request_data(filename="", rule_id=""):
+def make_request_data(rule=None):
   """リクエストデータを作成して返却します"""
-  rule = read_rule_by_id(filename=filename, rule_id=rule_id)
   if not rule:
     return None
 
@@ -173,113 +171,6 @@ def print_result(result=None, dump=False):
   print(tabulate(rules, tablefmt='rst'))
 
 
-def get_rule_id(result=None):
-  """rule_idを探して返却します"""
-  data = result.get('data', None)
-  if not data:
-    return None
-  rule = data.get('firewall_rule', {})
-  return rule.get('id', '')
-
-
-def read_rule_by_id(filename="", rule_id=""):
-  """ファイルからルールを読みます"""
-
-  # Excelのブックファイルを読み出す
-  try:
-    wb = load_workbook(filename=filename, data_only=True)
-  except FileNotFoundError as e:
-    logging.exception("ファイルが見つかりません: %s", e)
-    return None
-
-  # アクティブなシートを取り出す
-  ws = wb.active
-
-  # 'name' という値のセルを探す
-  cell = find_cell(ws=ws, value='name')
-  if not cell:
-    return None
-  # name_column_letter = cell.column  # C
-  # name_column_index = column_index_from_string(name_column_letter)  # C -> 2
-  name_row = cell.row  # 7
-
-  # 同じ行から 'id' という値のセルを探す
-  cell = find_cell(row=ws[name_row], value='id')
-  if not cell:
-    return None
-  id_column_letter = cell.column  # D
-
-  # 'id' 列を上から舐めて、指定された名前のものがあるか探す
-  cell = find_cell(col=ws[id_column_letter], value=rule_id)
-  if not cell:
-    return None
-  rule_row_index = cell.row
-
-  # ルールが記載された行を取り出す
-  rule_row = ws[rule_row_index]
-
-  # 返却値
-  result = {}
-
-  # nameと同じ行からキーを拾いながら戻り値のオブジェクトを作成する
-  # POSTで新規作成するときはpositionやidキーを含めてはならないので取り除く
-  for cell in rule_row:
-    key = ws[cell.column + str(name_row)].value
-    if not key_allowed(key):
-      continue
-    value = cell.value
-    # quick hack, description key must be string
-    if key == 'description' and not value:
-      value = ''
-    if str(value).upper() == 'NULL':
-      value = None
-    result[key] = value
-
-  return result
-
-
-def key_allowed(key=''):
-  """許可されたキーであればTrue、その他はFalseを返します"""
-  if not key:
-    return False
-
-  allowed_keys = [
-    'name', 'enabled', 'action', 'protocol', 'source_ip_address', 'source_port',
-    'destination_ip_address', 'destination_port'
-  ]
-
-  if key.lower() in allowed_keys:
-    return True
-  return False
-
-
-def find_cell(ws=None, row=None, col=None, value=None):
-  """指定された値を探します"""
-  # 行が指定されているならその行から探す
-  if row:
-    for cell in row:
-      if cell.value == value:
-        return cell
-    return None
-
-  if col:
-    for cell in col:
-      if cell.value == value:
-        return cell
-      # 1024行に達したらそれ以上は無駄なので抜ける
-      if cell.row > 1024:
-        break
-    return None
-
-  # ワークシートから探す
-  # 1行~1024行、26列までを探索
-  for row in ws.iter_rows(min_row=1, max_row=1024, max_col=26):
-    for cell in row:
-      if cell.value == value:
-        return cell
-  return None
-
-
 if __name__ == '__main__':
 
   import argparse
@@ -295,7 +186,7 @@ if __name__ == '__main__':
     config_file = os.path.join(app_home, "conf", "fw-rules.xlsx")
 
     parser = argparse.ArgumentParser(description='Updates a firewall rule.')
-    parser.add_argument('--rule-id', dest='rule_id', metavar='id', required=True, help='The rule id.')
+    parser.add_argument('rule_id', metavar='id', help='The firewall rule id.')
     parser.add_argument('--filename', metavar='file', default=config_file, help='The rule file. default: '+config_file)
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
@@ -303,18 +194,39 @@ if __name__ == '__main__':
     filename = args.filename
     dump = args.dump
 
-    # ファイルからルールを読み取ってリクエストデータを作る
-    data = make_request_data(filename=filename, rule_id=rule_id)
-    # print(json.dumps(data, indent=2))
+    if rule_id == '-':
+      import re
+      regex = re.compile('^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}).*', re.I)
+      for line in sys.stdin:
+        match = regex.match(line)
+        if match:
+          uuid = match.group(1)
+          rule = fwcommon.get_rule_to_update(filename=filename, rule_id=uuid)
+          if not rule:
+            print("no rule found for {}".format(uuid))
+            continue
+          data = make_request_data(rule)
+          result = access_api(rule_id=uuid, data=data)
+          print_result(result, dump=dump)
+          print("")
+          sys.stdout.flush()
+      return 0
 
-    if not data:
-      logging.error('no rule found.')
+    # ファイルからルールを読み取ってリクエストデータを作る
+    rule = fwcommon.get_rule_to_update(filename=filename, rule_id=rule_id)
+
+    if not rule:
+      print("no rule found for {}".format(rule_id))
       return 1
+
+    # リクエストデータを作成
+    data = make_request_data(rule)
+    # print(json.dumps(data, indent=2))
 
     # 実行
     result = access_api(rule_id=rule_id, data=data)
 
-    # 得たデータを処理する
+    # 表示
     print_result(result=result, dump=dump)
 
     return 0

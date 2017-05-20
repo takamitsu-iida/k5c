@@ -55,11 +55,11 @@ except ImportError as e:
 #
 # APIにアクセスする
 #
-def access_api(firewall_rule_id=""):
+def access_api(rule_id=""):
   """REST APIにアクセスします"""
 
   # 接続先
-  url = k5c.EP_NETWORK + "/v2.0/fw/firewall_rules/" + firewall_rule_id
+  url = k5c.EP_NETWORK + "/v2.0/fw/firewall_rules/" + rule_id
 
   # Clientクラスをインスタンス化
   c = k5c.Client()
@@ -101,32 +101,32 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Deletes a firewall rule.')
-    parser.add_argument('firewall_rule_id', metavar='id', help='The firewall rule id.')
+    parser.add_argument('rule_id', metavar='id', help='The firewall rule id.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
-    firewall_rule_id = args.firewall_rule_id
+    rule_id = args.rule_id
     dump = args.dump
 
-    if firewall_rule_id == '-':
+    if rule_id == '-':
       import re
       regex = re.compile('^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}).*', re.I)
       for line in sys.stdin:
         match = regex.match(line)
         if match:
           uuid = match.group(1)
-          # print(uuid)
           # 実行
-          result = access_api(firewall_rule_id=uuid)
-          # 得たデータを処理する
+          result = access_api(rule_id=uuid)
+          # 表示
+          print(uuid)
           print_result(result, dump=dump)
           print("")
           sys.stdout.flush()
       return 0
 
     # 実行
-    result = access_api(firewall_rule_id=firewall_rule_id)
+    result = access_api(rule_id=rule_id)
 
-    # 得たデータを処理する
+    # 表示
     print_result(result, dump=dump)
 
     return 0
