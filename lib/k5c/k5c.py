@@ -49,6 +49,7 @@ try:
   REGION = config['REGION']
   USERNAME = config['USERNAME']
   PASSWORD = config['PASSWORD']
+  AZ = config['AZ']
 
   # エンドポイント
   EP_TOKEN = "https://identity." + REGION + ".cloud.global.fujitsu.com"

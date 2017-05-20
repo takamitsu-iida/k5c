@@ -150,7 +150,7 @@ if __name__ == '__main__':
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Creates a logical router.')
     parser.add_argument('--name', metavar='name', required=True, help='The router name.')
-    parser.add_argument('--az', nargs='?', default='jp-east-1a', help='The Availability Zone name. default: jp-east-1a')
+    parser.add_argument('--az', nargs='?', default=k5c.AZ, help='The Availability Zone name. default: {}'.format(k5c.AZ))
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
     name = args.name

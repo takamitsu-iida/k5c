@@ -14,9 +14,6 @@ def here(path=''):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
 
 # libフォルダにおいたpythonスクリプトを読みこませるための処理
-if not here("../lib") in sys.path:
-  sys.path.append(here("../lib"))
-
 if not here("../lib/site-packages") in sys.path:
   sys.path.append(here("../lib/site-packages"))
 
@@ -162,8 +159,8 @@ def get_rule_to_update(filename="", rule_id=""):
   return result
 
 
-def read_rules(filename=""):
-  """エクセルファイルからルールの一覧を読みます"""
+def get_rule_id_list(filename=""):
+  """エクセルファイルからルールIDの一覧を読んで返却します"""
 
   # Excelのブックファイルを読み出す
   try:
