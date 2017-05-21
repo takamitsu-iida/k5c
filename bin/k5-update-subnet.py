@@ -242,7 +242,7 @@ if __name__ == '__main__':
       try:
         data = yaml.load(f)
       except yaml.YAMLError as e:
-        logging.exception(e)
+        logging.exception("YAMLファイルにエラーがあります %s", e)
         return 1
 
     config = data.get(subnet_id, {})

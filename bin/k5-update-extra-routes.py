@@ -225,7 +225,7 @@ if __name__ == '__main__':
       try:
         yaml_data = yaml.load(f)
       except yaml.YAMLError as e:
-        logging.exception(e)
+        logging.exception("YAMLファイルにエラーがあります %s", e)
         return 1
 
     router_data = yaml_data.get(router_id, {})
