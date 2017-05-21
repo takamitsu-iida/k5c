@@ -72,7 +72,7 @@ def access_api():
 #
 # 結果を表示する
 #
-def print_result(result):
+def print_result(result, unused=False):
   """結果を表示します"""
 
   # ステータスコードは'status_code'キーに格納
@@ -116,7 +116,12 @@ def print_result(result):
   #      "id": "48b2d571-a26d-42b3-934b-5c21cc2ee133"
   #    },
   policy_list = []
+
   for item in data.get('firewall_policies', []):
+    # unusedフラグが立っていたら割り当てルールがゼロのポリシーだけを処理する
+    if unused:
+      if len(item.get('firewall_rules', [])) > 0:
+        continue
     policy_list.append([item.get('id', ''), item.get('name', ''), len(item.get('firewall_rules', [])), item.get('tenant_id', ''), item.get('availability_zone', '')])
 
   # 一覧を表示
@@ -131,8 +136,10 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='Lists firewall policies.')
+    parser.add_argument('--unused', action='store_true', default=False, help='List unused firewall policies.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
+    unused = args.unused
     dump = args.dump
 
     # 実行
@@ -144,7 +151,7 @@ if __name__ == '__main__':
       return 0
 
     # 表示
-    print_result(result)
+    print_result(result, unused=unused)
 
     return 0
 

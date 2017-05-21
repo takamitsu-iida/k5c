@@ -57,12 +57,6 @@ except ImportError as e:
   sys.exit(1)
 
 try:
-  from tabulate import tabulate
-except ImportError as e:
-  logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
-  sys.exit(1)
-
-try:
   import fwcommon
 except ImportError as e:
   logging.exception("fwcommon.pyのインポートに失敗しました: %s", e)
@@ -122,48 +116,7 @@ def print_result(result=None):
     logging.error("no data found")
     return
 
-  # 作成したルールの情報はデータオブジェクトの中の'firewall_rule'キーにオブジェクトとして入っている
-  #"data": {
-  #  "firewall_rule": {
-  #    "destination_ip_address": null,
-  #    "action": "allow",
-  #    "ip_version": 4,
-  #    "firewall_policy_id": null,
-  #    "position": null,
-  #    "source_ip_address": "133.162.192.0/24",
-  #    "id": "de2bb711-d495-4ae5-9d05-672575d1549a",
-  #    "shared": false,
-  #    "availability_zone": "jp-east-1a",
-  #    "destination_port": null,
-  #    "enabled": true,
-  #    "protocol": "tcp",
-  #    "description": "",
-  #    "name": "iida-az1-p01-mgmt01-any-tcp",
-  #    "tenant_id": "a5001a8b9c4a4712985c11377bd6d4fe",
-  #    "source_port": null
-  #  }
-  #}
-  rule = data.get('firewall_rule', {})
-
-  # 表示用に配列にする
-  rules = []
-  rule_id = rule.get('id', '')
-  rules.append(['id', rule_id])
-  rules.append(['name', rule.get('name', '')])
-  rules.append(['enabled', rule.get('enabled', '')])
-  rules.append(['action', rule.get('action', '')])
-  rules.append(['protocol', rule.get('protocol', '')])
-  rules.append(['source_ip_address', rule.get('source_ip_address', '')])
-  rules.append(['source_port', rule.get('source_port', '')])
-  rules.append(['destination_ip_address', rule.get('destination_ip_address', '')])
-  rules.append(['destination_port', rule.get('destination_port', '')])
-  rules.append(['description', rule.get('description', '')])
-  rules.append(['availability_zone', rule.get('availability_zone', '')])
-  rules.append(['tenant_id', rule.get('tenant_id', '')])
-
-  # ファイアウォールルール情報を表示
-  print("POST /v2.0/fw/firewall_rules")
-  print(tabulate(rules, tablefmt='rst'))
+  fwcommon.print_fw_rule(data)
 
 
 def get_rule_id(result=None):

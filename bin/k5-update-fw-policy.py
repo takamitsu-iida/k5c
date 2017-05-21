@@ -40,12 +40,6 @@ except ImportError as e:
   sys.exit(1)
 
 try:
-  from tabulate import tabulate
-except ImportError as e:
-  logging.exception("tabulateモジュールのインポートに失敗しました: %s", e)
-  sys.exit(1)
-
-try:
   import fwcommon
 except ImportError as e:
   logging.exception("fwcommon.pyのインポートに失敗しました: %s", e)
@@ -111,48 +105,6 @@ def print_result(result=None):
     logging.error("no data found")
     return
 
-  # 作成したポリシーの情報はデータオブジェクトの中の'firewall_policy'キーにオブジェクトとして入っている
-  #"data": {
-  #  "firewall_policy": {
-  #    "id": "84417ab6-53ea-4595-9d92-7a9d9a552e12",
-  #    "tenant_id": "a5001a8b9c4a4712985c11377bd6d4fe",
-  #    "firewall_rules": [
-  #      "867e35c5-2875-4c51-af31-4cf7932f17f6",
-  #      "9597ea56-e39d-4160-bdca-ebf2aca23aab",
-  #      "589d96ad-79e9-4a84-b923-10145469643c",
-  #      "c44321b7-6b04-4ec4-8e62-dc080794f59b",
-  #      "57fbe4aa-6edf-4123-8b6c-c8233cfb3c70",
-  #      "6eb8b10f-0756-460a-8b6a-8dd3db77173d",
-  #      "58dfdc2f-bf23-481b-9f3a-4b96df6232a2",
-  #      "75877f59-7a26-4a59-a343-9e2955dfb49e",
-  #      "8cf91195-d611-489d-b322-e28cab2ba705",
-  #      "acfada3d-0527-43e7-ba4d-6403ca8654fe",
-  #      "3750f08f-5567-4ad7-870f-dd830cc898b0",
-  #      "bc8f66e6-c09c-448f-869c-96f2c0843e81"
-  #    ],  #    "description": "",
-  #    "availability_zone": "jp-east-1a",
-  #    "shared": false,
-  #    "name": "iida",
-  #    "audited": false
-  #  }
-  #},
-  fp = data.get('firewall_policy', {})
-
-  # 表示用に配列にする
-  disp_keys = ['id', 'name', 'availability_zone', 'tenant_id']
-  fps = []
-  for key in disp_keys:
-    fps.append([key, fp.get(key, '')])
-
-  # ファイアウォールポリシー情報を表示
-  print("POST /v2.0/fw/firewall_policies")
-  print(tabulate(fps, tablefmt='rst'))
-
-  # ルール一覧を表示
-  rules = []
-  for item in fp.get('firewall_rules', []):
-    rules.append([item])
-  print(tabulate(rules, tablefmt='rst'))
 
 
 def get_policy_id(result=None):

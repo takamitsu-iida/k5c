@@ -143,7 +143,7 @@ def print_result(result, unused=False):
     policy_object[key].append(rule)
 
   # 表示項目
-  keys = ['id', 'name', 'position', 'action', 'protocol', 'availability_zone']
+  disp_keys = ['id', 'name', 'position', 'action', 'protocol', 'availability_zone']
 
   for pid, rules in policy_object.items():
     # unusedフラグが立っていたら未使用のルールだけを処理する
@@ -158,13 +158,13 @@ def print_result(result, unused=False):
     rules_list = []
     for rule in rules:
       items = []
-      for key in keys:
+      for key in disp_keys:
         items.append(rule.get(key, ''))
       rules_list.append(items)
 
     # 一覧を表示
     print("policy : {}".format(pid))
-    print(tabulate(rules_list, headers=keys, tablefmt='rst'))
+    print(tabulate(rules_list, headers=disp_keys, tablefmt='rst'))
     print("")
 
 
