@@ -205,8 +205,6 @@ if __name__ == '__main__':
     if not rules:
       logging.error("no rule found.")
       return 1
-    # for rule in rules:
-    #   print(json.dumps(rule, indent=2))
 
     # 順に処理
     for rule in rules:

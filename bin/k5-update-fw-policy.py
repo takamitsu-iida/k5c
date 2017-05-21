@@ -63,7 +63,7 @@ def make_request_data(name="", rule_id_list=None):
   if name:
     policy_object['name'] = name
 
-  if rule_id_list:
+  if rule_id_list is not None:
     policy_object['firewall_rules'] = rule_id_list
 
   # 作成するルールのオブジェクト
@@ -191,6 +191,9 @@ if __name__ == '__main__':
 
     # ファイルからルールIDの配列を読み取る
     rule_id_list = fwcommon.get_policy_rules_to_update(filename=filename, policy_id=policy_id)
+    if rule_id_list is None:
+      print("no policy found for {}".format(policy_id))
+      return 1
 
     # リクエストデータを作る
     data = make_request_data(name=name, rule_id_list=rule_id_list)

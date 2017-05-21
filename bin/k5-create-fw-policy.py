@@ -195,6 +195,10 @@ if __name__ == '__main__':
 
     # ファイルからルールIDの配列を読み取る
     rule_id_list = fwcommon.get_rule_id_list(filename=filename)
+    if not rule_id_list:
+      logging.error("no rule found.")
+      return 1
+
     data = make_request_data(name=name, rule_id_list=rule_id_list, az=az)
     # print(json.dumps(data, indent=2))
 

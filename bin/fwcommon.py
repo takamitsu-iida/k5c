@@ -32,7 +32,7 @@ def get_rules_to_create(filename=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.error("ファイルが見つかりません: %s", e)
+    logging.error(e)
     return None
 
   # アクティブなシートを取り出す
@@ -104,7 +104,7 @@ def get_rule_to_update(filename="", rule_id=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.error("ファイルが見つかりません: %s", e)
+    logging.error(e)
     return None
 
   # アクティブなシートを取り出す
@@ -166,7 +166,7 @@ def get_rule_id_list(filename=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.error("ファイルが見つかりません: %s", e)
+    logging.error(e)
     return None
 
   # アクティブなシートを取り出す
@@ -219,7 +219,7 @@ def save_policy(filename="", rule_id_list=None, policy_id="", policy_name=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.error("ファイルが見つかりません: %s", e)
+    logging.error(e)
     return None
 
   # アクティブなシートを取り出す
@@ -265,7 +265,7 @@ def save_policy(filename="", rule_id_list=None, policy_id="", policy_name=""):
   try:
     wb.save(filename)
   except PermissionError as e:
-    logging.error("Failed to save excel file.")
+    logging.error(e)
 
 
 def save_rule(filename="", name="", rule_id=None):
@@ -277,7 +277,7 @@ def save_rule(filename="", name="", rule_id=None):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.error("ファイルが見つかりません: %s", e)
+    logging.error(e)
     return None
 
   # アクティブなシートを取り出す
@@ -353,7 +353,7 @@ def get_policy_rules_to_update(filename="", policy_id=""):
   try:
     wb = load_workbook(filename=filename, data_only=True)
   except FileNotFoundError as e:
-    logging.error("ファイルが見つかりません: %s", e)
+    logging.error(e)
     return None
 
   # アクティブなシートを取り出す
@@ -377,7 +377,7 @@ def get_policy_rules_to_update(filename="", policy_id=""):
   cell = find_cell(row=ws[name_row_index], value='firewall_policy_id')
   if not cell:
     return None
-  firewall_policy_id_column_letter = cell.column  # D
+  firewall_policy_id_column_letter = cell.column  # P
 
   # 返却値
   result = []
