@@ -122,6 +122,22 @@ if __name__ == '__main__':
     network_id = args.network_id
     dump = args.dump
 
+    if network_id == '-':
+      import re
+      regex = re.compile('^([a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}).*', re.I)
+      for line in sys.stdin:
+        match = regex.match(line)
+        if match:
+          uuid = match.group(1)
+          # 実行
+          result = access_api(network_id=uuid)
+          # 表示
+          print(uuid)
+          print_result(result)
+          print("")
+          sys.stdout.flush()
+      return 0
+
     # 実行
     result = access_api(network_id=network_id)
 
