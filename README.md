@@ -217,6 +217,8 @@ bash-4.4$
 
 ![fig050](https://cloud.githubusercontent.com/assets/21165341/26093866/90769908-3a52-11e7-8da6-f312f55d15a1.png)
 
+ネットワーク作成、一つ目。
+
 ```
 bash-4.4$ ./bin/k5-create-network.py --name iida-az1-net01
 POST /v2.0/networks
@@ -227,7 +229,11 @@ az         jp-east-1a
 tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
 status     ACTIVE
 =========  ====================================
+```
 
+ネットワーク作成、二つ目。
+
+```
 bash-4.4$ ./bin/k5-create-network.py --name iida-az1-net02
 POST /v2.0/networks
 =========  ====================================
@@ -239,6 +245,8 @@ status     ACTIVE
 =========  ====================================
 bash-4.4$
 ```
+
+作成したネットワークの名前とID。
 
 |name|network_id|
 |:--|:--|
@@ -260,6 +268,9 @@ bash-4.4$
 
 ![fig060](https://cloud.githubusercontent.com/assets/21165341/26093933/cfd832b4-3a52-11e7-9bb5-93067030f54d.png)
 
+
+サブネット作成、一つ目。
+
 ```
 bash-4.4$ ./bin/k5-create-subnet.py \
 --name iida-az1-subnet01 \
@@ -277,7 +288,11 @@ tenant_id    a5001a8b9c4a4712985c11377bd6d4fe
 network_id   8f15da62-c7e5-47ec-8668-ee502f6d00d2
 enable_dhcp  True
 ===========  ====================================
+```
 
+サブネット作成、二つ目。
+
+```
 bash-4.4$ ./bin/k5-create-subnet.py \
 --name iida-az1-subnet02 \
 --network-id e3c166c0-7e90-4c6e-857e-87fd985f98ac \
@@ -296,6 +311,8 @@ enable_dhcp  True
 ===========  ====================================
 bash-4.4$
 ```
+
+作成したサブネットの名前とID。
 
 |name|subnet_id|cidr|
 |:--|:--|:--|
@@ -322,6 +339,8 @@ bash-4.4$
 - bin/k5-create-port.py
 
 ![fig070](https://cloud.githubusercontent.com/assets/21165341/26094015/262df0d6-3a53-11e7-95a8-2fcd1222cde4.png)
+
+ポート作成、一つ目。
 
 ```
 bash-4.4$ ./bin/k5-create-port.py \
@@ -351,7 +370,11 @@ ip_address    subnet_id
 10.1.1.1      abbbbcf4-ea8f-4218-bbe7-669231eeba30
 ============  ====================================
 bash-4.4$
+```
 
+ポート作成、二つ目。
+
+```
 bash-4.4$ ./bin/k5-create-port.py \
 --name iida-az1-net02-port01 \
 --network-id e3c166c0-7e90-4c6e-857e-87fd985f98ac \
@@ -379,7 +402,11 @@ ip_address    subnet_id
 10.1.2.1      2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
 ============  ====================================
 bash-4.4$
+```
 
+ポート作成、三つ目。
+
+```
 bash-4.4$ ./bin/k5-create-port.py \
 --name iida-az1-net02-port02 \
 --network-id e3c166c0-7e90-4c6e-857e-87fd985f98ac \
@@ -409,6 +436,8 @@ ip_address    subnet_id
 bash-4.4$
 ```
 
+作成したポートの名前とID。
+
 |name|port_id|address|
 |:--|:--|:--|
 |iida-az1-net01-port01|430497b1-fdd4-4857-bc43-53286b5a27f5|10.1.1.1|
@@ -425,13 +454,20 @@ bash-4.4$
 
 ![fig080](https://cloud.githubusercontent.com/assets/21165341/26093499/23dbed94-3a51-11e7-9db8-464309439df4.png)
 
+
+ルータとnet01-port01を接続。
+
 ```
 bash-4.4$ ./bin/k5-connect-router.py \
 --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 \
 --port-id 430497b1-fdd4-4857-bc43-53286b5a27f5
 
 status_code: 200
+```
 
+ルータとnet02-port01を接続。
+
+```
 bash-4.4$ ./bin/k5-connect-router.py \
 --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 \
 --port-id bdab1ca6-fd32-4729-9e97-3827b72d7bc5
@@ -465,6 +501,8 @@ pool_id  e0a80446-203e-4b28-abec-d4b031d5b63e
 bash-4.4$
 ```
 
+作成したネットワークコネクタの名前とID。
+
 |name|network_connector_id|
 |:--|:--|
 |iida-az1-nc|88f343e8-a956-4bcc-853f-3c40d53cbb49|
@@ -496,6 +534,8 @@ endpoint_type  availability_zone
 =============  ====================================
 bash-4.4$
 ```
+
+作成したコネクタエンドポイントの名前とID。
 
 |name|network_connector_endpoint_id|
 |:--|:--|
