@@ -105,6 +105,7 @@ def print_result(result=None):
     logging.error("no data found")
     return
 
+  fwcommon.print_fw_policy(data=data)
 
 
 def get_policy_id(result=None):
