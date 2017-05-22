@@ -132,6 +132,8 @@ K5のネットワークは外部ネットワーク、（内部）ネットワー
 後々使いますので管理資料に記載しておきましょう。
 頻繁にコピーペーストすることになりますので、コピペしやすい文書が良いと思います。
 
+使うスクリプト
+
 - bin/k5-list-networks.py
 - bin/k5-list-network-connector-pools.py
 
@@ -179,6 +181,8 @@ e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
 
 名前を決めてルータを作成します。作成したらIDをメモしておきます。
 
+使うスクリプト
+
 - bin/k5-create-router.py
 
 ![fig040](https://cloud.githubusercontent.com/assets/21165341/26093822/62bac796-3a52-11e7-9ab7-997d51abeade.png)
@@ -205,11 +209,52 @@ bash-4.4$
 |:--|:--|
 |iida-az1-router01|ffbd70be-24cf-4dff-a4f6-661bf892e313|
 
+作成したルータの情報を確認するスクリプト
+
+- bin/k5-list-routers.py
+- bin/k5-show-router.py
+
+実行例。
+
+```
+bash-4.4$ ./bin/k5-list-routers.py | ./bin/k5-show-router.py -
+ffbd70be-24cf-4dff-a4f6-661bf892e313
+GET /v2.0/routers/{router_id}
+==============  ====================================
+name            iida-az1-router01
+id              ffbd70be-24cf-4dff-a4f6-661bf892e313
+az              jp-east-1a
+tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
+status          ACTIVE
+admin_state_up  True
+==============  ====================================
+
+external_gateway_info
+===========  ====================================
+enable_snat  True
+network_id   cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+===========  ====================================
+
+routes
+==============  =========
+destination     nexthop
+==============  =========
+10.0.0.0/8      10.1.2.9
+172.16.0.0/12   10.1.2.9
+192.168.0.0/16  10.1.2.9
+==============  =========
+
+bash-4.4$
+```
+
+
 <BR>
 
 ## 手順３．ネットワークを作成する
 
 名前を決めてネットワークを作成します。作成したらIDをメモしておきます。
+
+使うスクリプト
 
 - bin/k5-create-router.py
 
@@ -251,6 +296,17 @@ bash-4.4$
 |iida-az1-net01|8f15da62-c7e5-47ec-8668-ee502f6d00d2|
 |iida-az1-net02|e3c166c0-7e90-4c6e-857e-87fd985f98ac|
 
+作成したネットワークの情報を確認するスクリプト
+
+- bin/k5-list-networks.py
+- bin/k5-show-network.py
+
+全てのネットワークの情報を表示するにはこうします。
+
+```
+./bin/k5-list-networks.py | ./bin/k5-show-network.py -
+```
+
 <BR>
 
 ## 手順４．サブネットを作成する
@@ -261,6 +317,8 @@ bash-4.4$
 
 サブネット作成時に指定するパラメータは多数ありますが、最低限アドレス情報は必須です。
 作成時に指定しなかったパラメータは後からupdateできます。
+
+使うスクリプト
 
 - bin/k5-create-subnet.py
 
@@ -317,6 +375,18 @@ bash-4.4$
 |iida-az1-subnet01|abbbbcf4-ea8f-4218-bbe7-669231eeba30|10.1.1.0/24|
 |iida-az1-subnet02|2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6|10.1.2.0/24|
 
+サブネットの情報を確認するスクリプト
+
+- bin/k5-list-subnets.py
+- bin/k5-show-subnet.py
+
+全てのサブネットの情報を確認するにはこうします。
+
+```
+./bin/k5-list-subnets.py | ./bin/k5-show-subnet.py -
+```
+
+
 <BR>
 
 ## 手順５．ポートを作成する
@@ -333,6 +403,8 @@ bash-4.4$
 > NOTE:
 >
 > ルータ用のポートであれば、IPアドレスの第四オクテットを.1にするとよいと思います。指定しないと.2以降が採番されます。
+
+使うスクリプト
 
 - bin/k5-create-port.py
 
@@ -442,11 +514,24 @@ bash-4.4$
 |iida-az1-net02-port01|bdab1ca6-fd32-4729-9e97-3827b72d7bc5|10.1.2.1|
 |iida-az1-net02-port02|6c73b1a0-ab3d-46e5-9515-f04e9f660423|10.1.2.9|
 
+作成したポートの情報を確認するスクリプト
+
+- bin/k5-list-ports.py
+- bin/k5-show-port.py
+
+全てのポートの情報を表示するにはこうします。
+
+```
+./bin/k5-list-ports.py | ./bin/k5-show-port.py -
+```
+
 <BR>
 
 ## 手順６．ルータとポートを接続する
 
 作成済みのポートIDを指定してルータとポートを接続します。
+
+使うスクリプト
 
 - bin/k5-connect-router.py
 
@@ -479,6 +564,8 @@ status_code: 200
 
 事業者が用意するネットワークコネクタプールを指定して、ネットワークコネクタを作成します。
 
+使うスクリプト
+
 - bin/k5-create-network-connector.py
 
 ネットワークコネクタが外部の物理ネットワークとの境界になると考えられます。ネットワークコネクタに設定すべきパラメータは、申請書にもとづいて変更をかけていきます。
@@ -504,6 +591,17 @@ bash-4.4$
 |name|network_connector_id|
 |:--|:--|
 |iida-az1-nc|88f343e8-a956-4bcc-853f-3c40d53cbb49|
+
+ネットワークコネクタの情報を確認するスクリプト
+
+- bin/k5-list-network-connectors.py
+- bin/k5-show-network-connector.py
+
+全てのネットワークコネクタの情報を表示するにはこうします。
+
+```
+./bin/k5-list-network-connectors.py | ./bin/k5-show-network-connector.py -
+```
 
 <BR>
 
@@ -538,6 +636,17 @@ bash-4.4$
 |name|network_connector_endpoint_id|
 |:--|:--|
 |iida-az1-ncep|848a40c2-7ded-4df8-a43d-e55b912811a2|
+
+コネクタエンドポイントの情報を確認するスクリプト
+
+- bin/k5-list-network-connector-endpoints.py
+- bin/k5-show-network-connector-endpoint.py
+
+全てのコネクタエンドポイントの情報を表示するにはこうします。
+
+```
+ ./bin/k5-list-network-connector-endpoints.py | ./bin/k5-show-network-connector-endpoint.py -
+```
 
 <BR>
 
@@ -816,7 +925,6 @@ eBGPでK5側に伝えられる経路の数には制限があり、上限200経�
 
 だいたいの場合はプライベートIPアドレスを集約して伝えれば問題ないでしょう。
 
-
 <BR>
 <BR>
 
@@ -965,6 +1073,17 @@ tenant_id               a5001a8b9c4a4712985c11377bd6d4fe
 ======================  ====================================
 ```
 
+作成したファイアウォールルールを確認するスクリプト
+
+- bin/k5-list-fw-rules.py
+- bin/k5-show-fw-rule.py
+
+全てのファイアウォールルールを表示するにはこうします。
+
+```
+./bin/k5-list-fw-rules.py | ./bin/k5-show-fw-rule.py -
+```
+
 <BR>
 
 ## （参考）ファイアウォールルールの一括作成と一括削除
@@ -1000,6 +1119,8 @@ K5に登録されているルールのうち、未使用のものを一括で削
 
 ポリシーを作成してからルールを順次追加していく方法もありますが、
 ここではエクセルファイルで作成したルールを一括してポリシーに紐付ける方法でやってみます。
+
+ファイアウォールポリシーを作成するスクリプト。
 
 - bin/k5-create-fw-policy.py
 - conf/fw-rules.xlsx
@@ -1068,7 +1189,6 @@ cf17f5bf-398e-4602-937d-a4da6b07a162  deny-all-udp                           11 
 3158c601-4ce7-40ef-9efa-cee09968951e  deny-all-icmp                          12  deny      icmp        jp-east-1a
 ====================================  =============================  ==========  ========  ==========  ===================
 ```
-
 
 作成したポリシーから、ルールを削除したり、追加したり、順番を変更するには、エクセルファイルを編集してポリシーにアップデートをかけます。
 
