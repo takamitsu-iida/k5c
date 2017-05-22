@@ -183,6 +183,8 @@ e0a80446-203e-4b28-abec-d4b031d5b63e  jp-east-1a_connector_pool_01
 
 ![fig040](https://cloud.githubusercontent.com/assets/21165341/26093822/62bac796-3a52-11e7-9ab7-997d51abeade.png)
 
+実行例。
+
 ```
 bash-4.4$ ./bin/k5-create-router.py --name iida-az1-router01
 POST /v2.0/routers
@@ -196,6 +198,8 @@ admin_state_up  True
 ==============  ====================================
 bash-4.4$
 ```
+
+作成したルータの名前とID。
 
 |name|router_id|
 |:--|:--|
