@@ -1218,10 +1218,183 @@ bash-4.4$
 <BR>
 <BR>
 
-# フローティングIPの作成
+# フローティングIP
 
-未完。
+フローティングIPは、外部ネットワークのグローバルIPと内部ネットワークのプライベートIPを１対１に対応付けるものです。
 
+## フローティングIPの作成
+
+事前に準備すべき情報が多いので、整理が必要です。
+
+まず最初に、利用する外部ネットワークです。
+仮想ルータのexternal_gateway_infoに設定した外部ネットワークのIDが必要です。
+
+確認してみます。
+
+```
+bash-4.4$ ./bin/k5-list-routers.py | ./bin/k5-show-router.py -
+ffbd70be-24cf-4dff-a4f6-661bf892e313
+GET /v2.0/routers/{router_id}
+==============  ====================================
+name            iida-az1-router01
+id              ffbd70be-24cf-4dff-a4f6-661bf892e313
+az              jp-east-1a
+tenant_id       a5001a8b9c4a4712985c11377bd6d4fe
+status          ACTIVE
+admin_state_up  True
+==============  ====================================
+
+external_gateway_info
+===========  ====================================
+enable_snat  True
+network_id   cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+===========  ====================================
+
+routes
+==============  =========
+destination     nexthop
+==============  =========
+10.0.0.0/8      10.1.2.9
+172.16.0.0/12   10.1.2.9
+192.168.0.0/16  10.1.2.9
+==============  =========
+
+bash-4.4$
+```
+
+external_gateway_infoに設定されているネットワークのIDは*cd4057bd-f72e-4244-a7dd-1bcb2775dd67*です。
+
+- 外部ネットワークのID cd4057bd-f72e-4244-a7dd-1bcb2775dd67
+
+次に、内部ネットワークに接続している空きポートが必要です。
+無ければ作成しましょう。
+iida-az1-net01に新規ポートを作成したいので、その情報を調べます。
+
+```
+bash-4.4$ ./bin/k5-list-networks.py | grep iida-az1-net01 | ./bin/k5-show-network.py -
+8f15da62-c7e5-47ec-8668-ee502f6d00d2
+GET /v2.0/networks/{network_id}
+==============  ====================================  ==========  ========
+name            id                                    az          status
+==============  ====================================  ==========  ========
+iida-az1-net01  8f15da62-c7e5-47ec-8668-ee502f6d00d2  jp-east-1a  ACTIVE
+==============  ====================================  ==========  ========
+
+====================================
+subnets
+====================================
+abbbbcf4-ea8f-4218-bbe7-669231eeba30
+====================================
+
+bash-4.4$
+```
+
+- 内部ネットワークのID 8f15da62-c7e5-47ec-8668-ee502f6d00d2
+- そのサブネットのID abbbbcf4-ea8f-4218-bbe7-669231eeba30
+- 固定IPアドレスは 10.1.1.100
+
+この条件でポートを作成してみます。
+
+
+```
+./bin/k5-create-port.py \
+--name iida-az1-net01-port02 \
+--network-id 8f15da62-c7e5-47ec-8668-ee502f6d00d2 \
+--subnet-id abbbbcf4-ea8f-4218-bbe7-669231eeba30 \
+--ip-address 10.1.1.100
+
+POST /v2.0/ports
+=================  ====================================
+name               iida-az1-net01-port02
+id                 77297e3a-7135-4fb4-8024-e677d9df66d4
+az                 jp-east-1a
+tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
+status             DOWN
+admin_state_up     True
+device_owner
+device_id
+network_id         8f15da62-c7e5-47ec-8668-ee502f6d00d2
+binding:vnic_type  normal
+mac_address        fa:16:3e:43:b2:f6
+=================  ====================================
+
+============  ====================================
+ip_address    subnet_id
+============  ====================================
+10.1.1.100    abbbbcf4-ea8f-4218-bbe7-669231eeba30
+============  ====================================
+bash-4.4$
+```
+
+- ポートのID 77297e3a-7135-4fb4-8024-e677d9df66d4
+
+
+これで必要な情報が出揃いましたので、フローティングIPを作成します。
+
+- bin/k5-create-floatingip.py
+
+引数--network-idにはグローバルIPアドレスを払い出す外部ネットワークのIDを指定します。
+
+引数--port-idには内側の空きポートを指定します。
+
+引数--fixed_ip_addressにはそのポートに付与した固定IPを指定します。
+
+```
+bash-4.4$ ./bin/k5-create-floatingip.py \
+> --network-id cd4057bd-f72e-4244-a7dd-1bcb2775dd67 \
+> --port-id 77297e3a-7135-4fb4-8024-e677d9df66d4 \
+> --fixed-ip 10.1.1.100
+POST /v2.0/floatingips
+===================  ====================================
+id                   5654254d-0f36-425d-ae89-6e827fc99e54
+floating_ip_address  133.162.215.230
+fixed_ip_address     10.1.1.100
+status               DOWN
+port_id              77297e3a-7135-4fb4-8024-e677d9df66d4
+router_id            ffbd70be-24cf-4dff-a4f6-661bf892e313
+availability_zone    jp-east-1a
+tenant_id            a5001a8b9c4a4712985c11377bd6d4fe
+===================  ====================================
+bash-4.4$
+```
+
+無事にフローティングIPが作成されました。
+
+空きポートを用意して、そっちにフローティングIPを移すなら、
+- bin/k5-update-floatingip.py
+コマンドを使います。
+
+実行例。
+
+```
+bash-4.4$ ./bin/k5-update-floatingip.py \
+--floatingip-id 5654254d-0f36-425d-ae89-6e827fc99e54 \
+--port-id 6ec9de23-9e3c-4cf1-99be-f3b84b915b24
+
+/v2.0/floatingips
+===================  ====================================
+id                   5654254d-0f36-425d-ae89-6e827fc99e54
+floating_ip_address  133.162.215.230
+fixed_ip_address     10.1.1.200
+status               DOWN
+port_id              6ec9de23-9e3c-4cf1-99be-f3b84b915b24
+router_id            ffbd70be-24cf-4dff-a4f6-661bf892e313
+availability_zone    jp-east-1a
+tenant_id            a5001a8b9c4a4712985c11377bd6d4fe
+===================  ====================================
+bash-4.4$
+```
+
+フローティングIPを削除するなら、
+- bin/k5-delete-floatingip.py
+コマンドを使います。
+
+実行例。
+
+```
+bash-4.4$ ./bin/k5-list-floatingips.py | ./bin/k5-delete-floatingip.py -
+status_code: 204
+```
 
 <BR>
 <BR>

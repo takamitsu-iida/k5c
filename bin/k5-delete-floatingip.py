@@ -10,8 +10,8 @@ Floating IP が存在する場合、それに関連付けられたポートを�
 """
 実行例（成功した場合は特にデータは戻りません）
 
-実行例（失敗した場合はエラーメッセージが戻ります）
-
+bash-4.4$ ./bin/k5-list-floatingips.py | ./bin/k5-delete-floatingip.py -
+status_code: 204
 """
 
 import json
