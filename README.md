@@ -1912,6 +1912,12 @@ optional arguments:
 
 ### k5-update-subnet.py
 
+> NOTE:
+>
+> DHCPで配布する経路情報を設定変更します。
+> 同一セグメント上にルータが１台しかいないなら設定する必要はありません。
+> 設定する経路情報はYAMLファイルから読みます。
+
 ```
 usage: k5-update-subnet.py [-h] --subnet-id id [--filename file] [--dump]
 
@@ -2051,6 +2057,10 @@ optional arguments:
 
 ### k5-update-router.py
 
+> NOTE:
+>
+> 変更できるのは外部ネットワークとの接続だけです。
+
 ```
 usage: k5-update-router.py [-h] --router-id id --network-id [id] [--dump]
 
@@ -2097,6 +2107,12 @@ optional arguments:
 
 
 ### k5-update-extra-routes.py
+
+> NOTE:
+>
+> ルータ自身の経路情報を設定・変更します。
+> ルータが１台だけのシンプルな構成なら自足経路しか存在しないので設定不要です。
+> ネットワークコネクタを作成したり、複数のルータが存在するときには、スタティックルートの設定が必要です。
 
 ```
 usage: k5-update-extra-routes.py [-h] [--filename file] [--dump] router_id
@@ -2413,6 +2429,11 @@ optional arguments:
 
 ### k5-create-fw-policy.py
 
+> NOTE:
+>
+> --saveオプションを付けると作成したポリシーIDをエクセルファイルに記入します。
+> ファイルをエクセルで開きっぱなしにしていると書き込めずにエラーになってしまいます。
+
 ```
 usage: k5-create-fw-policy.py [-h] --name name [--az [AZ]] [--filename file]
                               [--save] [--dump]
@@ -2445,6 +2466,11 @@ optional arguments:
 ```
 
 ### k5-update-fw-policy.py
+
+> NOTE:
+>
+> ポリシに紐付けるルール群を設定・変更します。
+> ルールを個別に一つづつ挿入削除したりもできるのですが、ルールをエクセルで編集してコマンド一発でやってしまったほうが簡単です。
 
 ```
 usage: k5-update-fw-policy.py [-h] [--name name] [--filename file] [--dump] id
@@ -2496,6 +2522,11 @@ optional arguments:
 
 ### k5-create-fw-rule.py
 
+> NOTE:
+>
+> --saveオプションを付けると作成したルールIDをエクセルファイルに記入します。
+> ファイルをエクセルで開きっぱなしにしていると書き込めずにエラーになってしまいます。
+
 ```
 usage: k5-create-fw-rule.py [-h] --name name [--filename file] [--save]
                             [--dump]
@@ -2527,6 +2558,10 @@ optional arguments:
 ```
 
 ### k5-update-fw-rule.py
+
+> NOTE:
+>
+> コマンドの引数に渡したルールIDが、エクセルファイルに記入されていないといけません。
 
 ```
 usage: k5-update-fw-rule.py [-h] [--filename file] [--dump] id
