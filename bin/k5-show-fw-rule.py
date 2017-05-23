@@ -119,7 +119,7 @@ if __name__ == '__main__':
           # 実行
           result = access_api(rule_id=uuid)
           # 表示
-          print(uuid)
+          print("rule_id: {}".format(uuid))
           print_result(result)
           print("")
           sys.stdout.flush()

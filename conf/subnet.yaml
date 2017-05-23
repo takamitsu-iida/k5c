@@ -1,5 +1,7 @@
 #
-# k5-update-subnet.yaml
+# subnet.yaml
+#
+# bin/k5-update-subnet.py
 #
 
 # 第一階層のキーは対象サブネットのIDにしてください

@@ -118,7 +118,7 @@ if __name__ == '__main__':
           data = make_request_data()
           result = access_api(firewall_id=uuid, data=data)
           # 表示
-          print(uuid)
+          print("firewall_id: {}".format(uuid))
           print_result(result)
           print("")
           sys.stdout.flush()

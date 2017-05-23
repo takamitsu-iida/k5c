@@ -125,7 +125,7 @@ if __name__ == '__main__':
           # 実行
           result = access_api(nc_pool_id=uuid)
           # 表示
-          print(uuid)
+          print("nc_pool_id: {}".format(uuid))
           print_result(result)
           print("")
           sys.stdout.flush()

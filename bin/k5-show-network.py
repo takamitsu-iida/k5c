@@ -19,7 +19,7 @@ iida-test-network-1  93a83e0e-424e-4e7d-8299-4bdea906354e  jp-east-1a  ACTIVE
 ===================  ====================================  ==========  ========
 
 ====================================
-subnets
+subnet
 ====================================
 38701f66-4610-493f-9c15-78f81917f362
 ====================================
@@ -106,7 +106,7 @@ def print_result(result):
   for item in nw.get('subnets', []):
     subnets_list.append([item])
   print("")
-  print(tabulate(subnets_list, headers=['subnets'], tablefmt='rst'))
+  print(tabulate(subnets_list, headers=['subnet'], tablefmt='rst'))
 
 
 if __name__ == '__main__':
@@ -129,10 +129,8 @@ if __name__ == '__main__':
         match = regex.match(line)
         if match:
           uuid = match.group(1)
-          # 実行
           result = access_api(network_id=uuid)
-          # 表示
-          print(uuid)
+          print("network_id: {}".format(uuid))
           print_result(result)
           print("")
           sys.stdout.flush()

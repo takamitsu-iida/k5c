@@ -139,7 +139,7 @@ if __name__ == '__main__':
           # 実行
           result = access_api(ncep_id=uuid)
           # 表示
-          print(uuid)
+          print("ncep_id: {}".format(uuid))
           print_result(result)
           print("")
           sys.stdout.flush()

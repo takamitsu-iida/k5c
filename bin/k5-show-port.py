@@ -175,10 +175,8 @@ if __name__ == '__main__':
         match = regex.match(line)
         if match:
           uuid = match.group(1)
-          # 実行
           result = access_api(port_id=uuid)
-          # 表示
-          print(uuid)
+          print("port_id: {}".format(uuid))
           print_result(result)
           print("")
           sys.stdout.flush()
