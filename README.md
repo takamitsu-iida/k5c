@@ -1785,43 +1785,840 @@ issued_atとexpires_atの差分が3時間ほどありますので、トークン
 トークンは取得するたびに変わります。
 払い出せるトークンの数には制限がありますので、一度取得したトークンはキャッシュして使いまわすようにしています。
 
+<BR>
 
-### k5-list-xxx.py
+## ネットワーク関連
 
-一覧表示します。
+### k5-list-networks.py
 
-### k5-create-xxx.py
+```
+usage: k5-list-networks.py [-h] [--dump]
 
-作成します。
+List networks
 
-### k5-delete-xxx.py
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
 
-削除します。
+### k5-show-network.py
 
-### k5-show-xxx.py
+```
+usage: k5-show-network.py [-h] [--dump] id
 
-詳細表示します。
+Shows information for a specified network.
 
-### k5-update-xxx.py
+positional arguments:
+  id          The UUID of the network id.
 
-更新します。
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-network.py
+
+```
+usage: k5-create-network.py [-h] --name name [--az [AZ]] [--dump]
+
+Create a network.
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --name name  The network name.
+  --az [AZ]    The Availability Zone name. default: jp-east-1a
+  --dump       Dump json result and exit.
+```
+
+### k5-delete-network.py
+
+```
+usage: k5-delete-network.py [-h] [--dump] id
+
+Deletes a specified network and its associated resources.
+
+positional arguments:
+  id          The network id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+<BR>
+
+## サブネット関連
+
+### k5-list-subnets.py
+
+```
+usage: k5-list-subnets.py [-h] [--dump]
+
+List subnets
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-show-subnet.py
+
+```
+usage: k5-show-subnet.py [-h] [--dump] subnet-id
+
+Shows information for a specified subnet.
+
+positional arguments:
+  subnet-id   Subnet id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-subnet.py
+
+```
+usage: k5-create-subnet.py [-h] --name name --network-id id --cidr addr/mask
+                           [--az [AZ]] [--dns [DNS [DNS ...]]] [--dump]
+
+Creates a subnet on a specified network.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --name name           The subnet name.
+  --network-id id       The ID of the attached network.
+  --cidr addr/mask      The CIDR.
+  --az [AZ]             The Availability Zone name. default: jp-east-1a
+  --dns [DNS [DNS ...]]
+                        DNS server
+  --dump                Dump json result and exit.
+```
+
+### k5-delete-subnet.py
+
+```
+usage: k5-delete-subnet.py [-h] [--dump] id
+
+Deletes a specified subnet.
+
+positional arguments:
+  id          The subnet id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-update-subnet.py
+
+```
+usage: k5-update-subnet.py [-h] --subnet-id id [--filename file] [--dump]
+
+Updates a specified subnet.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --subnet-id id   The ID of the subnet.
+  --filename file  The configuration file. default:
+                   C:\HOME\iida\git\k5c\conf\subnet.yaml
+  --dump           Dump json result and exit.
+```
+
+<BR>
+
+## ポート関連
+
+### k5-list-ports.py
+
+```
+usage: k5-list-ports.py [-h] [--dump]
+
+List ports
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-show-port.py
+
+```
+usage: k5-show-port.py [-h] [--dump] port-id
+
+Shows information for a specified port.
+
+positional arguments:
+  port-id     Port id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-port.py
+
+```
+usage: k5-create-port.py [-h] --name name --network-id id --subnet-id id
+                         [--ip-address addr] [--az [AZ]] [--dump]
+
+Creates a port on a specified network.
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --name name        The port name.
+  --network-id id    The ID of the the network.
+  --subnet-id id     The ID of the the subnet.
+  --ip-address addr  Fixed ip address.
+  --az [AZ]          The Availability Zone name. default: jp-east-1a
+  --dump             Dump json result and exit.
+```
+
+### k5-delete-port.py
+
+```
+usage: k5-delete-port.py [-h] [--dump] id
+
+Deletes a specified port.
+
+positional arguments:
+  id          The port id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+<BR>
+
+## ルータ関連
+
+### k5-list-routers.py
+
+```
+usage: k5-list-routers.py [-h] [--dump]
+
+List routers
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-show-router.py
+
+```
+usage: k5-show-router.py [-h] [--dump] router-id
+
+Shows details for a specified router.
+
+positional arguments:
+  router-id   Router id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-router.py
+
+```
+usage: k5-create-router.py [-h] --name name [--az [AZ]] [--dump]
+
+Creates a logical router.
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --name name  The router name.
+  --az [AZ]    The Availability Zone name. default: jp-east-1a
+  --dump       Dump json result and exit.
+```
+
+### k5-delete-router.py
+
+```
+usage: k5-delete-router.py [-h] [--dump] id
+
+Deletes a logical router and, if present, its external gateway interface.
+
+positional arguments:
+  id          The router id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-update-router.py
+
+```
+usage: k5-update-router.py [-h] --router-id id --network-id [id] [--dump]
+
+Updates a logical router.
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --router-id id     The router id.
+  --network-id [id]  The network_id, for the external gateway.
+  --dump             Dump json result and exit.
+```
 
 ### k5-connect-router.py
 
-ルータとポートを接続します。
+```
+usage: k5-connect-router.py [-h] --router-id id --port-id id [--dump]
+
+Adds an internal interface to a logical router.
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --router-id id  The router id.
+  --port-id id    The port id.
+  --dump          Dump json result and exit.
+```
 
 ### k5-disconnect-router.py
 
-ルータとポートを切り離します。
+```
+usage: k5-disconnect-router.py [-h] --router-id id --port-id id [--dump]
+
+Removes an internal interface from a logical router.
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --router-id id  The router id.
+  --port-id id    The port id.
+  --dump          Dump json result and exit.
+```
 
 > NOTE:
 >
 > 実行すると、なぜかポート自体が削除されます。ポートを作り直してください。
 
+
+### k5-update-extra-routes.py
+
+```
+usage: k5-update-extra-routes.py [-h] [--filename file] [--dump] router_id
+
+Updates logical router with routes attribute.
+
+positional arguments:
+  router_id        The ID of the router.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --filename file  The rule file. default: C:\HOME\iida\git\k5c\conf\extra-
+                   routes.yaml
+  --dump           Dump json result and exit.
+```
+
+<BR>
+
+## ネットワークコネクタプール関連
+
+### k5-list-network-connector-pools.py
+
+```
+usage: k5-list-network-connector-pools.py [-h] [--dump]
+
+List network connector pools.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-show-network-connector-pool.py
+
+```
+usage: k5-show-network-connector-pool.py [-h] [--dump] nc-pool-id
+
+Shows a specified network connector pool.
+
+positional arguments:
+  nc-pool-id  Network connector pool id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+<BR>
+
+## ネットワークコネクタ関連
+
+### k5-list-network-connectors.py
+
+```
+usage: k5-list-network-connectors.py [-h] [--dump]
+
+List network connectors.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-show-network-connector.py
+
+```
+usage: k5-show-network-connector.py [-h] [--dump] network-connector-id
+
+Shows information for a specified network connector.
+
+positional arguments:
+  network-connector-id  Network connector id.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --dump                Dump json result and exit.
+```
+
+### k5-create-network-connector.py
+
+```
+usage: k5-create-network-connector.py [-h] --name name --nc-pool-id id
+                                      [--tenant-id id] [--dump]
+
+Create a network connector.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --name name      The network connector name.
+  --nc-pool-id id  The network connector pool id.
+  --tenant-id id   The tenant id.
+  --dump           Dump json result and exit.
+```
+
+### k5-delete-network-connector.py
+
+```
+usage: k5-delete-network-connector.py [-h] [--dump] id
+
+Deletes a specified network connector.
+
+positional arguments:
+  id          The network connector id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+<BR>
+
+## コネクタエンドポイント関連
+
+### k5-list-network-connector-endpoints.py
+
+```
+usage: k5-list-network-connector-endpoints.py [-h] [--dump]
+
+List network connector endpoints.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-show-network-connector-endpoint.py
+
+```
+usage: k5-show-network-connector-endpoint.py [-h] [--dump] ncep-id
+
+Shows a specified network connector endpoint.
+
+positional arguments:
+  ncep-id     Network connector endpoint id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-network-connector-endpoint.py
+
+```
+usage: k5-create-network-connector-endpoint.py [-h] --name name --nc-id id
+                                               [--az [AZ]] [--dump]
+
+Create a network connector endpoint.
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --name name  The network connector endpoint name.
+  --nc-id id   The network connector id.
+  --az [AZ]    The availability zone. default: jp-east-1a
+  --dump       Dump json result and exit.
+```
+
+### k5-delete-network-connector-endpoint.py
+
+```
+usage: k5-delete-network-connector-endpoint.py [-h] [--dump] id
+
+Deletes a specified network connector endpoint.
+
+positional arguments:
+  id          The network connector endpoint id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
 ### k5-connect-network-connector-endpoint.py
 
-コネクターエンドポイントを内部ネットワークに接続します。
+```
+usage: k5-connect-network-connector-endpoint.py [-h] --ncep-id id --port-id id
+                                                [--dump]
+
+Connects interface to a specified network connector endpoint.
+
+optional arguments:
+  -h, --help    show this help message and exit
+  --ncep-id id  The network connector endpoint id.
+  --port-id id  The port id.
+  --dump        Dump json result and exit.
+```
 
 ### k5-disconnect-network-connector-endpoint.py
 
-コネクターエンドポイントと内部ネットワークを切り離します。
+```
+usage: k5-disconnect-network-connector-endpoint.py [-h] --ncep-id id --port-id
+                                                   id [--dump]
+
+Disconnect interface to a specified network connector endpoint.
+
+optional arguments:
+  -h, --help    show this help message and exit
+  --ncep-id id  The network connector endpoint id.
+  --port-id id  The port id.
+  --dump        Dump json result and exit.
+```
+
+### k5-list-connected-interfaces-of-network-connector-endpoint.py
+
+```
+usage: k5-list-connected-interfaces-of-network-connector-endpoint.py
+       [-h] [--dump] ncep_id
+
+Lists interfaces which connects to a specified network connector endpoint.
+
+positional arguments:
+  ncep_id     network connector endpoint id
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+<BR>
+
+## ファイアウォール関連
+
+### k5-list-firewalls.py
+
+```
+usage: k5-list-firewalls.py [-h] [--dump]
+
+Lists firewalls.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-firewall.py
+
+```
+usage: k5-create-firewall.py [-h] --policy-id id --router-id id --name name
+                             [--az [AZ]] [--dump]
+
+Creates a firewall.
+
+optional arguments:
+  -h, --help      show this help message and exit
+  --policy-id id  The firewall policy uuid that this firewall is associated
+                  with.
+  --router-id id  The ID of the router that this firewall be applied.
+  --name name     Human readable name for the firewall
+  --az [AZ]       The Availability Zone name. default: jp-east-1a
+  --dump          Dump json result and exit.
+```
+
+### k5-delete-firewall.py
+
+```
+usage: k5-delete-firewall.py [-h] [--dump] id
+
+Deletes a firewall.
+
+positional arguments:
+  id          The firewall id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-reset-firewall.py
+
+```
+usage: k5-reset-firewall.py [-h] [--dump] id
+
+Connection reset for applying firewall rule to the current communication
+immediately.
+
+positional arguments:
+  id          The firewall id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+<BR>
+
+## ファイアウォールポリシ関連
+
+### k5-list-fw-policies.py
+
+```
+usage: k5-list-fw-policies.py [-h] [--unused] [--dump]
+
+Lists firewall policies.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --unused    List unused firewall policies.
+  --dump      Dump json result and exit.
+```
+
+### k5-show-fw-policy.py
+
+```
+usage: k5-show-fw-policy.py [-h] [--dump] policy-id
+
+Shows firewall policy details.
+
+positional arguments:
+  policy-id   The firewall policy id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-fw-policy.py
+
+```
+usage: k5-create-fw-policy.py [-h] --name name [--az [AZ]] [--filename file]
+                              [--save] [--dump]
+
+Creates a firewall policy.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --name name      The rule name.
+  --az [AZ]        The Availability Zone name. default: jp-east-1a
+  --filename file  The rule file. default: C:\HOME\iida\git\k5c\conf\fw-
+                   rules.xlsx
+  --save           Write policy-id to excel file.
+  --dump           Dump json result and exit.
+```
+
+### k5-delete-fw-policy.py
+
+```
+usage: k5-delete-fw-policy.py [-h] [--dump] id
+
+Deletes a firewall policy.
+
+positional arguments:
+  id          The firewall policy id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-update-fw-policy.py
+
+```
+usage: k5-update-fw-policy.py [-h] [--name name] [--filename file] [--dump] id
+
+Updates a firewall policy.
+
+positional arguments:
+  id               The firewall policy id.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --name name      The rule name.
+  --filename file  The rule file. default: C:\HOME\iida\git\k5c\conf\fw-
+                   rules.xlsx
+  --dump           Dump json result and exit.
+```
+
+<BR>
+
+## ファイアウォールルール
+
+### k5-list-fw-rules.py
+
+```
+usage: k5-list-fw-rules.py [-h] [--unused] [--dump]
+
+Lists firewall rules.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --unused    List unused firewall rule.
+  --dump      Dump json result and exit.
+```
+
+### k5-show-fw-rule.py
+
+```
+usage: k5-show-fw-rule.py [-h] [--dump] rule-id
+
+Shows firewall rule details.
+
+positional arguments:
+  rule-id     The firewall rule id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-fw-rule.py
+
+```
+usage: k5-create-fw-rule.py [-h] --name name [--filename file] [--save]
+                            [--dump]
+
+Creates a firewall rule.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --name name      The rule name.
+  --filename file  The rule file. default: C:\HOME\iida\git\k5c\conf\fw-
+                   rules.xlsx
+  --save           Write rule-id to the excel file.
+  --dump           Dump json result and exit.
+```
+
+### k5-delete-fw-rule.py
+
+```
+usage: k5-delete-fw-rule.py [-h] [--dump] id
+
+Deletes a firewall rule.
+
+positional arguments:
+  id          The firewall rule id.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-update-fw-rule.py
+
+```
+usage: k5-update-fw-rule.py [-h] [--filename file] [--dump] id
+
+Updates a firewall rule.
+
+positional arguments:
+  id               The firewall rule id.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --filename file  The rule file. default: C:\HOME\iida\git\k5c\conf\fw-
+                   rules.xlsx
+  --dump           Dump json result and exit.
+```
+
+<BR>
+
+## フローティングIP関連
+
+### k5-list-floatingips.py
+
+```
+usage: k5-list-floatingips.py [-h] [--dump]
+
+Lists floating IPs that are accessible to the tenant who submits the request.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-show-floatingip.py
+
+```
+usage: k5-show-floatingip.py [-h] [--dump] id
+
+Shows details for a specified floating IP.
+
+positional arguments:
+  id          The UUID of the floating IP.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-create-floatingip.py
+
+```
+usage: k5-create-floatingip.py [-h] --network-id id [--fixed-ip [addr]]
+                               [--port-id [id]] [--tenant-id [id]] [--az [AZ]]
+                               [--dump]
+
+Creates a floating IP
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --network-id id    The ID of the network associated with the floating IP.
+  --fixed-ip [addr]  The fixed IP address associated with the floating IP.
+  --port-id [id]     The port ID.
+  --tenant-id [id]   The tenant ID. default: a5001a8b9c4a4712985c11377bd6d4fe
+  --az [AZ]          The Availability Zone name. default: jp-east-1a
+  --dump             Dump json result and exit.
+```
+
+### k5-delete-floatingip.py
+
+```
+usage: k5-delete-floatingip.py [-h] [--dump] id
+
+Deletes a floating IP.
+
+positional arguments:
+  id          The UUID of the floating IP.
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --dump      Dump json result and exit.
+```
+
+### k5-update-floatingip.py
+
+```
+usage: k5-update-floatingip.py [-h] --floatingip-id id --port-id id [--dump]
+
+Updates a floating IP and its association with an internal port.
+
+optional arguments:
+  -h, --help          show this help message and exit
+  --floatingip-id id  The UUID of the floating IP.
+  --port-id id        The port id.
+  --dump              Dump json result and exit.
+```
+
