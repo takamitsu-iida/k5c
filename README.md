@@ -1675,6 +1675,8 @@ lib/site-packagesにこれらを含めていますので、インストールは
  - pyyaml
  - openpyxl
 
+ファイアウォールルールの設定にエクセルファイルを使いますのでWindows環境がおすすめです。
+
 <BR>
 
 ## 事前に必要な情報
@@ -1711,9 +1713,9 @@ k5c
 
 ## 設定ファイル
 
-conf/_k5config.ini のファイル名を k5config.ini に変更して、適宜書き換えてください。
+confディレクトリにある **_k5config.ini** のファイル名を **k5config.ini** に変更して、適宜書き換えてください。
 
-k5config.ini
+### k5config.ini
 
 ```ini
 [k5]
@@ -2551,6 +2553,10 @@ optional arguments:
 ```
 
 ### k5-delete-fw-rule.py
+
+> NOTE:
+>
+> エクセルファイルは変更されません。
 
 ```
 usage: k5-delete-fw-rule.py [-h] [--dump] id
