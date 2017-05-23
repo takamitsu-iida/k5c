@@ -25,15 +25,30 @@ class K5TokenManager(object):
   # }
   #
 
-  # トークンを保存するファイル名(中身はjsonではなくpickle形式)
-  TOKEN_FILENAME = ".k5-token.pickle"
-
   # 時刻表示のフォーマットはISO 8601形式
   # Tはセパレータ、ZはZuluの略でUTCを意味する
   DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
+  # アプリケーションのホームディレクトリ
+  app_home = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+
+  # データを置くディレクトリ
+  data_dir = os.path.join(app_home, "data")
+  if not os.path.isdir(data_dir):
+    try:
+      os.makedirs(data_dir)
+    except OSError:
+      pass
+
+  # トークンを保存するファイル名(中身はjsonではなくpickle形式)
+  TOKEN_FILENAME = "k5-token.pickle"
+
+  # トークンファイルへのパス
+  token_path = os.path.join(data_dir, TOKEN_FILENAME)
+
   def __init__(self):
     """コンストラクタ"""
+
     # オンメモリのトークン
     self._token_json = None
 
@@ -43,18 +58,18 @@ class K5TokenManager(object):
   def saveToken(self, token):
     """トークンをpickleでファイルに保存します"""
     try:
-      with open(self.TOKEN_FILENAME, 'wb') as f:
+      with open(self.token_path, 'wb') as f:
         pickle.dump(token, f)
     except IOError as e:
       logger.exception(e)
 
   def loadToken(self):
     """pickleでファイルに保存されているトークンを復元します"""
-    if not os.path.isfile(self.TOKEN_FILENAME):
+    if not os.path.isfile(self.token_path):
       return None
 
     try:
-      with open(self.TOKEN_FILENAME, 'rb') as f:
+      with open(self.token_path, 'rb') as f:
         token = pickle.load(f)
         return token
     except IOError as e:

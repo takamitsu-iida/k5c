@@ -96,11 +96,11 @@ log_file = app_name + ".log"
 
 # ログファイルを置くディレクトリ
 log_dir = os.path.join(app_home, "log")
-try:
-  if not os.path.isdir(log_dir):
+if not os.path.isdir(log_dir):
+  try:
     os.makedirs(log_dir)
-except OSError:
-  pass
+  except OSError:
+    pass
 
 # ロギングの設定
 # レベルはこの順で下にいくほど詳細になる
