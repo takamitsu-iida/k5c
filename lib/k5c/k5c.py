@@ -51,10 +51,12 @@ try:
   PASSWORD = config['PASSWORD']
   AZ = config['AZ']
 
-  # エンドポイント
+  # エンドポイント(APIマニュアルを見ないと、どのエンドポイントを利用すべきか分からない)
   EP_TOKEN = "https://identity." + REGION + ".cloud.global.fujitsu.com"
   EP_IDENTITY = "https://identity." + REGION + ".cloud.global.fujitsu.com"
   EP_NETWORK = "https://networking." + REGION + ".cloud.global.fujitsu.com"
+  EP_ELB = "https://loadbalancing." + REGION + ".cloud.global.fujitsu.com"
+  EP_CEILOMETER = "https://telemetry." + REGION + ".cloud.global.fujitsu.com"
 
   # [proxy] セクション
   config = cp['proxy']
