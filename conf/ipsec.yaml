@@ -12,6 +12,9 @@ iida-az1-vpnservice:
     # 名前
     name: iida-az1-vpnservice
 
+    # 備考
+    description:
+
     # ルータID
     router_id: ffbd70be-24cf-4dff-a4f6-661bf892e313
 
@@ -22,6 +25,10 @@ iida-az1-vpnservice:
     # jp-east-1a
     # jp-east-1b
     availability_zone: jp-east-1a
+
+    # 管理状態
+    # True or False
+    admin_state_up: True
 
 
 #
