@@ -112,13 +112,24 @@ def print_result(result):
   #      "tenant_id": "a5001a8b9c4a4712985c11377bd6d4fe",
   #      "allowed_address_pairs": []
   #    },
-  ports_list = []
+
+  disp_keys = ['id', 'name', 'network_id', 'device_owner', 'mac_address']
+
+  disp_list = []
+
   for item in data.get('ports', []):
-    ports_list.append([item.get('id', ''), item.get('name', ''), item.get('network_id', ''), item.get('device_owner', ''), item.get('mac_address', '')])
+    row = []
+    for key in disp_keys:
+      row.append(item.get(key, ''))
+    disp_list.append(row)
+
+  # sorted()を使ってnameをもとにソートする
+  # nameは配列の2番めの要素なのでインデックスは1
+  disp_list = sorted(disp_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("GET /v2.0/ports")
-  print(tabulate(ports_list, headers=['id', 'name', 'network_id', 'device_owner', 'mac_address'], tablefmt='rst'))
+  print(tabulate(disp_list, headers=disp_keys, tablefmt='rst'))
 
 
 if __name__ == '__main__':
