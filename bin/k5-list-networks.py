@@ -116,9 +116,18 @@ def print_result(result):
   #      ],
   #      "shared": true
   #    },
+
+  disp_keys = ['id', 'name', 'tenant_id', 'availability_zone', 'status']
   networks_list = []
   for item in data.get('networks', []):
-    networks_list.append([item.get('id', ''), item.get('name', ''), item.get('tenant_id', ''), item.get('availability_zone', ''), item.get('status', '')])
+    row = []
+    for key in disp_keys:
+      row.append(item.get(key, ''))
+    networks_list.append(row)
+
+  # sorted()を使ってnameをもとにソートする
+  # nameは配列の2番めの要素なのでインデックスは1
+  networks_list = sorted(networks_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("GET /v2.0/networks")

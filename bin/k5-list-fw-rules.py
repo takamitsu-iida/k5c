@@ -132,6 +132,7 @@ def print_result(result, unused=False):
       rule['position'] = ""
 
   # 親ごとに分類する
+  # キーを親のIDに、バリューをルールの配列にする
   policy_object = {}
   for rule in firewall_rules:
     key = rule.get('firewall_policy_id', None)

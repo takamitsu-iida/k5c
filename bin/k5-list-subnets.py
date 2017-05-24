@@ -114,9 +114,19 @@ def print_result(result):
   #       "name": "inf_az2_fip-pool03-2"
   #     },
 
+  disp_keys = ['id', 'name', 'network_id', 'cidr']
+
+  # 表示用の配列
   subnets_list = []
   for item in data.get('subnets', []):
-    subnets_list.append([item.get('id', ''), item.get('name', ''), item.get('network_id', ''), item.get('cidr', '')])
+    row = []
+    for key in disp_keys:
+      row.append(item.get(key, ''))
+    subnets_list.append(row)
+
+  # sorted()を使ってnameをもとにソートする
+  # nameは配列の2番めの要素なのでインデックスは1
+  subnets_list = sorted(subnets_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("GET /v2.0/subnets")
