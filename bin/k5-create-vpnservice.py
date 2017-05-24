@@ -119,7 +119,8 @@ def print_result(result):
     row.append(vpnservice.get(key, ''))
     vpnservice_list.append(row)
 
-  # サブネット情報を表示
+  # 表示
+  print("POST /v2.0/vpn/vpnservices")
   print(tabulate(vpnservice_list, tablefmt='rst'))
 
 

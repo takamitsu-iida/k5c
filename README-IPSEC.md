@@ -15,33 +15,35 @@
 
 - フラグメントはダメなので対向ルータでTCP MSSを小さく書き換えること
 
-- でも、K5間のIPsecではフラグメントはどうしてるんだろう？？？
+> NOTE*
+>
+> K5間のIPsecの場合、フラグメントはどうしてるんだろう？？？
 
 
-## VPNサービスの作成
+## VPNサービスの作成に必要な情報
 
 VPNサービスを作成するには、ルータIDとサブネットIDが必要。
 
 - router_id
 - subnet_id
 
-## IKEポリシーの作成
+## IKEポリシーの作成に必要な情報
 
 IKEポリシーを作成するには、名前の他にIKEのパラメータが必要
 
 - name
 - ikepolicy
 
-## IPsecポリシーの作成
+## IPsecポリシーの作成に必要な情報
 
 IPsecポリシーを作成するには、名前の他にIPsecのパラメータが必要
 
 - name
 - ipsecpolicy
 
-## IPsecコネクションの作成
+## IPsecコネクションの作成に必要な情報
 
-これが一番重要。２０コネクションまで作成できる。
+これが一番重要。最大20コネクションまで別々に作成する。
 
 - ikepolicy_id
 - ipsec_site_connection
@@ -315,7 +317,99 @@ statusがDOWNからACTIVEに変わるのに、しばらく時間がかかるよ�
 エクセルでルールの並びとかを調整して、k5-update-fw-policy.pyで更新します。
 
 <BR>
+<BR>
+<BR>
 
-##
+# IPsec VPNを作成する
 
+<BR>
+
+## vpnserviceを作成する
+
+
+- conf/ipsec.yaml
+
+YAMLのキーは作成したいVPNサービスの名前にする
+
+```yaml
+#
+# /v2.0/vpn/vpnservices
+#
+iida-az1-vpnservice:
+
+  vpnservice:
+
+    # 名前
+    name: iida-az1-vpnservice
+
+    # ルータID
+    router_id: ffbd70be-24cf-4dff-a4f6-661bf892e313
+
+    # サブネットID
+    subnet_id: abbbbcf4-ea8f-4218-bbe7-669231eeba30
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1a
+```
+
+この名前を指定して、作成する。
+
+- bin/k5-create-vpnservice.py
+
+```
+bash-4.4$ ./bin/k5-create-vpnservice.py --name iida-az1-vpnservice
+=================  ====================================
+id                 75f35f53-ecbd-4748-a070-3316435e35cc
+name               iida-az1-vpnservice
+availability_zone  jp-east-1a
+=================  ====================================
+```
+
+
+<BR>
+
+## IKEポリシーの作成
+
+- conf/ipsec.yaml
+
+キーに名前作りたい名前を指定する。
+
+```yaml
+#
+# /v2.0/vpn/ikepolicies
+#
+iida-az1-ikepolicy:
+
+  ikepolicy:
+
+    # 名前
+    name: iida-az1-ikepolicy
+
+    # IKEバージョン
+    ike_version: v1
+
+    # メインモード
+    phase1_negotiation_mode: main
+
+    # 認証
+    auth_algorithm: sha1
+
+    # 暗号
+    encryption_algorithm: aes-256
+
+    # PFS
+    pfs: group14
+
+    # ライフタイム
+    lifetime:
+      units: seconds
+      value: 86400
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1a
+```
 
