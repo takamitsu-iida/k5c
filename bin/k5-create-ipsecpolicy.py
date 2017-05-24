@@ -57,6 +57,30 @@ except ImportError as e:
 
 
 #
+# リクエストデータを作成する
+#
+def make_request_data(config=None):
+  """リクエストデータを作成して返却します"""
+
+  d = config.get('ipsecpolicy', {})
+
+  # YAMLファイルから読んだデータをまるごと信用すると危ないので作り変える
+  ipsecpolicy_object = {}
+
+  allowed_keys = [
+    'name', 'transform_protocol', 'auth_algorithm', 'encapsulation_mode', 'encryption_algorithm',
+    'pfs', 'lifetime', 'description', 'availability_zone'
+  ]
+
+  for key in allowed_keys:
+    item = d.get(key, None)
+    if item:
+      ipsecpolicy_object[key] = d.get(key)
+
+  return {'ipsecpolicy': ipsecpolicy_object}
+
+
+#
 # APIにアクセスする
 #
 def access_api(data=None):
@@ -176,8 +200,10 @@ if __name__ == '__main__':
       logging.error("name not found in the yaml file.")
       return 1
 
+    request_data = make_request_data(config=config)
+
     # 実行
-    result = access_api(data=config)
+    result = access_api(data=request_data)
 
     # 中身を確認
     if dump:

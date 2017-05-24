@@ -59,6 +59,30 @@ except ImportError as e:
 
 
 #
+# リクエストデータを作成する
+#
+def make_request_data(config=None):
+  """リクエストデータを作成して返却します"""
+
+  d = config.get('ikepolicy', {})
+
+  # YAMLファイルから読んだデータをまるごと信用すると危ないので作り変える
+  ikepolicy_object = {}
+
+  allowed_keys = [
+    'phase1_negotiation_mode', 'auth_algorithm', 'encryption_algorithm',
+    'pfs', 'lifetime', 'ike_version', 'name', 'description', 'availability_zone'
+  ]
+
+  for key in allowed_keys:
+    item = d.get(key, None)
+    if item:
+      ikepolicy_object[key] = d.get(key)
+
+  return {'ikepolicy': ikepolicy_object}
+
+
+#
 # APIにアクセスする
 #
 def access_api(data=None):
@@ -155,8 +179,10 @@ if __name__ == '__main__':
       logging.error("name not found in the yaml file.")
       return 1
 
+    request_data = make_request_data(config=config)
+
     # 実行
-    result = access_api(data=config)
+    result = access_api(data=request_data)
 
     # 中身を確認
     if dump:

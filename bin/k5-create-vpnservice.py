@@ -62,7 +62,7 @@ def make_request_data(config=None):
   # YAMLファイルから読んだデータをまるごと信用すると危ないので作り変える
   vpnservice_object = {}
 
-  allowed_keys = ['subnet_id', 'router_id', 'name', 'admin_state_up', 'description', 'availability_zone',]
+  allowed_keys = ['subnet_id', 'router_id', 'name', 'admin_state_up', 'description', 'availability_zone']
 
   for key in allowed_keys:
     item = d.get(key, None)
