@@ -434,7 +434,6 @@ availability_zone        jp-east-1a
 bash-4.4$
 ```
 
-
 <BR>
 
 ## IPsecポリシーの作成
@@ -497,5 +496,98 @@ transporm_protocol
 tenant_id             a5001a8b9c4a4712985c11377bd6d4fe
 availability_zone     jp-east-1a
 ====================  ====================================
+```
+
+<BR>
+
+## サイトトンネルの作成
+
+- conf/ipsec.yaml
+
+キーに名前作りたい名前を指定する。
+
+```yaml
+#
+# /v2.0/vpn/ipsec-site-connections
+#
+iida-az1-connection-01:
+
+  ipsec_site_connection:
+
+    name: iida-az1-connection-01
+
+    # ★
+    # 相手毎に設定
+    psk: passpass
+
+    # ★
+    # 相手毎に設定
+    peer_cidrs:
+      - 10.2.1.0/24
+
+    # ★
+    # 相手のグローバルIP
+    peer_address: 2.2.2.2
+
+    # ★
+    # 相手を識別する情報
+    # 基本はpeer_addressと同じ
+    peer_id: 2.2.2.2
+
+    # ★
+    # bin/k5-list-vpnservices.py
+    vpnservice_id: 75f35f53-ecbd-4748-a070-3316435e35cc
+
+    # ★
+    # bin/k5-list-ikepolicy.py
+    ikepolicy_id: 9fc16042-95ae-46b9-84bc-4777b3b9f89c
+
+    # ★
+    # bin/k5-list-ipsecpolicy.py
+    ipsecpolicy_id: 26525271-0337-4ad2-b0d3-120814fc0794
+
+    admin_state_up: True
+
+    initiator: bi-directional
+
+    mtu: 1500
+
+    dpd:
+      timeout: 30
+      interval: 10
+      action: restart
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1a
+```
+
+この名前を指定して作成する。
+
+- bin/k5-create-site-connection.py
+
+```
+bash-4.4$ ./bin/k5-create-site-connection.py --name iida-az1-connection-01
+POST /v2.0/vpn/ipsec-site-connections
+=================  ====================================
+name               iida-az1-connection-01
+id                 4273f817-da1c-4aa5-9445-6501d5bed29d
+peer_address       2.2.2.2
+peer_id            2.2.2.2
+psk                passpass
+vpnservice_id      75f35f53-ecbd-4748-a070-3316435e35cc
+ikepolicy_id       9fc16042-95ae-46b9-84bc-4777b3b9f89c
+ipsecpolicy_id     26525271-0337-4ad2-b0d3-120814fc0794
+route_mode         static
+mtu                1500
+initiator          bi-directional
+auth_mode          psk
+status             PENDING_CREATE
+tenant_id          a5001a8b9c4a4712985c11377bd6d4fe
+availability_zone  jp-east-1a
+description
+=================  ====================================
+bash-4.4$
 ```
 

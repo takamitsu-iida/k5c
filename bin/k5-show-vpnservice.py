@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-GET /v2.0/subnets/{subnet_id}
-Show subnet
-指定したサブネットの情報を表示する
+GET /v2.0/vpn/vpnservices/{service-id}
+Show VPN service details
+指定したVPNサービスの詳細を表示する
 """
 
 """
@@ -121,8 +121,7 @@ def print_result(result):
     row.append(item.get(key, ''))
     disp_list.append(row)
 
-  # サブネット情報を表示
-  print("GET /v2.0/subnets/{subnet_id}")
+  print("GET /v2.0/vpn/vpnservices/{service-id}")
   print(tabulate(disp_list, tablefmt='rst'))
 
 
@@ -152,7 +151,6 @@ if __name__ == '__main__':
           print("")
           sys.stdout.flush()
       return 0
-
 
     # 実行
     result = access_api(vpnservice_id=vpnservice_id)

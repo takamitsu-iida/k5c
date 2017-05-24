@@ -107,20 +107,35 @@ iida-az1-connection-01:
 
     name: iida-az1-connection-01
 
-    psk: secret
+    # ★
+    # 相手毎に設定
+    psk: passpass
 
+    # ★
+    # 相手毎に設定
     peer_cidrs:
-      - 10.2.0.0/24
+      - 10.2.1.0/24
 
-    peer_address: x.x.x.x
+    # ★
+    # 相手のグローバルIP
+    peer_address: 2.2.2.2
 
-    peer_id: x.x.x.x
+    # ★
+    # 相手を識別する情報
+    # 基本はpeer_addressと同じ
+    peer_id: 2.2.2.2
 
-    vpnservice_id: UUID
+    # ★
+    # bin/k5-list-vpnservices.py
+    vpnservice_id: 75f35f53-ecbd-4748-a070-3316435e35cc
 
-    ikepolicy_id: UUID
+    # ★
+    # bin/k5-list-ikepolicy.py
+    ikepolicy_id: 9fc16042-95ae-46b9-84bc-4777b3b9f89c
 
-    ipsecpolicy_id: UUID
+    # ★
+    # bin/k5-list-ipsecpolicy.py
+    ipsecpolicy_id: 26525271-0337-4ad2-b0d3-120814fc0794
 
     admin_state_up: True
 
