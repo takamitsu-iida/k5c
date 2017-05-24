@@ -95,17 +95,21 @@ def print_result(result):
   #      "type": "gauge"
   #    },
 
-  disp_keys = ['name', 'unit', 'type', 'source']  # , 'project_id', 'user_id'
+  disp_keys = ['name', 'unit', 'type', 'source']  #, 'project_id', 'user_id']
 
-  meter_list = []
+  disp_list = []
   for item in result.get('data', []):
     row = []
     for key in disp_keys:
       row.append(item.get(key, ''))
-    meter_list.append(row)
+    disp_list.append(row)
+
+  # sorted()を使ってnameをもとにソートする
+  # nameは配列の1番めの要素なのでインデックスは0
+  disp_list = sorted(disp_list, key=lambda x: x[0])
 
   # 一覧を表示
-  print(tabulate(meter_list, headers=disp_keys, tablefmt='rst'))
+  print(tabulate(disp_list, headers=disp_keys, tablefmt='rst'))
 
 
 if __name__ == '__main__':

@@ -97,7 +97,9 @@ def print_result(result):
   #    ]
   #  }
   #},
+
   ncep = data.get('network_connector_endpoint', {})
+
   interfaces = []
 
   for item in ncep.get('interfaces', []):

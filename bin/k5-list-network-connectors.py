@@ -100,13 +100,23 @@ def print_result(result):
   #    }
   #  ]
   #},
-  nc_list = []
+
+  disp_keys = ['id', 'name', 'network_connector_pool_id']
+
+  disp_list = []
   for item in data.get('network_connectors', []):
-    nc_list.append([item.get('id', ''), item.get('name', ''), item.get('network_connector_pool_id', '')])
+    row = []
+    for key in disp_keys:
+      row.append(item.get(key, ''))
+    disp_list.append(row)
+
+  # sorted()を使ってnameをもとにソートする
+  # nameは配列の2番めの要素なのでインデックスは1
+  disp_list = sorted(disp_list, key=lambda x: x[1])
 
   # ユーザ一覧を表示
   print("GET /v2.0/network_connectors")
-  print(tabulate(nc_list, headers=['id', 'name', 'pool_id'], tablefmt='rst'))
+  print(tabulate(disp_list, headers=disp_keys, tablefmt='rst'))
 
 
 if __name__ == '__main__':

@@ -115,18 +115,32 @@ def print_result(result, unused=False):
   #      "availability_zone": "jp-east-1a",
   #      "id": "48b2d571-a26d-42b3-934b-5c21cc2ee133"
   #    },
-  policy_list = []
+
+  disp_keys = ['id', 'name', 'firewall_rules', 'tenant_id', 'availability_zone']
+
+  disp_list = []
 
   for item in data.get('firewall_policies', []):
     # unusedフラグが立っていたら割り当てルールがゼロのポリシーだけを処理する
     if unused:
       if len(item.get('firewall_rules', [])) > 0:
         continue
-    policy_list.append([item.get('id', ''), item.get('name', ''), len(item.get('firewall_rules', [])), item.get('tenant_id', ''), item.get('availability_zone', '')])
+
+    row = []
+    for key in disp_keys:
+      if key == 'firewall_rules':
+        row.append(len(item.get('firewall_rules', [])))
+      else:
+        row.append(item.get(key, ''))
+    disp_list.append(row)
+
+  # sorted()を使ってnameをもとにソートする
+  # nameは配列の2番めの要素なのでインデックスは1
+  disp_list = sorted(disp_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("GET /v2.0/fw/firewall_policies")
-  print(tabulate(policy_list, headers=['id', 'name', 'num of rules', 'tenant_id', 'az'], tablefmt='rst'))
+  print(tabulate(disp_list, headers=['id', 'name', 'num of rules', 'tenant_id', 'az'], tablefmt='rst'))
 
 
 if __name__ == '__main__':

@@ -103,16 +103,18 @@ def print_result(result):
   # disp_keys = ['id', 'floating_ip_address', 'fixed_ip_address', 'port_id', 'router_id', 'status']
   disp_keys = ['id', 'floating_ip_address', 'fixed_ip_address', 'status']
 
-  floatingips_list = []
+  disp_list = []
   for item in data.get('floatingips', []):
     row = []
     for key in disp_keys:
       row.append(item.get(key, ''))
-    floatingips_list.append(row)
+    disp_list.append(row)
+
+  disp_list = sorted(disp_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("/v2.0/floatingips")
-  print(tabulate(floatingips_list, headers=disp_keys, tablefmt='rst'))
+  print(tabulate(disp_list, headers=disp_keys, tablefmt='rst'))
 
 
 if __name__ == '__main__':

@@ -96,13 +96,23 @@ def print_result(result):
   #    }
   #  ]
   #},
-  nc_pools_list = []
+
+  disp_keys = ['id', 'name']
+
+  disp_list = []
   for item in data.get('network_connector_pools', []):
-    nc_pools_list.append([item.get('id', ''), item.get('name', '')])
+    row = []
+    for key in disp_keys:
+      row.append(item.get(key, ''))
+    disp_list.append(row)
+
+  # sorted()を使ってnameをもとにソートする
+  # nameは配列の2番めの要素なのでインデックスは1
+  disp_list = sorted(disp_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("GET /v2.0/network_connector_pools")
-  print(tabulate(nc_pools_list, headers=['id', 'name'], tablefmt='rst'))
+  print(tabulate(disp_list, headers=disp_keys, tablefmt='rst'))
 
 
 if __name__ == '__main__':

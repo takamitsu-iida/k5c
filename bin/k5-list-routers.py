@@ -99,13 +99,19 @@ def print_result(result):
   #      "availability_zone": "jp-east-1a",
   #      "admin_state_up": true
   #    },
-  routers_list = []
+
+  disp_keys = ['id', 'name', 'tenant_id', 'availability_zone', 'status']
+
+  disp_list = []
   for item in data.get('routers', []):
-    routers_list.append([item.get('id', ''), item.get('name', ''), item.get('tenant_id', ''), item.get('availability_zone', ''), item.get('status', '')])
+    row = []
+    for key in disp_keys:
+      row.append(item.get(key, ''))
+    disp_list.append(row)
 
   # 一覧を表示
   print("GET /v2.0/routers")
-  print(tabulate(routers_list, headers=['id', 'name', 'tenant_id', 'az', 'status'], tablefmt='rst'))
+  print(tabulate(disp_list, headers=disp_keys, tablefmt='rst'))
 
 
 if __name__ == '__main__':

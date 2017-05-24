@@ -106,18 +106,17 @@ def print_result(result):
   #  }
   #}
 
-  # ファイアウォールの一覧はデータオブジェクトの中の'firewalls'キーに配列として入っている
-  disp_list = []
+  disp_keys = ['id', 'name', 'router_id', 'firewall_policy_id', 'status']  #, 'availability_zone', 'tenant_id']
 
-  disp_keys = [
-    'id', 'name', 'router_id', 'firewall_policy_id', 'status' # , 'availability_zone', 'tenant_id'
-  ]
+  disp_list = []
 
   for item in data.get('firewalls', []):
     row = []
     for key in disp_keys:
       row.append(item.get(key, ''))
     disp_list.append(row)
+
+  disp_list = sorted(disp_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("/v2.0/fw/firewalls")

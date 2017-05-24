@@ -117,20 +117,20 @@ def print_result(result):
   disp_keys = ['id', 'name', 'network_id', 'cidr']
 
   # 表示用の配列
-  subnets_list = []
+  disp_list = []
   for item in data.get('subnets', []):
     row = []
     for key in disp_keys:
       row.append(item.get(key, ''))
-    subnets_list.append(row)
+    disp_list.append(row)
 
   # sorted()を使ってnameをもとにソートする
   # nameは配列の2番めの要素なのでインデックスは1
-  subnets_list = sorted(subnets_list, key=lambda x: x[1])
+  disp_list = sorted(disp_list, key=lambda x: x[1])
 
   # 一覧を表示
   print("GET /v2.0/subnets")
-  print(tabulate(subnets_list, headers=['id', 'name', 'network_id', 'cidr'], tablefmt='rst'))
+  print(tabulate(disp_list, headers=disp_keys, tablefmt='rst'))
 
 
 if __name__ == '__main__':
