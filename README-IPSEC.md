@@ -413,3 +413,89 @@ iida-az1-ikepolicy:
     availability_zone: jp-east-1a
 ```
 
+この名前を指定して、作成する。
+
+- bin/k5-create-ikepolicy.py
+
+```
+bash-4.4$ ./bin/k5-create-ikepolicy.py --name iida-az1-ikepolicy
+POST /v2.0/vpn/ikepolicies
+=======================  ====================================
+name                     iida-az1-ikepolicy
+id                       c6f42ec6-e76d-48ff-a6a6-9b86288381de
+auth_algorithm           sha1
+pfs                      group14
+ike_version              v1
+encryption_algorithm     aes-256
+phase1_negotiation_mode  main
+tenant_id                a5001a8b9c4a4712985c11377bd6d4fe
+availability_zone        jp-east-1a
+=======================  ====================================
+bash-4.4$
+```
+
+
+<BR>
+
+## IPsecポリシーの作成
+
+- conf/ipsec.yaml
+
+キーに名前作りたい名前を指定する。
+
+```yaml
+#
+# /v2.0/vpn/ipsecpolicies
+#
+iida-az1-ipsecpolicy:
+
+  ipsecpolicy:
+
+    # 名前
+    name: iida-az1-ipsecpolicy
+
+    # トランスフォーム
+    transform_protocol: esp
+
+    # 認証
+    auth_algorithm: sha1
+
+    # カプセル化
+    encapsulation_mode: tunnel
+
+    # 暗号アルゴリズム
+    encryption_algorithm: aes-256
+
+    # PFS
+    pfs: group14
+
+    # ライフタイム
+    lifetime:
+      units: seconds
+      value: 28800
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1a
+```
+
+この名前を指定して、作成する。
+
+- bin/k5-create-ipsecpolicy.py
+
+```
+bash-4.4$ ./bin/k5-create-ipsecpolicy.py --name iida-az1-ipsecpolicy
+POST /v2.0/vpn/ipsecpolicies
+====================  ====================================
+name                  iida-az1-ipsecpolicy
+id                    26525271-0337-4ad2-b0d3-120814fc0794
+pfs                   group14
+auth_algorithm        sha1
+encryption_algorithm  aes-256
+transporm_protocol
+tenant_id             a5001a8b9c4a4712985c11377bd6d4fe
+availability_zone     jp-east-1a
+====================  ====================================
+```
+
