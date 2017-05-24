@@ -96,7 +96,7 @@ if __name__ == '__main__':
         if match:
           uuid = match.group(1)
           result = access_api(ikepolicy_id=uuid)
-          print("ikepolicy_id: {}".format(ikepolicy_id))
+          print("ikepolicy_id: {}".format(uuid))
           print_result(result)
           print("")
           sys.stdout.flush()
