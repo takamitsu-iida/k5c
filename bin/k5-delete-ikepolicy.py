@@ -95,9 +95,8 @@ if __name__ == '__main__':
         match = regex.match(line)
         if match:
           uuid = match.group(1)
-          # 実行
           result = access_api(ikepolicy_id=uuid)
-          # 得たデータを処理する
+          print("ikepolicy_id: {}".format(ikepolicy_id))
           print_result(result)
           print("")
           sys.stdout.flush()

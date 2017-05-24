@@ -95,9 +95,8 @@ if __name__ == '__main__':
         match = regex.match(line)
         if match:
           uuid = match.group(1)
-          # 実行
           result = access_api(service_id=uuid)
-          # 得たデータを処理する
+          print("vpnservice_id: {}".format(service_id))
           print_result(result)
           print("")
           sys.stdout.flush()
