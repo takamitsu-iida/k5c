@@ -4,9 +4,15 @@
 
 # 仮想ルータとVPNサービスとコネクションは 1:1:N の関係
 
+
+###################################################
+
 #
 # /v2.0/vpn/vpnservices
 #
+
+# AZ1側
+
 iida-az1-vpnservice:
 
   vpnservice:
@@ -35,9 +41,45 @@ iida-az1-vpnservice:
     admin_state_up: True
 
 
+# AZ2側
+
+iida-az2-vpnservice:
+
+  vpnservice:
+
+    # 名前
+    name: iida-az2-vpnservice
+
+    # 備考
+    description:
+
+    # ルータID
+    # 仮想ルータを作り変えたら、ここも変更すること
+    router_id:
+
+    # サブネットID
+    # サブネットを作り変えたら、ここも変更すること
+    subnet_id:
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1b
+
+    # 管理状態
+    # True or False
+    admin_state_up: True
+
+
+###################################################
+
+
 #
 # /v2.0/vpn/ikepolicies
 #
+
+# AZ1側
+
 iida-az1-ikepolicy:
 
   ikepolicy:
@@ -70,10 +112,50 @@ iida-az1-ikepolicy:
     # jp-east-1b
     availability_zone: jp-east-1a
 
+# AZ2側
+
+iida-az2-ikepolicy:
+
+  ikepolicy:
+
+    # 名前
+    name: iida-az2-ikepolicy
+
+    # IKEバージョン
+    ike_version: v1
+
+    # メインモード
+    phase1_negotiation_mode: main
+
+    # 認証
+    auth_algorithm: sha1
+
+    # 暗号
+    encryption_algorithm: aes-256
+
+    # PFS
+    pfs: group14
+
+    # ライフタイム
+    lifetime:
+      units: seconds
+      value: 86400
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1b
+
+
+###################################################
+
 
 #
 # /v2.0/vpn/ipsecpolicies
 #
+
+# AZ1側
+
 iida-az1-ipsecpolicy:
 
   ipsecpolicy:
@@ -107,11 +189,51 @@ iida-az1-ipsecpolicy:
     availability_zone: jp-east-1a
 
 
-## コネクションごとに設定
+# AZ2側
+
+iida-az2-ipsecpolicy:
+
+  ipsecpolicy:
+
+    # 名前
+    name: iida-az2-ipsecpolicy
+
+    # トランスフォーム
+    transform_protocol: esp
+
+    # 認証
+    auth_algorithm: sha1
+
+    # カプセル化
+    encapsulation_mode: tunnel
+
+    # 暗号アルゴリズム
+    encryption_algorithm: aes-256
+
+    # PFS
+    pfs: group14
+
+    # ライフタイム
+    lifetime:
+      units: seconds
+      value: 28800
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1b
+
+
+###################################################
+
+# コネクション設定
 
 #
 # /v2.0/vpn/ipsec-site-connections
 #
+
+# AZ1側
+
 iida-az1-connection-01:
 
   ipsec_site_connection:
@@ -129,12 +251,12 @@ iida-az1-connection-01:
 
     # ★
     # 相手のグローバルIP
-    peer_address: 2.2.2.2
+    peer_address: 133.162.223.232
 
     # ★
     # 相手を識別する情報
     # 基本はpeer_addressと同じ
-    peer_id: 2.2.2.2
+    peer_id: 133.162.223.232
 
     # ★
     # bin/k5-list-vpnservices.py
@@ -165,3 +287,60 @@ iida-az1-connection-01:
     # jp-east-1a
     # jp-east-1b
     availability_zone: jp-east-1a
+
+
+# AZ2側
+
+iida-az2-connection-01:
+
+  ipsec_site_connection:
+
+    name: iida-az2-connection-01
+
+    # ★
+    # 相手毎に設定
+    psk: passpass
+
+    # ★
+    # 相手毎に設定
+    peer_cidrs:
+      - 10.1.1.0/24
+
+    # ★
+    # 相手のグローバルIP
+    peer_address: 133.162.215.250
+
+    # ★
+    # 相手を識別する情報
+    # 基本はpeer_addressと同じ
+    peer_id: 133.162.215.250
+
+    # ★
+    # bin/k5-list-vpnservices.py
+    vpnservice_id:
+
+    # ★
+    # bin/k5-list-ikepolicy.py
+    ikepolicy_id:
+
+    # ★
+    # bin/k5-list-ipsecpolicy.py
+    ipsecpolicy_id:
+
+    admin_state_up: True
+
+    initiator: bi-directional
+
+    # これ1500でいいのかな。APIマニュアルの例は1500になってたけど。
+    # 対向側(シスコの場合) ip tcp adjust-mss 1380 と設定すれば気にすることはないのだが。
+    mtu: 1500
+
+    dpd:
+      timeout: 30
+      interval: 10
+      action: restart
+
+    # アベイラビリティゾーン
+    # jp-east-1a
+    # jp-east-1b
+    availability_zone: jp-east-1b
