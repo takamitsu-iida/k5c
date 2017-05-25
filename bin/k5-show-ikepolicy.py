@@ -10,12 +10,12 @@ Show IKE policy details
 """
 実行例
 
-bash-4.4$ ./bin/k5-list-ikepolicy.py | ./bin/k5-show-ikepolicy.py  -
-vpnservice_id: ace696b0-b937-4ee7-8444-20acbb2400e0
+bash-4.4$ ./bin/k5-list-ikepolicy.py | ./bin/k5-show-ikepolicy.py -
+ikepolicy_id: 4334b806-824c-4419-b0cb-b79fa8be9c72
 GET /v2.0/vpn/ikepolicies/{ikepolicy-id}
 =======================  ====================================
 name                     iida-az1-ikepolicy
-id                       ace696b0-b937-4ee7-8444-20acbb2400e0
+id                       4334b806-824c-4419-b0cb-b79fa8be9c72
 auth_algorithm           sha1
 pfs                      group14
 ike_version              v1
@@ -24,6 +24,14 @@ phase1_negotiation_mode  main
 tenant_id                a5001a8b9c4a4712985c11377bd6d4fe
 availability_zone        jp-east-1a
 =======================  ====================================
+
+lifetime
+=====  =======
+value  86400
+units  seconds
+=====  =======
+
+bash-4.4$
 """
 
 import json
@@ -130,9 +138,21 @@ def print_result(result):
     row.append(item.get(key, ''))
     disp_list.append(row)
 
-  # 表示
   print("GET /v2.0/vpn/ikepolicies/{ikepolicy-id}")
   print(tabulate(disp_list, tablefmt='rst'))
+
+  lifetime = item.get('lifetime', {})
+  lifetime_list = []
+  lifetime_keys = ['value', 'units']
+  for key in lifetime_keys:
+    row = []
+    row.append(key)
+    row.append(lifetime.get(key, ''))
+    lifetime_list.append(row)
+
+  print("")
+  print("lifetime")
+  print(tabulate(lifetime_list, tablefmt='rst'))
 
 
 if __name__ == '__main__':
