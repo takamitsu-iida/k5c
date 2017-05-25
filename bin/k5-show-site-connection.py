@@ -152,6 +152,35 @@ def print_result(result):
   print("GET /v2.0/vpn/ipsec-site-connections/{connection-id}")
   print(tabulate(disp_list, tablefmt='rst'))
 
+  #      "dpd": {
+  #        "action": "restart",
+  #        "timeout": 30,
+  #        "interval": 10
+  #      },
+  dpd = item.get('dpd', {})
+  dpd_list = []
+  dpd_keys = ['action', 'timeout', 'interval']
+  for key in dpd_keys:
+    row = []
+    row.append(key)
+    row.append(dpd.get(key, ''))
+    dpd_list.append(row)
+
+  print("")
+  print("dpd")
+  print(tabulate(dpd_list, tablefmt='rst'))
+
+  #      "peer_cidrs": [
+  #        "10.2.1.0/24"
+  #      ],
+  peer_cidrs_list = []
+  for cidr in item.get('peer_cidrs', []):
+    peer_cidrs_list.append([cidr])
+
+  print("")
+  print("peer_cidrs")
+  print(tabulate(peer_cidrs_list, tablefmt='rst'))
+
 
 if __name__ == '__main__':
 
