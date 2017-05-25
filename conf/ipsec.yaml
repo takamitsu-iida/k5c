@@ -4,32 +4,30 @@
 
 # 仮想ルータとVPNサービスとコネクションは 1:1:N の関係
 
-
-###################################################
-
 #
 # /v2.0/vpn/vpnservices
 #
 
 # AZ1側
 
+# 第一階層のキーはbin/k5-create-vpnservice.pyの--nameオプションとあわせる
 iida-az1-vpnservice:
 
   vpnservice:
 
-    # 名前
-    name: iida-az1-vpnservice
+    # 分かりやすく識別するための名前
+    name: ★iida-az1-vpnservice
 
     # 備考
     description:
 
     # ルータID
-    # 仮想ルータを作り変えたら、ここも変更すること
-    router_id: ffbd70be-24cf-4dff-a4f6-661bf892e313
+    # bin/k5-list-routers.py
+    router_id: ★
 
     # サブネットID
-    # サブネットを作り変えたら、ここも変更すること
-    subnet_id: abbbbcf4-ea8f-4218-bbe7-669231eeba30
+    # bin/k5-list-subnets.py
+    subnet_id: ★
 
     # アベイラビリティゾーン
     # jp-east-1a
@@ -43,23 +41,25 @@ iida-az1-vpnservice:
 
 # AZ2側
 
+# 第一階層のキーはbin/k5-create-vpnservice.pyの--nameオプションとあわせる
 iida-az2-vpnservice:
 
   vpnservice:
 
-    # 名前
-    name: iida-az2-vpnservice
+    # 分かりやすく識別するための名前
+    name: ★iida-az2-vpnservice
 
     # 備考
     description:
 
     # ルータID
-    # 仮想ルータを作り変えたら、ここも変更すること
-    router_id:
+    # bin/k5-list-routers.py
+    router_id: ★
 
     # サブネットID
+    # bin/k5-list-subnets.py
     # サブネットを作り変えたら、ここも変更すること
-    subnet_id:
+    subnet_id: ★
 
     # アベイラビリティゾーン
     # jp-east-1a
@@ -70,9 +70,7 @@ iida-az2-vpnservice:
     # True or False
     admin_state_up: True
 
-
 ###################################################
-
 
 #
 # /v2.0/vpn/ikepolicies
@@ -80,12 +78,13 @@ iida-az2-vpnservice:
 
 # AZ1側
 
+# 第一階層のキーはbin/k5-create-ikepolicy.pyの--nameオプションとあわせる
 iida-az1-ikepolicy:
 
   ikepolicy:
 
-    # 名前
-    name: iida-az1-ikepolicy
+    # 分かりやすく識別するための名前
+    name: ★iida-az1-ikepolicy
 
     # IKEバージョン
     ike_version: v1
@@ -114,12 +113,13 @@ iida-az1-ikepolicy:
 
 # AZ2側
 
+# 第一階層のキーはbin/k5-create-ikepolicy.pyの--nameオプションとあわせる
 iida-az2-ikepolicy:
 
   ikepolicy:
 
-    # 名前
-    name: iida-az2-ikepolicy
+    # 分かりやすく識別するための名前
+    name: ★iida-az2-ikepolicy
 
     # IKEバージョン
     ike_version: v1
@@ -146,9 +146,7 @@ iida-az2-ikepolicy:
     # jp-east-1b
     availability_zone: jp-east-1b
 
-
 ###################################################
-
 
 #
 # /v2.0/vpn/ipsecpolicies
@@ -156,12 +154,13 @@ iida-az2-ikepolicy:
 
 # AZ1側
 
+# 第一階層のキーはbin/k5-create-ipsecpolicy.pyの--nameオプションとあわせる
 iida-az1-ipsecpolicy:
 
   ipsecpolicy:
 
-    # 名前
-    name: iida-az1-ipsecpolicy
+    # 分かりやすく識別するための名前
+    name: ★iida-az1-ipsecpolicy
 
     # トランスフォーム
     transform_protocol: esp
@@ -188,15 +187,15 @@ iida-az1-ipsecpolicy:
     # jp-east-1b
     availability_zone: jp-east-1a
 
-
 # AZ2側
 
+# 第一階層のキーはbin/k5-create-ipsecpolicy.pyの--nameオプションとあわせる
 iida-az2-ipsecpolicy:
 
   ipsecpolicy:
 
-    # 名前
-    name: iida-az2-ipsecpolicy
+    # 分かりやすく識別するための名前
+    name: ★iida-az2-ipsecpolicy
 
     # トランスフォーム
     transform_protocol: esp
@@ -222,7 +221,6 @@ iida-az2-ipsecpolicy:
     # jp-east-1a
     # jp-east-1b
     availability_zone: jp-east-1b
-
 
 ###################################################
 
@@ -234,41 +232,36 @@ iida-az2-ipsecpolicy:
 
 # AZ1側
 
+# 第一階層のキーはbin/k5-create-site-connection.pyの--nameオプションとあわせる
 iida-az1-connection-01:
 
   ipsec_site_connection:
 
-    name: iida-az1-connection-01
+    # 分かりやすく識別するための名前
+    name: ★iida-az1-connection-01
 
-    # ★
     # 相手毎に設定
-    psk: passpass
+    psk: ★passpass
 
-    # ★
     # 相手毎に設定
     peer_cidrs:
-      - 10.2.1.0/24
+      - ★10.2.1.0/24
 
-    # ★
     # 相手のグローバルIP
-    peer_address: 133.162.223.232
+    peer_address: ★x.x.x.x
 
-    # ★
     # 相手を識別する情報
     # 基本はpeer_addressと同じ
-    peer_id: 133.162.223.232
+    peer_id: ★x.x.x.x
 
-    # ★
     # bin/k5-list-vpnservices.py
-    vpnservice_id: 37ab0e56-1ff1-4dbe-acce-fd7ed1a3773a
+    vpnservice_id: ★
 
-    # ★
     # bin/k5-list-ikepolicy.py
-    ikepolicy_id: 4334b806-824c-4419-b0cb-b79fa8be9c72
+    ikepolicy_id: ★
 
-    # ★
     # bin/k5-list-ipsecpolicy.py
-    ipsecpolicy_id: ab659e26-327b-4aff-b727-b039da09f22e
+    ipsecpolicy_id: ★
 
     admin_state_up: True
 
@@ -291,41 +284,36 @@ iida-az1-connection-01:
 
 # AZ2側
 
+# 第一階層のキーはbin/k5-create-site-connection.pyの--nameオプションとあわせる
 iida-az2-connection-01:
 
   ipsec_site_connection:
 
-    name: iida-az2-connection-01
+    # 分かりやすく識別するための名前
+    name: ★iida-az2-connection-01
 
-    # ★
     # 相手毎に設定
-    psk: passpass
+    psk: ★passpass
 
-    # ★
     # 相手毎に設定
     peer_cidrs:
-      - 10.1.1.0/24
+      - ★10.1.1.0/24
 
-    # ★
     # 相手のグローバルIP
-    peer_address: 133.162.215.250
+    peer_address: ★y.y.y.y
 
-    # ★
     # 相手を識別する情報
     # 基本はpeer_addressと同じ
-    peer_id: 133.162.215.250
+    peer_id: ★y.y.y.y
 
-    # ★
     # bin/k5-list-vpnservices.py
-    vpnservice_id:
+    vpnservice_id: ★
 
-    # ★
     # bin/k5-list-ikepolicy.py
-    ikepolicy_id:
+    ikepolicy_id: ★
 
-    # ★
     # bin/k5-list-ipsecpolicy.py
-    ipsecpolicy_id:
+    ipsecpolicy_id: ★
 
     admin_state_up: True
 
