@@ -16,9 +16,11 @@ iida-az1-vpnservice:
     description:
 
     # ルータID
+    # 仮想ルータを作り変えたら、ここも変更すること
     router_id: ffbd70be-24cf-4dff-a4f6-661bf892e313
 
     # サブネットID
+    # サブネットを作り変えたら、ここも変更すること
     subnet_id: abbbbcf4-ea8f-4218-bbe7-669231eeba30
 
     # アベイラビリティゾーン
@@ -134,15 +136,15 @@ iida-az1-connection-01:
 
     # ★
     # bin/k5-list-vpnservices.py
-    vpnservice_id: 75f35f53-ecbd-4748-a070-3316435e35cc
+    vpnservice_id: 37ab0e56-1ff1-4dbe-acce-fd7ed1a3773a
 
     # ★
     # bin/k5-list-ikepolicy.py
-    ikepolicy_id: 9fc16042-95ae-46b9-84bc-4777b3b9f89c
+    ikepolicy_id: 4334b806-824c-4419-b0cb-b79fa8be9c72
 
     # ★
     # bin/k5-list-ipsecpolicy.py
-    ipsecpolicy_id: 26525271-0337-4ad2-b0d3-120814fc0794
+    ipsecpolicy_id: ab659e26-327b-4aff-b727-b039da09f22e
 
     admin_state_up: True
 
