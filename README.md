@@ -1551,6 +1551,16 @@ status_code: 204
 <BR>
 <BR>
 
+# IPsec VPN
+
+K5の仮想ルータにはIPsec VPNの機能を乗せることもできます。
+
+[メモを残しました](https://github.com/takamitsu-iida/k5c/blob/master/README-IPSEC.md "IPsec vpnメモ")
+
+
+<BR>
+<BR>
+
 # K5ネットワークの制限事項
 
 公開されている情報をメモしておきます。
