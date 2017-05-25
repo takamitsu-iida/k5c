@@ -71,7 +71,7 @@ except ImportError as e:
 def make_request_data(config=None):
   """リクエストデータを作成して返却します"""
 
-  d = config.get('vpnservice', {})
+  d = config.get('ipsec_site_connection', {})
 
   # YAMLファイルから読んだデータをまるごと信用すると危ないので作り変える
   connection_object = {}

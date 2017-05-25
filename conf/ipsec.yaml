@@ -148,6 +148,8 @@ iida-az1-connection-01:
 
     initiator: bi-directional
 
+    # これ1500でいいのかな。APIマニュアルの例は1500になってたけど。
+    # 対向側(シスコの場合) ip tcp adjust-mss 1380 と設定すれば気にすることはないのだが。
     mtu: 1500
 
     dpd:
