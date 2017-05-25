@@ -268,7 +268,7 @@ bash-4.4$
 
 使うスクリプト
 
-- bin/k5-create-router.py
+- bin/k5-create-network.py
 
 ![fig050](https://cloud.githubusercontent.com/assets/21165341/26093866/90769908-3a52-11e7-8da6-f312f55d15a1.png)
 
