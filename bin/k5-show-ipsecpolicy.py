@@ -11,11 +11,11 @@ Show IPSec policy details
 実行例
 
 bash-4.4$ ./bin/k5-list-ipsecpolicy.py | ./bin/k5-show-ipsecpolicy.py -
-vpnservice_id: 26525271-0337-4ad2-b0d3-120814fc0794
+ipsecpolicy_id: ab659e26-327b-4aff-b727-b039da09f22e
 GET /v2.0/vpn/ipsecpolicies/{ipsecpolicy-id}
 ====================  ====================================
 name                  iida-az1-ipsecpolicy
-id                    26525271-0337-4ad2-b0d3-120814fc0794
+id                    ab659e26-327b-4aff-b727-b039da09f22e
 pfs                   group14
 auth_algorithm        sha1
 encryption_algorithm  aes-256
@@ -23,6 +23,14 @@ transform_protocol    esp
 tenant_id             a5001a8b9c4a4712985c11377bd6d4fe
 availability_zone     jp-east-1a
 ====================  ====================================
+
+lifetime
+=====  =======
+value  28800
+units  seconds
+=====  =======
+
+bash-4.4$
 """
 
 import json
@@ -129,9 +137,22 @@ def print_result(result):
     row.append(item.get(key, ''))
     disp_list.append(row)
 
-  # 表示
   print("GET /v2.0/vpn/ipsecpolicies/{ipsecpolicy-id}")
   print(tabulate(disp_list, tablefmt='rst'))
+
+  lifetime = item.get('lifetime', {})
+  lifetime_list = []
+  lifetime_keys = ['value', 'units']
+  for key in lifetime_keys:
+    row = []
+    row.append(key)
+    row.append(lifetime.get(key, ''))
+    lifetime_list.append(row)
+
+  print("")
+  print("lifetime")
+  print(tabulate(lifetime_list, tablefmt='rst'))
+
 
 
 if __name__ == '__main__':
