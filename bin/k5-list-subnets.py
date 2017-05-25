@@ -13,15 +13,16 @@ NOTE:
 """
 実行例
 
+bash-4.4$ ./bin/k5-list-subnets.py | grep -v inf_
 GET /v2.0/subnets
-====================  ====================================  ====================================  ================
-name                  id                                    network_id                            cidr
-====================  ====================================  ====================================  ================
-inf_az2_fip-pool03-2  06ce74b3-b0e3-44b9-9131-d1b7c93dceb2  abe76a93-87c3-4635-b0f3-40f794165c26  133.162.220.0/24
-inf_az2_fip-pool01-4  5079f324-5db0-44ee-92ac-3a6b7977b23f  375c49fa-a706-4676-b55b-2d3554e5db6a  133.162.204.0/24
-inf_az2_fip-pool02-1  6241fdc0-fa98-44fb-9749-46b3252d7cde  852e40a7-82a3-4196-8b84-46f55d01ccba  133.162.206.0/24
-inf_az2_ext-subnet03  672fa26a-b2c6-407f-aa10-f60309fc0a68  abe76a93-87c3-4635-b0f3-40f794165c26  133.162.216.0/24
-inf_az2_fip-pool04-1  7d515a27-e048-44f0-b359-557a8a53b9d5  bfca06b3-0b23-433f-96af-4f54bf963e5f  133.162.219.0/24
+====================================  ====================  ====================================  ================  ===================
+id                                    name                  network_id                            cidr              availability_zone
+====================================  ====================  ====================================  ================  ===================
+abbbbcf4-ea8f-4218-bbe7-669231eeba30  iida-az1-subnet01     8f15da62-c7e5-47ec-8668-ee502f6d00d2  10.1.1.0/24       jp-east-1a
+2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6  iida-az1-subnet02     e3c166c0-7e90-4c6e-857e-87fd985f98ac  10.1.2.0/24       jp-east-1a
+07041634-9f01-4518-a2c8-1e6ea8d956ee  iida-az2-subnet01     0cbf1e4d-479b-4336-8ba9-eb530fe55adb  10.2.1.0/24       jp-east-1b
+50bf50fa-816b-4e7e-98da-8379d9675101  iida-az2-subnet02     8b004a16-c5a2-4e1d-ab9e-a417fef45ec7  10.2.2.0/24       jp-east-1b
+====================================  ====================  ====================================  ================  ===================
 """
 
 import json
@@ -74,7 +75,7 @@ def access_api():
 #
 # 結果を表示する
 #
-def print_result(result):
+def print_result(result, az=None):
   """結果を表示します"""
 
   # ステータスコードは'status_code'キーに格納
@@ -114,15 +115,17 @@ def print_result(result):
   #       "name": "inf_az2_fip-pool03-2"
   #     },
 
-  disp_keys = ['id', 'name', 'network_id', 'cidr']
+  # disp_keys = ['id', 'name', 'network_id', 'cidr']
+  disp_keys = ['id', 'name', 'network_id', 'cidr', 'availability_zone']
 
   # 表示用の配列
   disp_list = []
   for item in data.get('subnets', []):
-    row = []
-    for key in disp_keys:
-      row.append(item.get(key, ''))
-    disp_list.append(row)
+    if az is None or item.get('availability_zone', "") == az:
+      row = []
+      for key in disp_keys:
+        row.append(item.get(key, ''))
+      disp_list.append(row)
 
   # sorted()を使ってnameをもとにソートする
   # nameは配列の2番めの要素なのでインデックスは1
@@ -140,8 +143,10 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='List subnets')
+    parser.add_argument('--az', nargs='?', default=None, help='The Availability Zone name to display.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
+    az = args.az
     dump = args.dump
 
     # 実行
@@ -153,7 +158,7 @@ if __name__ == '__main__':
       return 0
 
     # 表示
-    print_result(result)
+    print_result(result, az=az)
 
     return 0
 

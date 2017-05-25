@@ -101,7 +101,7 @@ def print_result(result):
   #}
 
   # disp_keys = ['id', 'floating_ip_address', 'fixed_ip_address', 'port_id', 'router_id', 'status']
-  disp_keys = ['id', 'floating_ip_address', 'fixed_ip_address', 'status']
+  disp_keys = ['id', 'floating_ip_address', 'fixed_ip_address', 'status', 'availability_zone']
 
   disp_list = []
   for item in data.get('floatingips', []):

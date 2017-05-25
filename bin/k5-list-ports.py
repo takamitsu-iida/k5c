@@ -70,7 +70,7 @@ def access_api():
 #
 # 結果を表示する
 #
-def print_result(result):
+def print_result(result, az=None):
   """結果を表示します"""
 
   # ステータスコードは'status_code'キーに格納
@@ -113,15 +113,17 @@ def print_result(result):
   #      "allowed_address_pairs": []
   #    },
 
-  disp_keys = ['id', 'name', 'network_id', 'device_owner', 'mac_address']
+  # disp_keys = ['id', 'name', 'network_id', 'device_owner', 'mac_address']
+  disp_keys = ['id', 'name', 'network_id', 'device_owner', 'availability_zone']
 
   disp_list = []
 
   for item in data.get('ports', []):
-    row = []
-    for key in disp_keys:
-      row.append(item.get(key, ''))
-    disp_list.append(row)
+    if az is None or item.get('availability_zone', "") == az:
+      row = []
+      for key in disp_keys:
+        row.append(item.get(key, ''))
+      disp_list.append(row)
 
   # sorted()を使ってnameをもとにソートする
   # nameは配列の2番めの要素なのでインデックスは1
@@ -139,8 +141,10 @@ if __name__ == '__main__':
   def main():
     """メイン関数"""
     parser = argparse.ArgumentParser(description='List ports')
+    parser.add_argument('--az', nargs='?', default=None, help='The Availability Zone name to display.')
     parser.add_argument('--dump', action='store_true', default=False, help='Dump json result and exit.')
     args = parser.parse_args()
+    az = args.az
     dump = args.dump
 
     # 実行
@@ -152,7 +156,7 @@ if __name__ == '__main__':
       return 0
 
     # 表示
-    print_result(result)
+    print_result(result, az=az)
 
     return 0
 
