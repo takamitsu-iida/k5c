@@ -1,49 +1,79 @@
-# IPsecを使う場合のメモ
+# K5でIPsec VPNを使う場合のメモ
 
-実際に動かしたわけではないので、良くわからない部分も多い。
+実際にIPsec VPNを動かしたわけではないので、良くわからない部分も多いです。
 
-取り急ぎ、メモ。
-
+<BR>
 
 ## 注意事項
 
 - Router：VPN Service：SiteConnection＝１：１：Ｎ
 
-- IPsecからIPsecへの折り返しの通信はできない
+- IPsecからIPsecへの折り返しの通信はできない(いわゆるヘアピン通信)
 
-- デフォルトでスプリットトンネルされている
+- デフォルトでスプリットトンネルされているので、1台の仮想ルータでVPNと外部ゲートウェイを兼ねることができる
 
-- フラグメントはダメなので対向ルータでTCP MSSを小さく書き換えること
+- フラグメントをさけるために対向ルータでTCP MSSを小さく書き換えること
 
-> NOTE*
+> NOTE:
 >
 > K5間のIPsecの場合、フラグメントはどうしてるんだろう？？？
 
+<BR>
 
 ## VPNサービスの作成に必要な情報
 
-VPNサービスを作成するには、ルータIDとサブネットIDが必要。
+仮想ルータとVPNサービスは1:1の関係にあります。
+VPNサービスを作成するには、ルータIDとサブネットIDが必要です。
+
+作成に必要なもの。
 
 - router_id
 - subnet_id
 
+<BR>
+
 ## IKEポリシーの作成に必要な情報
 
-IKEポリシーを作成するには、名前の他にIKEのパラメータが必要
+IKEポリシーを作成するには、名前の他にIKEのパラメータが必要です。
+相手と合わせないといけませんので、できるだけ汎用なパラメータで作っておくのがいいと思います。
+
+作成に必要なもの。
 
 - name
 - ikepolicy
+  - phase1_negotiation_mode: main
+  - auth_algorithm: sha1
+  - encryption_algorithm: aes-256
+  - pfs: group14
+
+> NOTE:
+>
+> IKEのモードはメインモードの一択です。
+
+<BR>
 
 ## IPsecポリシーの作成に必要な情報
 
-IPsecポリシーを作成するには、名前の他にIPsecのパラメータが必要
+IPsecポリシーを作成するには、名前の他にIPsecのパラメータが必要です。
+これも相手に合わせないといけませんので、できるだけ汎用なパラメータで作っておくのがいいと思います。
+
+作成に必要なもの。
 
 - name
 - ipsecpolicy
+    - transform_protocol: esp
+    - auth_algorithm: sha1
+    - encapsulation_mode: tunnel
+    - encryption_algorithm: aes-256
+    - pfs: group14
+
+<BR>
 
 ## IPsecコネクションの作成に必要な情報
 
-これが一番重要。最大20コネクションまで別々に作成する。
+これが一番重要。最大20コネクションまで別々に作成します。
+
+作成に必要なもの。
 
 - ikepolicy_id
 - ipsec_site_connection
@@ -60,7 +90,7 @@ IPsecポリシーを作成するには、名前の他にIPsecのパラメータ�
 
 ## ルータの情報収集
 
-ルータの一覧。ルータは一つ作成済み。
+ルータの一覧を調べます。
 
 ```
 bash-4.4$ ./bin/k5-list-routers.py
@@ -73,7 +103,7 @@ ffbd70be-24cf-4dff-a4f6-661bf892e313  iida-az1-router01  a5001a8b9c4a4712985c113
 bash-4.4$
 ```
 
-ルータの詳細情報。
+ルータの詳細情報を調べます。
 
 ```
 bash-4.4$ ./bin/k5-list-routers.py | ./bin/k5-show-router.py -
@@ -302,10 +332,10 @@ statusがDOWNからACTIVEに変わるのに、しばらく時間がかかるよ�
 
 > NOTE:
 >
-> IPsecの通信をファイアウォールで許可する場合はグローバルIPを使ってルールを作成するみたい。まぁ、自装置宛てだからNAT変換されないしね。
-> アドレスはsourceとdestinationの両方を指定すればいいのかな。
+> IPsecの通信をファイアウォールで許可する場合はグローバルIPを使ってルールを作成するようです。
+> 自装置宛てだからNAT変換されないし、当然のようにも思うけど、FAQに記載の情報と食い違うのが気になります。。
 > この場合プロトコルはnullだとまずいのかな。
-> espだからtcpでもudpでもicmpでもないし。
+> espだからtcpでもudpでもicmpでもないし、nullを選ぶしかないと思うのですが・・・
 
 使うのはこれら。
 
@@ -313,8 +343,8 @@ statusがDOWNからACTIVEに変わるのに、しばらく時間がかかるよ�
 - bin/k5-update-fw-policy.py
 - conf/fw-rule.xlsx
 
-エクセルでルールを作成して、k5-create-fw-rule.pyで作成。
-エクセルでルールの並びとかを調整して、k5-update-fw-policy.pyで更新します。
+エクセルでルールを記述して、k5-create-fw-rule.pyで作成します。
+エクセルでルールの並びとかを調整して、k5-update-fw-policy.pyでポリシーの中に組み込みます。
 
 <BR>
 <BR>
@@ -326,10 +356,12 @@ statusがDOWNからACTIVEに変わるのに、しばらく時間がかかるよ�
 
 ## vpnserviceを作成する
 
-
+- bin/k5-create-vpnservice.py
 - conf/ipsec.yaml
 
-YAMLのキーは作成したいVPNサービスの名前にする
+YAMLの第一階層のキーは、bin/k5-create-vpnservice.py --nameで指定する名前になります。
+わかりやすい名前がいいと思います。
+キーなので最後にコロンを付けるのをお忘れなく。
 
 ```yaml
 #
@@ -354,9 +386,7 @@ iida-az1-vpnservice:
     availability_zone: jp-east-1a
 ```
 
-この名前を指定して、作成する。
-
-- bin/k5-create-vpnservice.py
+実行例。
 
 ```
 bash-4.4$ ./bin/k5-create-vpnservice.py --name iida-az1-vpnservice
@@ -372,9 +402,12 @@ availability_zone  jp-east-1a
 
 ## IKEポリシーの作成
 
+- bin/k5-create-ikepolicy.py
 - conf/ipsec.yaml
 
-キーに名前作りたい名前を指定する。
+YAMLの第一階層のキーは、bin/k5-create-ikepolicy.py --nameで指定する名前になります。
+わかりやすい名前がいいと思います。
+キーなので最後にコロンを付けるのをお忘れなく。
 
 ```yaml
 #
@@ -413,9 +446,7 @@ iida-az1-ikepolicy:
     availability_zone: jp-east-1a
 ```
 
-この名前を指定して、作成する。
-
-- bin/k5-create-ikepolicy.py
+実行例。
 
 ```
 bash-4.4$ ./bin/k5-create-ikepolicy.py --name iida-az1-ikepolicy
@@ -438,9 +469,12 @@ bash-4.4$
 
 ## IPsecポリシーの作成
 
+- bin/k5-create-ipsecpolicy.py
 - conf/ipsec.yaml
 
-キーに名前作りたい名前を指定する。
+YAMLの第一階層のキーは、bin/k5-create-ipsecpolicy.py --nameで指定する名前になります。
+わかりやすい名前がいいと思います。
+キーなので最後にコロンを付けるのをお忘れなく。
 
 ```yaml
 #
@@ -479,9 +513,7 @@ iida-az1-ipsecpolicy:
     availability_zone: jp-east-1a
 ```
 
-この名前を指定して、作成する。
-
-- bin/k5-create-ipsecpolicy.py
+実行例。
 
 ```
 bash-4.4$ ./bin/k5-create-ipsecpolicy.py --name iida-az1-ipsecpolicy
@@ -502,9 +534,12 @@ availability_zone     jp-east-1a
 
 ## サイトトンネルの作成
 
+- bin/k5-create-site-connection.py
 - conf/ipsec.yaml
 
-キーに名前作りたい名前を指定する。
+YAMLの第一階層のキーは、bin/k5-create-site-connection.py --nameで指定する名前になります。
+わかりやすい名前がいいと思います。
+キーなので最後にコロンを付けるのをお忘れなく。
 
 ```yaml
 #
@@ -563,9 +598,7 @@ iida-az1-connection-01:
     availability_zone: jp-east-1a
 ```
 
-この名前を指定して作成する。
-
-- bin/k5-create-site-connection.py
+実行例。
 
 ```
 bash-4.4$ ./bin/k5-create-site-connection.py --name iida-az1-connection-01

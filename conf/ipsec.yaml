@@ -2,6 +2,8 @@
 # ipsec.yaml
 #
 
+# 仮想ルータとVPNサービスとコネクションは 1:1:N の関係
+
 #
 # /v2.0/vpn/vpnservices
 #
@@ -163,4 +165,3 @@ iida-az1-connection-01:
     # jp-east-1a
     # jp-east-1b
     availability_zone: jp-east-1a
-
