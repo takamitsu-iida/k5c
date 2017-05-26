@@ -1611,6 +1611,14 @@ K5の仮想ルータにはIPsec VPNの機能を乗せることもできます。
 
 [メモを残しました](https://github.com/takamitsu-iida/k5c/blob/master/README-IPSEC.md "IPsec vpnメモ")
 
+<BR>
+<BR>
+
+# 環境のクリーンナップ
+
+全部削除する場合は、構築手順の逆を辿ります。
+
+[メモを残しました](https://github.com/takamitsu-iida/k5c/blob/master/README-CLEANUP.md "K5環境を撤収するときのメモ")
 
 <BR>
 <BR>
