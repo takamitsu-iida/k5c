@@ -93,6 +93,26 @@ def print_result(result):
     return
 
   # ネットワーク情報はデータオブジェクトの中の'network'キーにオブジェクトとして入っている
+  #{
+  #  "Content-Type": "application/json;charset=UTF-8",
+  #  "status_code": 200,
+  #  "data": {
+  #    "network": {
+  #      "id": "8f15da62-c7e5-47ec-8668-ee502f6d00d2",
+  #      "router:external": false,
+  #      "availability_zone": "jp-east-1a",
+  #      "tenant_id": "a5001a8b9c4a4712985c11377bd6d4fe",
+  #      "admin_state_up": true,
+  #      "status": "ACTIVE",
+  #      "subnets": [
+  #        "abbbbcf4-ea8f-4218-bbe7-669231eeba30"
+  #      ],
+  #      "shared": false,
+  #      "name": "iida-az1-net01"
+  #    }
+  #  }
+  #}
+
   nw = data.get('network', {})
 
   # ネットワーク情報を表示
