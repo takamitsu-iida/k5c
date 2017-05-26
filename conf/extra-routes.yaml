@@ -4,12 +4,9 @@
 
 # 第一階層のキーは対象ルータのIDにしてください
 
-#
-# iida-az1-router01
-#
-ffbd70be-24cf-4dff-a4f6-661bf892e313:
+UUID-FOR-ROUTER02:
 
-  # 経路情報
+  # 経路情報を追加する場合
   routes:
     - destination: 10.0.0.0/8
       nexthop: 10.1.2.9
@@ -17,3 +14,12 @@ ffbd70be-24cf-4dff-a4f6-661bf892e313:
       nexthop: 10.1.2.9
     - destination: 192.168.0.0/16
       nexthop: 10.1.2.9
+
+
+#
+# iida-az1-router01
+#
+ffbd70be-24cf-4dff-a4f6-661bf892e313:
+
+  # 経路情報を削除する場合はこう（↓）
+  routes:
