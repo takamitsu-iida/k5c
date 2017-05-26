@@ -1,6 +1,8 @@
 # K5環境を撤収するときのメモ
 
-全てを削除するにしても手順が大事です。利用中のものを削除しようとしてもエラーになってしまうので。
+全てを削除するにしても手順が大事です。
+利用中のものを削除しようとしてもエラーが返ってきて削除できません。
+削除する場合も親子関係を理解しておく必要があります。
 
 <BR>
 
@@ -21,6 +23,7 @@ id                                    name                    peer_address     s
 
 存在する場合は削除します。
 思い残すことがなければ一括で削除しましょう。
+これ以降IPsecトンネルを経由した通信はできなくなります。
 
 ```
 bash-4.4$ ./bin/k5-list-site-connections.py | ./bin/k5-delete-site-connection.py -
@@ -32,7 +35,8 @@ connection_id: 66762a0e-488d-4286-86a1-e8b8db1ca9e0
 status_code: 204
 ```
 
-IPsecポリシーが存在するか確認します。
+サイトコネクションがなくなったら、あとは不要なコンフィグですので削除していきましょう。
+IPsecポリシーを表示します。
 
 ```
 bash-4.4$ ./bin/k5-list-ipsecpolicy.py
@@ -57,7 +61,7 @@ ipsecpolicy_id: 375f5750-6e84-4674-98c4-47e24aaa3acf
 status_code: 204
 ```
 
-IKEポリシーが存在するか確認します。
+IKEポリシーを表示します。
 
 ```
 bash-4.4$ ./bin/k5-list-ikepolicy.py
@@ -77,12 +81,11 @@ bash-4.4$ ./bin/k5-list-ikepolicy.py | ./bin/k5-delete-ikepolicy.py -
 ikepolicy_id: 4334b806-824c-4419-b0cb-b79fa8be9c72
 status_code: 204
 
-
 ikepolicy_id: 8dcb5c2b-f39e-4a4b-a6ed-4413528effb5
 status_code: 204
 ```
 
-VPNサービスが存在するか確認します。
+VPNサービスを表示します。
 
 ```
 bash-4.4$ ./bin/k5-list-vpnservices.py
@@ -102,11 +105,37 @@ bash-4.4$ ./bin/k5-list-vpnservices.py | ./bin/k5-delete-vpnservice.py -
 vpnservice_id: 37ab0e56-1ff1-4dbe-acce-fd7ed1a3773a
 status_code: 204
 
-
 vpnservice_id: b121c00b-c198-490f-8304-99687f0022df
 status_code: 204
 ```
 
+<BR>
+
+## フローティングIPを返却する
+
+フローティングIPが存在するか確認します。
+
+```
+bash-4.4$ ./bin/k5-list-floatingips.py
+/v2.0/floatingips
+====================================  =====================  ==================  ========  ===================
+id                                    floating_ip_address    fixed_ip_address    status    availability_zone
+====================================  =====================  ==================  ========  ===================
+30627d45-37dd-4e76-9200-61834035229f  133.162.215.250        10.1.1.1            ACTIVE    jp-east-1a
+13320826-9d89-4ed2-a69b-6aec369fcd8e  133.162.223.232        10.2.1.1            ACTIVE    jp-east-1b
+====================================  =====================  ==================  ========  ===================
+```
+
+一括で削除します。
+
+```
+bash-4.4$ ./bin/k5-list-floatingips.py | ./bin/k5-delete-floatingip.py -
+status_code: 204
+
+status_code: 204
+
+bash-4.4$
+```
 
 <BR>
 
@@ -126,12 +155,12 @@ f439c2c5-f2e8-4f9b-94bc-72303fe160c2  iida-az2-fw01  c97f9aa5-eacc-48ae-b5df-827
 ```
 
 一括で削除します。
+削除するとファイアウォールが機能しなくなります。
 
 ```
 bash-4.4$ ./bin/k5-list-firewalls.py | ./bin/k5-delete-firewall.py -
 94b21ac8-1890-417a-a2de-515ec0a009d6
 status_code: 204
-
 
 f439c2c5-f2e8-4f9b-94bc-72303fe160c2
 status_code: 204
@@ -199,7 +228,8 @@ f89e509f-9cea-4587-bba6-63163ab41c73  iida-az1-p01-net01-net02-tcp              
 ====================================  =============================  ==========  ========  ==========  ===================
 ```
 
-全てunusedになっていますので、これを削除します。
+たくさんありますが、親になっているポリシーを削除したので全てunusedになっています。
+これらを一括で削除します。
 
 ```
 bash-4.4$ ./bin/k5-list-fw-rules.py --unused | ./bin/k5-delete-fw-rule.py -
@@ -286,35 +316,9 @@ bash-4.4$
 
 <BR>
 
-## フローティングIPを返却する
-
-フローティングIPが存在するか確認します。
-
-```
-bash-4.4$ ./bin/k5-list-floatingips.py
-/v2.0/floatingips
-====================================  =====================  ==================  ========  ===================
-id                                    floating_ip_address    fixed_ip_address    status    availability_zone
-====================================  =====================  ==================  ========  ===================
-30627d45-37dd-4e76-9200-61834035229f  133.162.215.250        10.1.1.1            ACTIVE    jp-east-1a
-13320826-9d89-4ed2-a69b-6aec369fcd8e  133.162.223.232        10.2.1.1            ACTIVE    jp-east-1b
-====================================  =====================  ==================  ========  ===================
-```
-
-一括で削除します。
-
-```
-bash-4.4$ ./bin/k5-list-floatingips.py | ./bin/k5-delete-floatingip.py -
-status_code: 204
-
-status_code: 204
-
-bash-4.4$
-```
-
-<BR>
-
 ## ルータの削除
+
+経路情報や繋がっているポート、外部ネットワークを外していかないといけないので、ルータの削除が一番めんどくさいです。
 
 ルータ一覧を表示します。
 
@@ -442,12 +446,18 @@ bash-4.4$
 
 ルータにどのポートがつながっているか調べないといけません。
 名前で推測しましょう。
-(ポートに名前を付けてなかったらそれこそ面倒です。オーナーのIDと紐付けて探さないといけませんので。)
+
+> NOTE:
+>
+> ポートに名前を付けてなかったらそれこそ面倒です。オーナーのIDとルータIDが一致するものを探さないといけません。
 
 ルータ１のポートひとつめ。
 
 ```
-bash-4.4$ ./bin/k5-disconnect-router.py --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 --port-id 689d24c7-02a2-4dfd-b809-9ad4060e079f
+bash-4.4$ ./bin/k5-disconnect-router.py \
+--router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 \
+--port-id 689d24c7-02a2-4dfd-b809-9ad4060e079f
+
 status_code: 200
 PUT /v2.0/routers/{router_id}/add_router_interface
 =========  ====================================
@@ -462,8 +472,10 @@ tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
 ルータ１のポートふたつめ。
 
 ```
-k5-disconnect-network-connector-endpoint.py  k5-disconnect-router.py
-bash-4.4$ ./bin/k5-disconnect-router.py --router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 --port-id bdab1ca6-fd32-4729-9e97-3827b72d7bc5
+bash-4.4$ ./bin/k5-disconnect-router.py \
+--router-id ffbd70be-24cf-4dff-a4f6-661bf892e313 \
+--port-id bdab1ca6-fd32-4729-9e97-3827b72d7bc5
+
 status_code: 200
 PUT /v2.0/routers/{router_id}/add_router_interface
 =========  ====================================
@@ -478,7 +490,10 @@ tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
 ルータ２のポートひとつめ。
 
 ```
-bash-4.4$ ./bin/k5-disconnect-router.py --router-id c97f9aa5-eacc-48ae-b5df-82784bce8b63 --port-id 59114983-8715-4dc7-879d-afbf69ef19a7
+bash-4.4$ ./bin/k5-disconnect-router.py \
+--router-id c97f9aa5-eacc-48ae-b5df-82784bce8b63 \
+--port-id 59114983-8715-4dc7-879d-afbf69ef19a7
+
 status_code: 200
 PUT /v2.0/routers/{router_id}/add_router_interface
 =========  ====================================
@@ -494,7 +509,10 @@ bash-4.4$
 ルータ２のポートふたつめ。
 
 ```
-bash-4.4$ ./bin/k5-disconnect-router.py --router-id c97f9aa5-eacc-48ae-b5df-82784bce8b63 --port-id c0b78abd-39fb-4833-97b0-8050d93b9cd5
+bash-4.4$ ./bin/k5-disconnect-router.py \
+--router-id c97f9aa5-eacc-48ae-b5df-82784bce8b63 \
+--port-id c0b78abd-39fb-4833-97b0-8050d93b9cd5
+
 status_code: 200
 PUT /v2.0/routers/{router_id}/add_router_interface
 =========  ====================================
@@ -507,25 +525,21 @@ tenant_id  a5001a8b9c4a4712985c11377bd6d4fe
 bash-4.4$
 ```
 
-
-ルータそのものを削除します。
+ここまでキレイにしたらルータそのものを削除します。
 
 ```
 bash-4.4$ ./bin/k5-list-routers.py | ./bin/k5-delete-router.py -
 status_code: 204
 
-
 status_code: 204
 
-
-bash-4.4$
 ```
 
 <BR>
 
 ## コネクタエンドポイントの削除
 
-ネットワークコネクタエンドポイントの情報を表示します。
+コネクタエンドポイントの情報を表示します。
 
 ```
 bash-4.4$ ./bin/k5-list-network-connector-endpoints.py | ./bin/k5-show-network-connector-endpoint.py -
@@ -541,7 +555,8 @@ location              jp-east-1a
 ====================  ====================================
 ```
 
-これにつながっているポートを削除します。
+コネクタエンドポイントにつながっているポートを削除します。
+
 これも面倒です。
 どのポートがコネクタエンドポイントにつながっているのか調べないといけません。
 ポートの名前で推測しましょう。
@@ -560,7 +575,10 @@ bash-4.4$
 ポートを外します。
 
 ```
-bash-4.4$ ./bin/k5-disconnect-network-connector-endpoint.py --ncep-id 848a40c2-7ded-4df8-a43d-e55b912811a2 --port-id 74233502-90d1-47f7-976e-f3def361d2a1
+bash-4.4$ ./bin/k5-disconnect-network-connector-endpoint.py \
+--ncep-id 848a40c2-7ded-4df8-a43d-e55b912811a2 \
+--port-id 74233502-90d1-47f7-976e-f3def361d2a1
+
 status_code: 200
 {'interface': {'port_id': '74233502-90d1-47f7-976e-f3def361d2a1'}}
 bash-4.4$
@@ -577,9 +595,8 @@ status_code: 204
 
 ## ポートの削除
 
-ルータからポートを外す、コネクタエンドポイントからポートを外す、という動作をすると、ポートそのものが削除されます。
+ルータからポートを外す、コネクタエンドポイントからポートを外す、という作業をするとポートそのものも削除されます。
 したがってここまでの操作でだいたいは消えているはずです。
-
 
 ```
 bash-4.4$ ./bin/k5-list-ports.py
@@ -624,7 +641,8 @@ status_code: 204
 
 ## ネットワークの削除
 
-ネットワークの一覧を表示します。外部ネットワークを除外するためにgrep -v inf_をパイプしています。
+ネットワークの一覧を表示します。
+外部ネットワークを除外するためにgrep -v inf_をパイプしています。
 
 ```
 bash-4.4$ ./bin/k5-list-networks.py | grep -v inf_
@@ -639,7 +657,8 @@ e3c166c0-7e90-4c6e-857e-87fd985f98ac  iida-az1-net02     a5001a8b9c4a4712985c113
 ====================================  =================  ================================  ===================  ========
 ```
 
-ネットワークの子供にはサブネットがいますが、気にせず削除します。サブネットも同時に消してくれますので。
+ネットワークの子供にはサブネットがいますが、気にせず削除します。
+ネットワークを消すとサブネットも同時に消えてくれます。
 
 ```
 bash-4.4$ ./bin/k5-list-networks.py | grep -v inf_ | ./bin/k5-delete-network.py -
@@ -654,3 +673,4 @@ status_code: 204
 bash-4.4$
 ```
 
+以上でK5内のネットワーク環境は全てなくなりました。
