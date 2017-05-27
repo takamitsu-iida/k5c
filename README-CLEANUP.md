@@ -319,6 +319,15 @@ bash-4.4$
 ## ルータの削除
 
 経路情報や繋がっているポート、外部ネットワークを外していかないといけないので、ルータの削除が一番めんどくさいです。
+FAQにも書かれているくらいです。
+
+[仮想ルータを削除できません。](https://k5-doc.jp-east-1.paas.cloud.global.fujitsu.com/doc/jp/iaas/faqlist_iaas.html#faq_iaas_00009 "IaaS FAQ")
+
+> 以下の4点について確認いただいたうえで、事象が改善されない場合はお問い合わせ窓口までご連絡ください。
+> - 仮想ルータにアタッチしている外部ネットワークをデタッチする。
+> - 仮想ルータにアタッチしているポートをデタッチする。
+> - ファイアーウォールが存在する場合は、ファイアーウォールを削除する。
+> - 仮想ルータ配下のサブネットにグローバルIPアドレスが付与された仮想サーバが存在する場合は、グローバルIPアドレスを開放する。
 
 ルータ一覧を表示します。
 
@@ -390,7 +399,10 @@ external_gateway_infoを持っていたらそれを外します。
 --network-idに""を指定してアップデートすると外れます。
 
 ```
-bash-4.4$ ./bin/k5-update-router.py --router-id  c97f9aa5-eacc-48ae-b5df-82784bce8b63 --network-id ""
+bash-4.4$ ./bin/k5-update-router.py \
+--router-id  c97f9aa5-eacc-48ae-b5df-82784bce8b63 \
+--network-id ""
+
 set external_gateway_info to null
 PUT /v2.0/routers/{router_id}
 ==============  ====================================
