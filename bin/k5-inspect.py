@@ -3,8 +3,9 @@
 
 """
 k5-inspect.py --create
-各種情報を採取してtinydbに格納します。
-追記していくので、事前にdb.jsonは削除してください。
+　各種情報を採取してtinydbに格納します。
+　追記していくので、事前にdb.jsonは削除してください。
+
 """
 
 if __name__ == '__main__':
@@ -26,19 +27,10 @@ if __name__ == '__main__':
   if not here("../lib/site-packages") in sys.path:
     sys.path.append(here("../lib/site-packages"))
 
-  try:
-    from k5c import k5c
-  except ImportError:
-    logging.error("k5cモジュールのインポートに失敗しました")
-    sys.exit(1)
-
-  # k5cクライアント
-  c = k5c.Client()
-
   # アプリケーションのホームディレクトリ
   app_home = here("..")
 
-  # データベースの名前
+  # データベースのファイル名
   # $app_home/data/db.json
   database_file = os.path.join(app_home, "data", "db.json")
 
@@ -50,58 +42,47 @@ if __name__ == '__main__':
     logging.error("tinydb not found. pip install tinydb")
     sys.exit(1)
 
-  # tinydbの使い方
-  #
-  # 辞書型を格納する
-  # db.insert({'name': 'John', 'age': 22})
-  #
-  # 全データを配列で取得する
-  # db.all()
-  #
-  # 検索する
-  # q = Query()
-  # db.search(q.name == 'John')
-  #
-  # アップデートする
-  # nameがJohnになっている辞書型の'age'フィールドを23に変更する
-  # db.update({'age': 23}, q.name == 'John')
-  #
-  # 削除する
-  # db.remove(q.age < 22)
-  #
-  # 全部削除する
-  # db.purge()
-
   # 情報を保管するデータベース
   db = TinyDB(database_file)
 
   # 検索用のクエリオブジェクト
   q = Query()
 
-  def get(url=""):
-    """c.get()のラッパー"""
-    print(url, end="", flush=True)
-    r = c.get(url=url)
-    print("   ...done", flush=True)
-
-    # ステータスコードは'status_code'キーに格納
-    status_code = r.get('status_code', -1)
-    if status_code < 200 or status_code >= 300:
-      return None
-
-    # データは'data'キーに格納
-    data = r.get('data', None)
-    if not data:
-      return None
-
-    # dbに格納
-    db.insert(data)
-
-    return data
-
 
   def create_cache():
-    """k5-list-xxxとk5-show-xxxの実行結果のキャッシュを作成します。"""
+    """k5-list-xxxとk5-show-xxxを実行して結果をキャッシュします。"""
+
+    try:
+      from k5c import k5c
+    except ImportError:
+      logging.error("k5cモジュールのインポートに失敗しました")
+      sys.exit(1)
+
+    # k5cクライアント
+    c = k5c.Client()
+
+    # これだけのためにデコレータを定義するのはさすがに面倒なので
+    # c.get()にラッパー関数をかぶせます
+    def get(url=""):
+      """c.get()のラッパー"""
+      print(url, end="", flush=True)
+      r = c.get(url=url)
+      print("   ...done", flush=True)
+
+      # ステータスコードは'status_code'キーに格納
+      status_code = r.get('status_code', -1)
+      if status_code < 200 or status_code >= 300:
+        return None
+
+      # データは'data'キーに格納
+      data = r.get('data', None)
+      if not data:
+        return None
+
+      # dbに格納
+      db.insert(data)
+
+      return data
 
     #
     # List Network Connector Pools
