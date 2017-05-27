@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
+k5-inspect.py --create
 各種情報を採取してtinydbに格納します。
-あとは煮るなり焼くなり、なんとでも。
+追記していくので、事前にdb.jsonは削除してください。
 """
 
 if __name__ == '__main__':
@@ -76,7 +77,6 @@ if __name__ == '__main__':
 
   # 検索用のクエリオブジェクト
   q = Query()
-
 
   def get(url=""):
     """c.get()のラッパー"""
@@ -169,6 +169,8 @@ if __name__ == '__main__':
     #
     # List networks
     #
+    # "data": {
+    #   "networks": [
     url = k5c.EP_NETWORK + "/v2.0/networks"
     data = get(url=url)
     if not data:
@@ -282,6 +284,102 @@ if __name__ == '__main__':
     return 0
 
 
+  def search_port_by_device_id(device_id):
+    """device_idが一致するポートの一覧を配列で返します"""
+
+    # 戻り値
+    port_list = []
+
+    results = db.search(q['port'].device_id == device_id)
+    if results:
+      for item in results:
+        port_list.append(item.get('port'))
+
+    return port_list
+
+
+  def search_port_by_network_id(network_id):
+    """network_idが一致するポートの一覧を配列で返します"""
+
+    # 戻り値
+    port_list = []
+
+    results = db.search(q['port'].network_id == network_id)
+    if results:
+      for item in results:
+        port_list.append(item.get('port'))
+
+    return port_list
+
+
+  def get_port_by_fixed_ip(ip_address):
+    """ip_addressが一致するポートを返します"""
+
+    #  "port": {
+    #    "fixed_ips": [
+    #      {
+    #        "ip_address": "192.168.0.2",
+    #        "subnet_id": "8ed6dd7b-2ae3-4f68-81c9-e5d9e074b67a"
+    #      }
+    #    ],
+    # この構造からip_addressが一致するものを見つける
+    # 単純なオペレータで表現するのは難しいので無名関数を使う
+
+    # fixed_ips配列の要素がなからず1個と決めつけるならこれでいいけど・・・
+    # func = lambda x: x[0].get('ip_address', '') == ip_address
+
+    # ラムダ式とリスト内包を組み合わせて一致する要素があるかを確認する
+    func = lambda x: ip_address in [y.get('ip_address', '') for y in x]
+
+    # testにこの関数を渡して評価する
+    port = db.get(q['port'].fixed_ips.test(func))
+    if port:
+      return port.get('port')
+    return None
+
+
+  def inspect_router(router):
+    """ルータの中身を確認します"""
+    r_id = router.get('id')
+    name = router.get('name')
+    print(name)
+
+    # このルータを親にしているポートを探す
+    port_list = search_port_by_device_id(r_id)
+    if port_list:
+      for item in port_list:
+        print(' '*2 + "port-id: ", end='')
+        print(item.get('id'))
+    else:
+      print(' '*2, end='')
+      print("This router has no port.")
+
+    print("")
+
+
+  def inspect_network(network):
+    """ネットワークの中身を確認します"""
+    n_id = network.get('id')
+    name = network.get('name')
+    print(name)
+
+    # このIDを親にしているポートを探す
+    ports = search_port_by_network_id(n_id)
+    if ports:
+      print(' '*2, end='')
+      print(str(len(ports)))
+    else:
+      print(' '*2, end='')
+      print("This port does not have port.")
+    print("")
+
+
+  def get_list(key):
+    """k5-list-xxxの結果の配列をdbから取り出して返します"""
+    value = db.get(q[key].exists())
+    return value.get(key, [])
+
+
   def main():
     """メイン"""
 
@@ -293,17 +391,47 @@ if __name__ == '__main__':
     if create:
       return create_cache()
 
-    #o = db.search(q.network_connector_endpoint.interfaces != None)
-    #print(o)
+    #
+    # 使えるアトリビュート
+    #
 
-    #o = db.search(q.subnet.cidr == '10.1.1.0/24')
-    #print(o)
+    # network_connector_pools
+    # network_connectors
+    # network_connector
+    # network_connector_endpoints
+    # network_connector_endpoint
+    # network_connector_endpoint
+    # networks
+    # network
+    # subnets
+    # subnet
+    # ports
+    # port
+    # routers
+    # router
+    # floatingips
+    # floatingip
 
-    o = db.search(q.subnet.name.search('iida'))
-    print(o)
+    # 簡単なテスト
+    #
+    # o = db.search(q.subnet.cidr == '10.1.1.0/24')
+    # print(o)
+    #
+    # o = db.search(q.subnet.name.search('iida'))
+    # print(o)
+    #
+    # print(get_port_by_fixed_ip('10.0.1.1'))
 
 
+    # ルータ一覧の配列を取り出す
+    routers = get_list('routers')
+    for item in routers:
+      inspect_router(item)
 
+    # ネットワーク一覧の配列を取り出す
+    #networks = get_list('networks')
+    #for item in networks:
+    #  inspect_network(item)
 
     return 0
 
