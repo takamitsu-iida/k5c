@@ -190,12 +190,13 @@ Network iida-az1-net01 is ACTIVE, Admin state is True
     DHCP is True
     DNS nameserver is not set.
     Host routes is not set.
-  Port in this network
   Port iida-az1-net01-port01 is ACTIVE, Admin state is True
     Port uuid is 689d24c7-02a2-4dfd-b809-9ad4060e079f
     binding:vnic_type is normal
     Hardware address is fa:16:3e:84:72:35
     Internet address is 10.1.1.1 ,Subnet is abbbbcf4-ea8f-4218-bbe7-669231eeba30
+    Device owner is network:router_interface
+    Device id is ffbd70be-24cf-4dff-a4f6-661bf892e313
 
 Network iida-az1-net02 is ACTIVE, Admin state is True
   UUID is e3c166c0-7e90-4c6e-857e-87fd985f98ac
@@ -215,17 +216,20 @@ Network iida-az1-net02 is ACTIVE, Admin state is True
       10.1.1.0/24 via 10.1.2.1
       172.16.0.0/12 via 10.1.2.9
       192.168.0.0/16 via 10.1.2.9
-  Port in this network
   Port iida-az1-net02-port02 is ACTIVE, Admin state is True
     Port uuid is 74233502-90d1-47f7-976e-f3def361d2a1
     binding:vnic_type is normal
     Hardware address is fa:16:3e:2a:5a:58
     Internet address is 10.1.2.9 ,Subnet is 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+    Device owner is network:router_interface
+    Device id is dfceb849-0c47-4fcd-a583-757628898501
   Port iida-az1-net02-port01 is ACTIVE, Admin state is True
     Port uuid is bdab1ca6-fd32-4729-9e97-3827b72d7bc5
     binding:vnic_type is normal
     Hardware address is fa:16:3e:ea:73:57
     Internet address is 10.1.2.1 ,Subnet is 2093ac3c-45c6-4fdf-bb9d-7dfa742c47f6
+    Device owner is network:router_interface
+    Device id is ffbd70be-24cf-4dff-a4f6-661bf892e313
 
 Network iida-az2-net01 is ACTIVE, Admin state is True
   UUID is 0cbf1e4d-479b-4336-8ba9-eb530fe55adb
@@ -239,17 +243,20 @@ Network iida-az2-net01 is ACTIVE, Admin state is True
     DHCP is True
     DNS nameserver is not set.
     Host routes is not set.
-  Port in this network
   Port iida-az2-net01-port01 is ACTIVE, Admin state is True
     Port uuid is 59114983-8715-4dc7-879d-afbf69ef19a7
     binding:vnic_type is normal
     Hardware address is fa:16:3e:d3:8f:b4
     Internet address is 10.2.1.1 ,Subnet is 07041634-9f01-4518-a2c8-1e6ea8d956ee
-  Port  is ACTIVE, Admin state is True
+    Device owner is network:router_interface
+    Device id is c97f9aa5-eacc-48ae-b5df-82784bce8b63
+  Port NO-NAME is ACTIVE, Admin state is True
     Port uuid is f413e79a-1747-4256-9b7f-483879218e1c
     binding:vnic_type is normal
     Hardware address is fa:16:3e:8d:ba:9f
     Internet address is 10.2.1.3 ,Subnet is 07041634-9f01-4518-a2c8-1e6ea8d956ee
+    Device owner is network:dhcp
+    Device id is dhcp946831ab-5ceb-5795-9575-4e2db81a6777-0cbf1e4d-479b-4336-8ba9-eb530fe55adb
 
 Network iida-az2-net02 is ACTIVE, Admin state is True
   UUID is 8b004a16-c5a2-4e1d-ab9e-a417fef45ec7
@@ -263,22 +270,26 @@ Network iida-az2-net02 is ACTIVE, Admin state is True
     DHCP is True
     DNS nameserver is not set.
     Host routes is not set.
-  Port in this network
   Port iida-az2-net02-port02 is DOWN, Admin state is True
     Port uuid is 02f29c2b-8a16-4be5-a15e-e943f02fe2f9
     binding:vnic_type is normal
     Hardware address is fa:16:3e:01:27:e7
     Internet address is 10.2.2.9 ,Subnet is 50bf50fa-816b-4e7e-98da-8379d9675101
-  Port  is ACTIVE, Admin state is True
+    Device owner is not set.
+  Port NO-NAME is ACTIVE, Admin state is True
     Port uuid is 7e3bd7f0-f2ba-4bd3-bcc5-69111429a98b
     binding:vnic_type is normal
     Hardware address is fa:16:3e:e7:43:73
     Internet address is 10.2.2.2 ,Subnet is 50bf50fa-816b-4e7e-98da-8379d9675101
+    Device owner is network:dhcp
+    Device id is dhcpbf7455fb-8ad3-52a8-b7a8-a12839714e4b-8b004a16-c5a2-4e1d-ab9e-a417fef45ec7
   Port iida-az2-net02-port01 is ACTIVE, Admin state is True
     Port uuid is c0b78abd-39fb-4833-97b0-8050d93b9cd5
     binding:vnic_type is normal
     Hardware address is fa:16:3e:32:cd:44
     Internet address is 10.2.2.1 ,Subnet is 50bf50fa-816b-4e7e-98da-8379d9675101
+    Device owner is network:router_interface
+    Device id is c97f9aa5-eacc-48ae-b5df-82784bce8b63
 
 bash-4.4$
 ```
