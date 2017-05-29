@@ -42,30 +42,15 @@ List系とShow系のAPIを叩いて得られる情報を保存するスクリプ
 
 以下の情報を採取してデータベースに保存します。
 
--    List Network Connector Pools
--    List Network Connectors
--    Show Network Connector
-
--    List Network Connector Endpoints
--    Show Network Connector Endpoint
--    List Connected Interfaces of Network Connector Endpoint
-
-
--    List networks
--    Show network
-
--    List subnets
--    Show subnet
-
--    List ports
--    Show port
-
--    List routers
--    Show router
-
--    List floating IPs
--    Show floating IP details
-
+|収集情報|
+|:--|
+| List Network Connector Pools <BR> List Network Connectors <BR> Show Network Connector |
+| List Network Connector Endpoints <BR> Show Network Connector Endpoint <BR> List Connected Interfaces of Network Connector Endpoint|
+| List networks <BR> Show network |
+| List subnets <BR> Show subnet |
+| List ports <BR> Show port |
+| List routers <BR> Show router |
+| List floating IPs <BR> Show floating IP details |
 
 > NOTE:
 >
