@@ -48,6 +48,37 @@ if __name__ == '__main__':
   # 検索用のクエリオブジェクト
   q = Query()
 
+  #
+  # このデータベースで使えるアトリビュート
+  #
+
+  # network_connector_pools
+  # network_connectors
+  # network_connector
+  # network_connector_endpoints
+  # network_connector_endpoint
+  # network_connector_endpoint
+  # networks
+  # network
+  # subnets
+  # subnet
+  # ports
+  # port
+  # routers
+  # router
+  # floatingips
+  # floatingip
+
+  # 簡単なテスト
+  #
+  # o = db.search(q.subnet.cidr == '10.1.1.0/24')
+  # print(o)
+  #
+  # o = db.search(q.subnet.name.search('iida'))
+  # print(o)
+  #
+  # print(get_port_by_fixed_ip('10.0.1.1'))
+
 
   def create_cache():
     """k5-list-xxxとk5-show-xxxを実行して結果をキャッシュします。"""
@@ -321,37 +352,38 @@ if __name__ == '__main__':
 
   def inspect_router(router):
     """ルータの中身を確認します"""
-    r_id = router.get('id')
-    name = router.get('name')
-    print(name)
+
+    print("Router {} is {}, Admin state is {}".format(router.get('name', 'No name'), router.get('status', ''), router.get('admin_state_up', '')))
+    print("{}Router uuid is {}".format(' '*2, router.get('id', '')))
+    print("{}Tenant uuid is {}".format(' '*2, router.get('tenant_id', '')))
+    print("{}Availability zone is {}".format(' '*2, router.get('availability_zone', '')))
+    eg_info = router.get('external_gateway_info', None)
+    if eg_info:
+      print("{}External gateway network is {} ,snat is {}".format(' '*2, eg_info.get('network_id'), eg_info.get('enable_snat')))
+    else:
+      print("{}External gateway is not set.")
+    print("{}Routing table".format(' '*2))
+    if router.get('routes'):
+      for item in router.get('routes', []):
+        print("{}{} via {}".format(' '*4, item.get('destination'), item.get('nexthop')))
+    else:
+      print("{}No route is set.".format(' '*4))
+
 
     # このルータを親にしているポートを探す
-    port_list = search_port_by_device_id(r_id)
+    port_list = search_port_by_device_id(router.get('id'))
     if port_list:
       for item in port_list:
-        print(' '*2 + "port-id: ", end='')
-        print(item.get('id'))
+        print("{}Port {} is {}, Admin state is {}".format(' '*2, item.get('name', 'No name'), item.get('status', ''), item.get('admin_state_up', '')))
+        print("{}Port uuid is {}".format(' '*4, item.get('id', '')))
+        print("{}binding:vnic_type is {}".format(' '*4, item.get('binding:vnic_type', '')))
+        print("{}Hardware address is {}".format(' '*4, item.get('mac_address', '')))
+        for subitem in item.get('fixed_ips', []):
+          print("{}Internet address is {} ,Subnet is {}".format(' '*4, subitem.get('ip_address', ''), subitem.get('subnet_id', '')))
+
     else:
-      print(' '*2, end='')
-      print("This router has no port.")
+      print("{}This router has no port.".format(' '*2))
 
-    print("")
-
-
-  def inspect_network(network):
-    """ネットワークの中身を確認します"""
-    n_id = network.get('id')
-    name = network.get('name')
-    print(name)
-
-    # このIDを親にしているポートを探す
-    ports = search_port_by_network_id(n_id)
-    if ports:
-      print(' '*2, end='')
-      print(str(len(ports)))
-    else:
-      print(' '*2, end='')
-      print("This port does not have port.")
     print("")
 
 
@@ -366,53 +398,19 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Inspect K5 network.')
     parser.add_argument('-c', '--create', action='store_true', default=False, help='Create cache')
+    parser.add_argument('-r', '--router', action='store_true', default=True, help='Inspect by router')
     args = parser.parse_args()
     create = args.create
+    router = args.router
 
     if create:
       return create_cache()
 
-    #
-    # 使えるアトリビュート
-    #
-
-    # network_connector_pools
-    # network_connectors
-    # network_connector
-    # network_connector_endpoints
-    # network_connector_endpoint
-    # network_connector_endpoint
-    # networks
-    # network
-    # subnets
-    # subnet
-    # ports
-    # port
-    # routers
-    # router
-    # floatingips
-    # floatingip
-
-    # 簡単なテスト
-    #
-    # o = db.search(q.subnet.cidr == '10.1.1.0/24')
-    # print(o)
-    #
-    # o = db.search(q.subnet.name.search('iida'))
-    # print(o)
-    #
-    # print(get_port_by_fixed_ip('10.0.1.1'))
-
-
-    # ルータ一覧の配列を取り出す
-    routers = get_list('routers')
-    for item in routers:
-      inspect_router(item)
-
-    # ネットワーク一覧の配列を取り出す
-    #networks = get_list('networks')
-    #for item in networks:
-    #  inspect_network(item)
+    if router:
+      # ルータ一覧の配列を取り出す
+      routers = get_list('routers')
+      for item in routers:
+        inspect_router(item)
 
     return 0
 
