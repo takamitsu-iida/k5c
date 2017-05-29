@@ -6,6 +6,30 @@ k5-inspect.py --create
 　各種情報を採取してtinydbに格納します。
 　追記していくので、事前にdb.jsonは削除してください。
 
+  採取対象
+    List Network Connector Pools
+    List Network Connectors
+    Show Network Connector
+
+    List Network Connector Endpoints
+    Show Network Connector Endpoint
+    List Connected Interfaces of Network Connector Endpoint
+
+
+    List networks
+    Show network
+
+    List subnets
+    Show subnet
+
+    List ports
+    Show port
+
+    List routers
+    Show router
+
+    List floating IPs
+    Show floating IP details
 """
 
 if __name__ == '__main__':
@@ -56,7 +80,6 @@ if __name__ == '__main__':
   # network_connectors
   # network_connector
   # network_connector_endpoints
-  # network_connector_endpoint
   # network_connector_endpoint
   # networks
   # network
@@ -350,13 +373,29 @@ if __name__ == '__main__':
     return None
 
 
+  def get_network_connector_endpoint_by_id(ncep_id):
+    """指定されたIDのコネクタエンドポイントを返却します"""
+    ncep = db.get(q['network_connector_endpoint'].id == ncep_id)
+    if ncep:
+      return ncep.get('network_connector_endpoint')
+    return None
+
+
+  def get_subnet_by_id(subnet_id):
+    """指定されたIDのサブネットを返却します"""
+    subnet = db.get(q['subnet'].id == subnet_id)
+    if subnet:
+      return subnet.get('subnet')
+    return None
+
+
   def inspect_router(router):
     """ルータの中身を確認します"""
 
-    print("Router {} is {}, Admin state is {}".format(router.get('name', 'No name'), router.get('status', ''), router.get('admin_state_up', '')))
-    print("{}Router uuid is {}".format(' '*2, router.get('id', '')))
-    print("{}Tenant uuid is {}".format(' '*2, router.get('tenant_id', '')))
-    print("{}Availability zone is {}".format(' '*2, router.get('availability_zone', '')))
+    print("Router {} is {}, Admin state is {}".format(router.get('name', 'NO NAME'), router.get('status'), router.get('admin_state_up')))
+    print("{}UUID is {}".format(' '*2, router.get('id')))
+    print("{}Tenant uuid is {}".format(' '*2, router.get('tenant_id')))
+    print("{}Availability zone is {}".format(' '*2, router.get('availability_zone')))
     eg_info = router.get('external_gateway_info', None)
     if eg_info:
       print("{}External gateway network is {} ,snat is {}".format(' '*2, eg_info.get('network_id'), eg_info.get('enable_snat')))
@@ -369,20 +408,97 @@ if __name__ == '__main__':
     else:
       print("{}No route is set.".format(' '*4))
 
-
     # このルータを親にしているポートを探す
     port_list = search_port_by_device_id(router.get('id'))
     if port_list:
       for item in port_list:
-        print("{}Port {} is {}, Admin state is {}".format(' '*2, item.get('name', 'No name'), item.get('status', ''), item.get('admin_state_up', '')))
+        print("{}Port {} is {}, Admin state is {}".format(' '*2, item.get('name', 'NO NAME'), item.get('status'), item.get('admin_state_up')))
         print("{}Port uuid is {}".format(' '*4, item.get('id', '')))
-        print("{}binding:vnic_type is {}".format(' '*4, item.get('binding:vnic_type', '')))
-        print("{}Hardware address is {}".format(' '*4, item.get('mac_address', '')))
+        print("{}binding:vnic_type is {}".format(' '*4, item.get('binding:vnic_type')))
+        print("{}Hardware address is {}".format(' '*4, item.get('mac_address')))
         for subitem in item.get('fixed_ips', []):
-          print("{}Internet address is {} ,Subnet is {}".format(' '*4, subitem.get('ip_address', ''), subitem.get('subnet_id', '')))
+          print("{}Internet address is {} ,Subnet is {}".format(' '*4, subitem.get('ip_address'), subitem.get('subnet_id')))
 
     else:
       print("{}This router has no port.".format(' '*2))
+
+    print("")
+
+
+  def inspect_network_connector(network_connector):
+    """ネットワークコネクタの中身を確認します"""
+
+    nc = network_connector
+    print("Network Connector {}".format(nc.get('name', 'NO NAME')))
+    print("{}UUID is {}".format(' '*2, nc.get('id')))
+    print("{}Pool uuid is {}".format(' '*2, nc.get('network_connector_pool_id')))
+    print("{}Tenant uuid is {}".format(' '*2, nc.get('tenant_id')))
+
+    # このコネクタに付属するエンドポイント
+    network_connector_endpoints = nc.get('network_connector_endpoints', [])
+    if network_connector_endpoints:
+      for item in network_connector_endpoints:
+        ncep = get_network_connector_endpoint_by_id(item)
+        print("{}Network Connector Endpoint {}".format(' '*2, ncep.get('name')))
+        print("{}Ncep uuid is {}".format(' '*4, ncep.get('id')))
+        print("{}Type is {}".format(' '*4, ncep.get('endpoint_type')))
+        print("{}Tenant uuid is {}".format(' '*4, ncep.get('tenant_id')))
+        print("{}Location is {}".format(' '*4, ncep.get('location')))
+    else:
+      print("{}This network connector has no endpoint.".format(' '*2))
+
+    print("")
+
+
+  def inspect_network(network):
+    """ネットワークの中身を確認します"""
+
+    n = network
+    print("Network {} is {}, Admin state is {}".format(n.get('name', 'NO NAME'), n.get('status'), n.get('admin_state_up')))
+    print("{}UUID is {}".format(' '*2, n.get('id')))
+    print("{}External is {}".format(' '*2, n.get('router:external')))
+    print("{}Shared is {}".format(' '*2, n.get('shared')))
+    print("{}Tenant uuid is {}".format(' '*2, n.get('tenant_id')))
+    print("{}Availability zone is {}".format(' '*2, n.get('availability_zone')))
+
+    # サブネットを表示
+    for item in n.get('subnets'):
+      subnet = get_subnet_by_id(item)
+      if not subnet:
+        print("{}Subnet uuid is {}".format(' '*2, item))
+        continue
+      print("{}Subnet {} is {}".format(' '*2, subnet.get('name', 'NO NAME'), subnet.get('id')))
+      print("{}Internet address is {}".format(' '*4, subnet.get('cidr')))
+      print("{}Gateway is {}".format(' '*4, subnet.get('gateway_ip')))
+      print("{}DHCP is {}".format(' '*4, subnet.get('enable_dhcp')))
+      dns_nameservers = subnet.get('dns_nameservers')
+      if dns_nameservers:
+        print("{}DNS nameservers".format(' '*4))
+        for nameserver in dns_nameservers:
+          print("{}{}".format(' '*6, nameserver))
+      else:
+        print("{}DNS nameserver is not set.".format(' '*4))
+      host_routes = subnet.get('host_routes')
+      if host_routes:
+        print("{}Host routes".format(' '*4))
+        for route in host_routes:
+          print("{}{} via {}".format(' '*6, route.get('destination'), route.get('nexthop')))
+      else:
+        print("{}Host routes is not set.".format(' '*4))
+
+    # ポートを表示
+    ports = search_port_by_network_id(n.get('id'))
+    if ports:
+      print("{}Port in this network".format(' '*2))
+      for port in ports:
+        print("{}Port {} is {}, Admin state is {}".format(' '*2, port.get('name', 'NO NAME'), port.get('status'), port.get('admin_state_up')))
+        print("{}Port uuid is {}".format(' '*4, port.get('id', '')))
+        print("{}binding:vnic_type is {}".format(' '*4, port.get('binding:vnic_type')))
+        print("{}Hardware address is {}".format(' '*4, port.get('mac_address')))
+        for fixed_ip in port.get('fixed_ips', []):
+          print("{}Internet address is {} ,Subnet is {}".format(' '*4, fixed_ip.get('ip_address'), fixed_ip.get('subnet_id')))
+    else:
+      print("{}This network has no port.".format(' '*2))
 
     print("")
 
@@ -398,19 +514,49 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Inspect K5 network.')
     parser.add_argument('-c', '--create', action='store_true', default=False, help='Create cache')
-    parser.add_argument('-r', '--router', action='store_true', default=True, help='Inspect by router')
+    parser.add_argument('-r', '--router', action='store_true', default=False, help='Inspect by router')
+    parser.add_argument('-nc', '--network-connector', action='store_true', default=False, help='Inspect by network connector')
+    parser.add_argument('-n', '--network', action='store_true', default=False, help='Inspect by network')
+    parser.add_argument('-d', '--dump', action='store_true', default=False, help='Dump all json')
     args = parser.parse_args()
     create = args.create
     router = args.router
+    network_connector = args.network_connector
+    network = args.network
+    dump = args.dump
 
     if create:
       return create_cache()
 
     if router:
-      # ルータ一覧の配列を取り出す
       routers = get_list('routers')
+      if not routers:
+        return 0
+      routers = sorted(routers, key=lambda x: x.get('name', ''))
       for item in routers:
         inspect_router(item)
+
+    if network_connector:
+      connectors = get_list('network_connectors')
+      if not connectors:
+        return 0
+      connectors = sorted(connectors, key=lambda x: x.get('name', ''))
+      for item in connectors:
+        inspect_network_connector(item)
+
+    if network:
+      networks = get_list('networks')
+      if not networks:
+        return 0
+      networks = sorted(networks, key=lambda x: x.get('name', ''))
+      for item in networks:
+        if 'inf_' in item.get('name'):
+          continue
+        inspect_network(item)
+
+    if dump:
+      import json
+      print(json.dumps(db.all(), indent=2))
 
     return 0
 
