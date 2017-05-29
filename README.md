@@ -1605,6 +1605,15 @@ status_code: 204
 <BR>
 <BR>
 
+# ネットワーク構成情報の保全
+
+完成したK5ネットワークの情報を採取して保全しましょう。
+
+[メモを残しました](https://github.com/takamitsu-iida/k5c/blob/master/README-INSPECT.md "K5ネットワークの構成情報を記録する")
+
+<BR>
+<BR>
+
 # IPsec VPN
 
 K5の仮想ルータにはIPsec VPNの機能を乗せることもできます。
