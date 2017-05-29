@@ -392,7 +392,10 @@ if __name__ == '__main__':
   def inspect_router(router):
     """ルータの中身を確認します"""
 
-    print("Router {} is {}, Admin state is {}".format(router.get('name', 'NO NAME'), router.get('status'), router.get('admin_state_up')))
+    name = router.get('name')
+    if not name:
+      name = 'NO-NAME'
+    print("Router {} is {}, Admin state is {}".format(name, router.get('status'), router.get('admin_state_up')))
     print("{}UUID is {}".format(' '*2, router.get('id')))
     print("{}Tenant uuid is {}".format(' '*2, router.get('tenant_id')))
     print("{}Availability zone is {}".format(' '*2, router.get('availability_zone')))
@@ -412,13 +415,15 @@ if __name__ == '__main__':
     port_list = search_port_by_device_id(router.get('id'))
     if port_list:
       for item in port_list:
-        print("{}Port {} is {}, Admin state is {}".format(' '*2, item.get('name', 'NO NAME'), item.get('status'), item.get('admin_state_up')))
+        name = item.get('name')
+        if not name:
+          name = 'NO-NAME'
+        print("{}Port {} is {}, Admin state is {}".format(' '*2, name, item.get('status'), item.get('admin_state_up')))
         print("{}Port uuid is {}".format(' '*4, item.get('id', '')))
         print("{}binding:vnic_type is {}".format(' '*4, item.get('binding:vnic_type')))
         print("{}Hardware address is {}".format(' '*4, item.get('mac_address')))
         for subitem in item.get('fixed_ips', []):
           print("{}Internet address is {} ,Subnet is {}".format(' '*4, subitem.get('ip_address'), subitem.get('subnet_id')))
-
     else:
       print("{}This router has no port.".format(' '*2))
 
@@ -489,14 +494,22 @@ if __name__ == '__main__':
     # ポートを表示
     ports = search_port_by_network_id(n.get('id'))
     if ports:
-      print("{}Port in this network".format(' '*2))
       for port in ports:
-        print("{}Port {} is {}, Admin state is {}".format(' '*2, port.get('name', 'NO NAME'), port.get('status'), port.get('admin_state_up')))
+        name = port.get('name')
+        if not name:
+          name = 'NO-NAME'
+        print("{}Port {} is {}, Admin state is {}".format(' '*2, name, port.get('status'), port.get('admin_state_up')))
         print("{}Port uuid is {}".format(' '*4, port.get('id', '')))
         print("{}binding:vnic_type is {}".format(' '*4, port.get('binding:vnic_type')))
         print("{}Hardware address is {}".format(' '*4, port.get('mac_address')))
         for fixed_ip in port.get('fixed_ips', []):
           print("{}Internet address is {} ,Subnet is {}".format(' '*4, fixed_ip.get('ip_address'), fixed_ip.get('subnet_id')))
+        device_owner = port.get('device_owner')
+        if device_owner:
+          print("{}Device owner is {}".format(' '*4, device_owner))
+          print("{}Device id is {}".format(' '*4, port.get('device_id')))
+        else:
+          print("{}Device owner is not set.".format(' '*4))
     else:
       print("{}This network has no port.".format(' '*2))
 
