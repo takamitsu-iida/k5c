@@ -52,6 +52,8 @@ List系とShow系のAPIを叩いて得られる情報を保存するスクリプ
 | List routers <BR> Show router |
 | List floating IPs <BR> Show floating IP details |
 
+<BR>
+
 > NOTE:
 >
 > いまの作りでは実行するたびにデータベースに追記してしまいますので、実行前にdb.jsonを削除するか、名前を変更してください。
