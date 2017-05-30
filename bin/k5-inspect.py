@@ -67,7 +67,16 @@ if __name__ == '__main__':
     sys.exit(1)
 
   # 情報を保管するデータベース
-  db = TinyDB(database_file)
+  db = None
+
+  def init_db(filename):
+    """データベースを初期化する"""
+    # pylint: disable=W0603
+
+    # 情報を保管するデータベース
+    global db
+    db = TinyDB(filename)
+
 
   # 検索用のクエリオブジェクト
   q = Query()
@@ -530,13 +539,17 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--router', action='store_true', default=False, help='Inspect by router')
     parser.add_argument('-nc', '--network-connector', action='store_true', default=False, help='Inspect by network connector')
     parser.add_argument('-n', '--network', action='store_true', default=False, help='Inspect by network')
+    parser.add_argument('-f', '--filename', dest='filename', metavar='file', default=database_file, help='The database file. default: '+database_file)
     parser.add_argument('-d', '--dump', action='store_true', default=False, help='Dump all json')
     args = parser.parse_args()
     create = args.create
     router = args.router
     network_connector = args.network_connector
     network = args.network
+    filename = args.filename
     dump = args.dump
+
+    init_db(filename)
 
     if create:
       return create_cache()
