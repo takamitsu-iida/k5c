@@ -4,7 +4,7 @@
 """
 k5-inspect.py --create
 　各種情報を採取してtinydbに格納します。
-　追記していくので、事前にdb.jsonは削除してください。
+　追記していくので、事前にconf/db.jsonをリネームするか削除してください。
 
   採取対象
     List Network Connector Pools
@@ -14,7 +14,6 @@ k5-inspect.py --create
     List Network Connector Endpoints
     Show Network Connector Endpoint
     List Connected Interfaces of Network Connector Endpoint
-
 
     List networks
     Show network
@@ -39,7 +38,6 @@ if __name__ == '__main__':
   import os
   import sys
 
-
   def here(path=''):
     """相対パスを絶対パスに変換して返却します"""
     return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
@@ -54,9 +52,19 @@ if __name__ == '__main__':
   # アプリケーションのホームディレクトリ
   app_home = here("..")
 
-  # データベースのファイル名
+  # デフォルトのデータベースのファイル名
   # $app_home/data/db.json
   database_file = os.path.join(app_home, "data", "db.json")
+
+  # 引数処理
+  parser = argparse.ArgumentParser(description='Inspect K5 network.')
+  parser.add_argument('-c', '--create', action='store_true', default=False, help='Create cache')
+  parser.add_argument('-r', '--router', action='store_true', default=False, help='Inspect by router')
+  parser.add_argument('-nc', '--network-connector', action='store_true', default=False, help='Inspect by network connector')
+  parser.add_argument('-n', '--network', action='store_true', default=False, help='Inspect by network')
+  parser.add_argument('-f', '--filename', dest='filename', metavar='file', default=database_file, help='The database file. default: '+database_file)
+  parser.add_argument('-d', '--dump', action='store_true', default=False, help='Dump all json')
+  args = parser.parse_args()
 
   # 情報の保管庫として辞書型を保存できるtinydbを使う
   try:
@@ -69,16 +77,7 @@ if __name__ == '__main__':
   # 情報を保管するデータベース
   # ファイル名決め打ちならこの時点で初期化してしまえばいいが
   # 引数でファイル名を選択した後でinit_db()を呼んで初期化する
-  db = None
-
-  def init_db(filename):
-    """データベースを初期化する"""
-    # pylint: disable=W0603
-
-    # 情報を保管するデータベース
-    global db
-    db = TinyDB(filename)
-
+  db = TinyDB(args.filename)
 
   # 検索用のクエリオブジェクト
   q = Query()
@@ -536,53 +535,33 @@ if __name__ == '__main__':
   def main():
     """メイン"""
 
-    parser = argparse.ArgumentParser(description='Inspect K5 network.')
-    parser.add_argument('-c', '--create', action='store_true', default=False, help='Create cache')
-    parser.add_argument('-r', '--router', action='store_true', default=False, help='Inspect by router')
-    parser.add_argument('-nc', '--network-connector', action='store_true', default=False, help='Inspect by network connector')
-    parser.add_argument('-n', '--network', action='store_true', default=False, help='Inspect by network')
-    parser.add_argument('-f', '--filename', dest='filename', metavar='file', default=database_file, help='The database file. default: '+database_file)
-    parser.add_argument('-d', '--dump', action='store_true', default=False, help='Dump all json')
-    args = parser.parse_args()
-    create = args.create
-    router = args.router
-    network_connector = args.network_connector
-    network = args.network
-    filename = args.filename
-    dump = args.dump
-
-    init_db(filename)
-
-    if create:
+    if args.create:
       return create_cache()
 
-    if router:
+    if args.router:
       routers = get_list('routers')
-      if not routers:
-        return 0
-      routers = sorted(routers, key=lambda x: x.get('name', ''))
-      for item in routers:
-        inspect_router(item)
+      if routers:
+        routers = sorted(routers, key=lambda x: x.get('name', ''))
+        for item in routers:
+          inspect_router(item)
 
-    if network_connector:
+    if args.network_connector:
       connectors = get_list('network_connectors')
-      if not connectors:
-        return 0
-      connectors = sorted(connectors, key=lambda x: x.get('name', ''))
-      for item in connectors:
-        inspect_network_connector(item)
+      if connectors:
+        connectors = sorted(connectors, key=lambda x: x.get('name', ''))
+        for item in connectors:
+          inspect_network_connector(item)
 
-    if network:
+    if args.network:
       networks = get_list('networks')
-      if not networks:
-        return 0
-      networks = sorted(networks, key=lambda x: x.get('name', ''))
-      for item in networks:
-        if 'inf_' in item.get('name'):
-          continue
-        inspect_network(item)
+      if networks:
+        networks = sorted(networks, key=lambda x: x.get('name', ''))
+        for item in networks:
+          if 'inf_' in item.get('name'):
+            continue
+          inspect_network(item)
 
-    if dump:
+    if args.dump:
       import json
       print(json.dumps(db.all(), indent=2))
 
