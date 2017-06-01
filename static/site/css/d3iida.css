@@ -1,0 +1,203 @@
+@charset "UTF-8";
+
+/* 県ごとに色を変えたい場合の指定 */
+/* @import url("d3iida.japan.css"); */
+
+/* リセット開始(ブラウザのデフォルトをあてにしない) */
+
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+h1,h2,h3,h4,h5,h6,p
+{
+  margin-bottom: 6pt;
+}
+
+ol,ul,dl
+{
+  list-style-position: inside;
+}
+/* リセット完了 */
+
+/* 標準セレクタ開始 */
+
+body {
+  font: 10pt 'Trebuchet MS', Verdana, Helvetica, Arial, Meiryo, sans-serif;
+  color: #444;
+  background: #fff;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link,
+a:visited {
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+strong {
+  font-weight: 800;
+  color: #000;
+}
+/* 標準セレクタ終了 */
+
+/* barChart */
+/* lineChart */
+.chartContainer {
+  overflow: hidden;
+}
+
+/* barChart */
+.bar {
+  fill: steelblue;
+  stroke: white;
+}
+
+/* lineChart */
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+.grid line,
+.x-grid line,
+.y-grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+  shape-rendering: crispEdges;
+}
+
+.grid path,
+.x-grid path,
+.y-grid path {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+/* sliderChart */
+
+.sc-chart-area {
+  fill: steelblue;
+  opacity: 0.5;
+}
+
+.sc-chart-line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.sc-chart-timeline {
+  fill: none;
+  stroke: gray;
+  stroke-width: 1.0px;
+  shape-rendering: crispEdges;
+}
+
+.sc-chart-tcircle {
+  fill: blue;
+  stroke: white;
+  stroke-width: 1.0px;
+}
+
+/* tweenChart */
+
+.tc-chart-sline,
+.tc-chart-cline {
+  fill: none;
+  stroke: gray;
+  stroke-width: 0.4px;
+}
+
+.tc-chart-sline2,
+.tc-chart-cline2 {
+  fill: none;
+  stroke: purple;
+  stroke-width: 1.2px;
+}
+
+/* multiLineChart */
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.linedot {
+  fill: white;
+  stroke-width: 3;
+}
+
+.vizContainer {
+  border: 1px solid gray;
+  overflow: hidden;
+}
+
+.d3iida-tooltip {
+  background-color      : rgba(68,136,187,0.5);
+  margin                : 5px;
+  height                : 60px;
+  width                 : 120px;
+  padding-left          : 5px;
+  padding-top           : 5px;
+  -webkit-border-radius : 6px;
+  -moz-border-radius    : 6px;
+  border-radius         : 6px;
+  box-shadow            : 0 0 0.75em 0 #888;
+}
+
+.d3iida-controls {
+  position       : absolute;
+  margin         : 5px;
+  z-index        : 2;
+}
+
+.d3iida-control {
+  float          : left;
+  padding-left   : 5px;
+}
+
+.d3iida-control a {
+  color          : black;
+  font-size      : 12px;
+  padding        : 5px;
+  background     : #E2E2E2;
+  cursor         : pointer;
+  margin-right   : 10px;
+  text-decoration: none;
+}
+
+.d3iida-control a:hover {
+  text-decoration: underline;
+}
+
+.d3iida-control a.active {
+  color          : white;
+  background     : #555;
+}
