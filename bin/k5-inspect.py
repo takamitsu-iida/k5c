@@ -34,6 +34,8 @@ k5-inspect.py --create
 if __name__ == '__main__':
 
   import argparse
+  import codecs
+  import json
   import logging
   import os
   import sys
@@ -63,6 +65,7 @@ if __name__ == '__main__':
   parser.add_argument('-nc', '--network-connector', action='store_true', default=False, help='Inspect by network connector')
   parser.add_argument('-n', '--network', action='store_true', default=False, help='Inspect by network')
   parser.add_argument('-f', '--filename', dest='filename', metavar='file', default=database_file, help='The database file. default: '+database_file)
+  parser.add_argument('-g', '--generate', action='store_true', default=False, help='Generate data')
   parser.add_argument('-d', '--dump', action='store_true', default=False, help='Dump all json')
   args = parser.parse_args()
 
@@ -329,6 +332,18 @@ if __name__ == '__main__':
     return 0
 
 
+  def search_router_with_external_gateway_info():
+    """external_gateway_infoを持っているルータを配列で返します"""
+
+    # 戻り値
+    router_list = []
+    results = db.search(q['router'].external_gateway_info.exists())
+    if results:
+      for item in results:
+        router_list.append(item.get('router'))
+
+    return router_list
+
   def search_port_by_device_id(device_id):
     """device_idが一致するポートの一覧を配列で返します"""
 
@@ -357,6 +372,14 @@ if __name__ == '__main__':
     return port_list
 
 
+  def get_port_by_id(port_id):
+    """指定されたIDのポートを返却します"""
+    port = db.get(q['port'].id == port_id)
+    if port:
+      return port.get('port')
+    return None
+
+
   def get_port_by_fixed_ip(ip_address):
     """ip_addressが一致するポートを返します"""
 
@@ -383,11 +406,37 @@ if __name__ == '__main__':
     return None
 
 
+  def get_network_connector_pool_by_id(network_connector_pool_id):
+    """指定されたIDのネットワークコネクタプールを返却します"""
+    ncp_list = get_list('network_connector_pools')
+    for ncp in ncp_list:
+      ncp_id = ncp.get('id')
+      if ncp_id == network_connector_pool_id:
+        return ncp
+    return None
+
+
+  def get_network_connector_by_id(network_connector_id):
+    """指定されたIDのネットワークコネクタを返却します"""
+    nc = db.get(q['network_connector'].id == network_connector_id)
+    if nc:
+      return nc.get('network_connector')
+    return None
+
+
   def get_network_connector_endpoint_by_id(ncep_id):
     """指定されたIDのコネクタエンドポイントを返却します"""
     ncep = db.get(q['network_connector_endpoint'].id == ncep_id)
     if ncep:
       return ncep.get('network_connector_endpoint')
+    return None
+
+
+  def get_network_by_id(network_id):
+    """指定されたIDのネットワークを返却します"""
+    network = db.get(q['network'].id == network_id)
+    if network:
+      return network.get('network')
     return None
 
 
@@ -528,8 +577,188 @@ if __name__ == '__main__':
 
   def get_list(key):
     """k5-list-xxxの結果の配列をdbから取り出して返します"""
-    value = db.get(q[key].exists())
-    return value.get(key, [])
+    obj = db.get(q[key].exists())
+    value = obj.get(key, [])
+    if not value:
+      value = []
+    return value
+
+
+  def exists_in(nodes, target_id):
+    """nodes配列にtarget_idを持ったオブジェクトが存在する場合はTrue"""
+    if list(filter(lambda x: x.get(id) == target_id, nodes)):
+      return True
+    return False
+
+
+  def generate_topology_data():
+    """描画用のトポロジデータを作成します"""
+
+    # リンク配列
+    # sourceとtargetで何と何がつながっているかを表す
+    links = []
+
+    # ノード配列
+    nodes = []
+
+    # 全ルータをチェック
+    routers = get_list('routers')
+    for router in routers:
+      router['node_type'] = 'ROUTER'
+      router['x'] = 10
+      router['y'] = 10
+      nodes.append(router)
+      router_id = router.get('id')
+      eginfo = router.get('external_gateway_info', {})
+      if eginfo:
+        network_id = eginfo.get('network_id')
+        network = get_network_by_id(network_id)
+        network['node_type'] = 'NETWORK'
+        network['x'] = 20
+        network['y'] = 20
+        if not exists_in(nodes, network_id):
+          nodes.append(network)
+          links.append({'source': router_id, 'target': network_id})
+      # このルータを親にしているポートを探す
+      port_list = search_port_by_device_id(router_id)
+      for port in port_list:
+        port_id = port.get('id')
+        if not exists_in(nodes, port_id):
+          port['node_type'] = 'PORT'
+          port['x'] = 30
+          port['y'] = 30
+          nodes.append(port)
+          links.append({'source': router_id, 'target': port_id})
+          network_id = port.get('network_id')
+          network = get_network_by_id(network_id)
+          if not exists_in(nodes, network_id):
+            network['node_type'] = 'NETWORK'
+            network['x'] = 40
+            network['y'] = 40
+            nodes.append(network)
+            links.append({'source': port_id, 'target': network_id})
+
+    # 全コネクタエンドポイントをチェック
+    ncep_list = get_list('network_connector_endpoints')
+    for ncep in ncep_list:
+      ncep_id = ncep.get('id')
+      ncep['node_type'] = 'NCEP'
+      ncep['x'] = 50
+      ncep['y'] = 50
+      nodes.append(ncep)
+      # 親となるネットワークコネクタ
+      network_connector_id = ncep.get('network_connector_id')
+      nc = get_network_connector_by_id(network_connector_id)
+      nc_id = nc.get('id')
+      if not exists_in(nodes, nc_id):
+        nc['node_type'] = 'NC'
+        nc['x'] = 60
+        nc['y'] = 60
+        nodes.append(nc)
+        links.append({'source': ncep_id, 'target': nc_id})
+        # ネットワークコネクタの親になるコネクタプール
+        ncp_id = nc.get('network_connector_pool_id')
+        ncp = get_network_connector_pool_by_id(ncp_id)
+        ncp_id = ncp.get('id')
+        if not exists_in(nodes, ncp_id):
+          ncp['node_type'] = 'NCP'
+          ncp['x'] = 70
+          ncp['y'] = 70
+          nodes.append(ncp)
+          links.append({'source': nc_id, 'target': ncp_id})
+
+      # 子となる接続ポート
+      port_list = search_port_by_device_id(ncep_id)
+      for port in port_list:
+        port_id = port.get('id')
+        if not filter(lambda x: x.get(id) == port_id, nodes):
+          port['node_type'] = 'PORT'
+          port['x'] = 80
+          port['y'] = 80
+          nodes.append(port)
+          links.append({'source': ncep_id, 'target': port_id})
+
+    # 全ネットワークコネクタをチェック
+    nc_list = get_list('network_connectors')
+    for nc in nc_list:
+      nc_id = nc.get('id')
+      if not filter(lambda x: x.get(id) == nc_id, nodes):
+        nc['node_type'] = 'NC'
+        nc['x'] = 90
+        nc['y'] = 90
+        nodes.append(nc)
+
+    # 全ポートをチェックする
+    port_list = get_list('ports')
+    for port in port_list:
+      port_id = port.get('id')
+      if not filter(lambda x: x.get(id) == port_id, nodes):
+        port['node_type'] = 'PORT'
+        port['x'] = 100
+        port['y'] = 100
+        nodes.append(port)
+        network_id = port.get('network_id')
+        network = get_network_by_id(network_id)
+        if not filter(lambda x: x.get(id) == network_id, nodes):
+          network['node_type'] = 'NETWORK'
+          network['x'] = 110
+          network['y'] = 110
+          nodes.append(network)
+          links.append({'source': port_id, 'target': network_id})
+
+    # 全ネットワークをチェックする
+    network_list = get_list('networks')
+    for network in network_list:
+      if 'inf_' in network.get('name', ''):
+        continue
+      network_id = network.get('id')
+      if not filter(lambda x: x.get(id) == network_id, nodes):
+        network['node_type'] = 'NETWORK'
+        network['x'] = 120
+        network['y'] = 120
+        nodes.append(network)
+        port_list = search_port_by_network_id(network_id)
+        for port in port_list:
+          port_id = port.get('id')
+          if not filter(lambda x: x.get(id) == port_id, nodes):
+            port['node_type'] = 'PORT'
+            port['x'] = 130
+            port['y'] = 130
+            nodes.append(port)
+            links.append({'source': network_id, 'target': port_id})
+
+    # JSON形式で表示
+    json_str = json.dumps({'nodes': nodes, 'links': links}, indent=2)
+    print(json_str)
+
+    save_as_javascript(json_str)
+
+
+  def save_as_javascript(json_str):
+    """JavaScriptファイルとして保存"""
+    js_header = '''
+/*global d3iida*/
+
+d3iida.heredoc.topology = (function () {
+  var text = function() {/*EOF*
+  '''
+
+    js_footer = '''
+  *EOF*/}.toString().replace(/(\\n)/g, '').split('*EOF*')[1];
+  return {
+    text : text,
+    data : JSON.parse(text)
+  };
+}());
+    '''
+
+    # JavaScriptファイルを出力する
+    filename = 'd3iida.heredoc.topology.js'
+    path = os.path.join(app_home, 'data', filename)
+
+    with codecs.open(path, mode="w", encoding="utf_8") as f:
+      f.write(js_header + json_str + js_footer)
+
 
 
   def main():
@@ -537,6 +766,9 @@ if __name__ == '__main__':
 
     if args.create:
       return create_cache()
+
+    if args.generate:
+      generate_topology_data()
 
     if args.router:
       routers = get_list('routers')
@@ -562,7 +794,6 @@ if __name__ == '__main__':
           inspect_network(item)
 
     if args.dump:
-      import json
       print(json.dumps(db.all(), indent=2))
 
     return 0
