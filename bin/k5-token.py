@@ -24,7 +24,12 @@ import sys
 
 def here(path=''):
   """相対パスを絶対パスに変換して返却します"""
-  return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
+  if getattr(sys, 'frozen', False):
+    # cx_Freezeで固めた場合は実行ファイルからの相対パス
+    return os.path.abspath(os.path.join(os.path.dirname(sys.executable), path))
+  else:
+    # 通常はこのファイルの場所からの相対パス
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
 
 # libフォルダにおいたpythonスクリプトを読みこませるための処理
 if not here("../lib") in sys.path:

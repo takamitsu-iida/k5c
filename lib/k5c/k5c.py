@@ -18,12 +18,14 @@ import logging
 import os
 import sys
 
-def here(path=''):
-  """相対パスを絶対パスに変換して返却します"""
-  return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
 
 # アプリケーションのホームディレクトリ
-app_home = here("../..")
+if getattr(sys, 'frozen', False):
+  # cx_Freezeで固めた場合は実行ファイルからの相対
+  app_home = os.path.abspath(os.path.join(os.path.dirname(sys.executable), ".."))
+else:
+  # このファイルからの相対
+  app_home = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
 # 自身の名前から拡張子を除いてプログラム名を得る
 app_name = os.path.splitext(os.path.basename(__file__))[0]
@@ -33,7 +35,7 @@ app_name = os.path.splitext(os.path.basename(__file__))[0]
 config_file = os.path.join(app_home, "conf", "k5config.ini")
 if not os.path.exists(config_file):
   logging.error("File not found %s : ", config_file)
-  exit(1)
+  sys.exit(1)
 
 # 設定ファイルを読む
 try:
@@ -80,14 +82,14 @@ try:
 except configparser.Error as e:
   logging.error("k5config.iniの読み込みに失敗しました。")
   logging.exception(e)
-  exit(1)
+  sys.exit(1)
 
 try:
   from .k5tokenmanager import k5tokenmanager
 except ImportError as e:
   logging.error("k5tokenmanagerモジュールのインポートに失敗しました。")
   logging.exception(e)
-  exit(1)
+  sys.exit(1)
 
 #
 # ログ設定
@@ -146,7 +148,7 @@ try:
 except ImportError as e:
   logging.error("requestsモジュールのインポートに失敗しました。")
   logging.exception(e)
-  exit(1)
+  sys.exit(1)
 
 
 class Client(object):

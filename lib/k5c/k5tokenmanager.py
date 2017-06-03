@@ -7,6 +7,7 @@ import datetime
 import logging
 import os
 import pickle
+import sys
 from threading import RLock
 
 # ロガー
@@ -30,7 +31,12 @@ class K5TokenManager(object):
   DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
   # アプリケーションのホームディレクトリ
-  app_home = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+  if getattr(sys, 'frozen', False):
+    # cx_Freezeで固めた場合は実行ファイルからの相対
+    app_home = os.path.abspath(os.path.join(os.path.dirname(sys.executable), ".."))
+  else:
+    # このファイルからの相対
+    app_home = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
   # データを置くディレクトリ
   data_dir = os.path.join(app_home, "data")
