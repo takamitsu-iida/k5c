@@ -19,7 +19,7 @@ def here(path=''):
 
 
 packages = ['k5c']
-includes = ['bin/fwcommon']
+includes = ['fwcommon']
 excludes = []
 include_files = []
 
@@ -29,7 +29,7 @@ options = {
     'excludes': excludes,
     'packages': packages,
     'include_files': include_files,
-    'path': sys.path + [here("./lib"), here("./lib/site-packages")]
+    'path': sys.path + [here("./bin"), here("./lib"), here("./lib/site-packages")]
   }
 }
 
