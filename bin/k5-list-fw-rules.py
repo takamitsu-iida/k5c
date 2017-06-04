@@ -131,6 +131,10 @@ def print_result(result, unused=False):
   # firewall_rulesキーの配列を取り出す
   firewall_rules = data.get('firewall_rules', [])
 
+  if not firewall_rules:
+    print("Firewall rule is not defined yet.")
+    return
+
   # positionキーの値がNoneだとソートするときに支障があるので""に置き換えておく
   for rule in firewall_rules:
     if rule.get('position', None) is None:
