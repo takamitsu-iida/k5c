@@ -5,6 +5,9 @@
 # pickleで保存したファイルは無視
 *.pickle
 
+# windows用実行ファイルの配布
+k5c.zip
+
 # 内緒の設定ファイル
 config.py
 k5config.py
