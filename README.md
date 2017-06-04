@@ -4,10 +4,17 @@ Fujitsu K5のネットワーク環境を操作するためのPythonスクリプ�
 
 <BR>
 
+作業端末にPython3をインストールするのが困難な方のためにexeに変換したものも置いておきます。
+
+[Windows用バイナリ](https://github.com/takamitsu-iida/k5c/releases)
+
+<BR>
+
 > NOTE:
 >
 > 現在K5を使える環境にいませんので、このレポジトリは凍結されています。
 > (2017年5月追記)
+
 
 <BR>
 <BR>
