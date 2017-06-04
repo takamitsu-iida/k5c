@@ -18,13 +18,10 @@ def here(path=''):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
 
 
-copyDependentFiles = True
-silent = True
 packages = ['k5c']
 includes = ['bin/fwcommon']
 excludes = []
 include_files = []
-
 
 options = {
   'build_exe': {
@@ -38,10 +35,18 @@ options = {
 
 
 executables = []
-pyfiles = [os.path.basename(r) for r in glob.glob('bin/*.py')]
+pyfiles = [os.path.basename(r) for r in glob.glob('bin/k5-*.py')]
 for item in pyfiles:
   p = os.path.join('bin', item)
   exe = Executable(script=p, base=None)
   executables.append(exe)
 
-setup(name='k5c', version='0.1', description='k5 network operation tools.', options=options, executables=executables)
+
+# アプリケーション情報
+name = 'k5c'
+version = '1.0.0'
+author = 'Takamitsu IIDA'
+url = 'https://github.com/takamitsu-iida/k5c'
+description = 'k5 network operation tools.'
+
+setup(name=name, version=version, author=author, url=url, description=description, options=options, executables=executables)
