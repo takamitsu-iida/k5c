@@ -111,26 +111,27 @@ class K5TokenManager(object):
   def getCachedToken(self):
     """メモリもしくはディスクからトークンのキャッシュを取得して返します"""
     # まずはメモリキャッシュの有無を確認して、あればそれを返却
+    # Webアプリケーションの時はメモリ上にキャッシュされている可能性が高い
     token = self._token_json
     if token and self.isNotExpired(token):
-      logger.info("found token on memory cache")
+      logger.info("Found token on memory cache")
       return token
-    logger.info("there is no token on memory cache")
+    # logger.info("There is no token on memory cache")
 
     # メモリキャッシュにない場合は、ディスクから探す
     token = self.loadToken()
 
     # トークンがディスクに保存されていない
     if not token:
-      logger.info("there is no token on disk cache")
+      logger.info("There is no token on disk cache")
       return None
 
     # トークンの有効期間が切れてないか確認する
     if self.isNotExpired(token):
-      logger.info("found token on disk cache")
+      logger.info("Found token on disk cache")
       self._token_json = token
       return token
-    logger.info("there is no available token on disk cache")
+    logger.info("There is no available token on disk cache")
     return None
 
   def lock(self):

@@ -312,10 +312,12 @@ class Client(object):
         #
 
         if r is None:
-          logger.error("failed to access rest api")
           result['status_code'] = -1
           result['data'] = None
           return result
+
+        # ログ
+        logger.info("%s '%s'", r.status_code, r.url)
 
         # トークンを保存
         if r.ok:
