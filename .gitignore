@@ -1,6 +1,7 @@
 ﻿# フォルダ単位で無視
 /data/
 /log/
+/win32/
 
 # pickleで保存したファイルは無視
 *.pickle
