@@ -6,16 +6,7 @@
 """
 
 import logging
-import os
 import sys
-
-def here(path=''):
-  """相対パスを絶対パスに変換して返却します"""
-  return os.path.abspath(os.path.join(os.path.dirname(__file__), path))
-
-# libフォルダにおいたpythonスクリプトを読みこませるための処理
-if not here("../lib/site-packages") in sys.path:
-  sys.path.append(here("../lib/site-packages"))
 
 try:
   from tabulate import tabulate
