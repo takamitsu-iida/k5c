@@ -143,7 +143,7 @@ if __name__ == '__main__':
 
     # これだけのためにデコレータを定義するのはさすがに面倒なので
     # c.get()にラッパー関数をかぶせます
-    def get(url="", ex_id=""):
+    def get(url=""):
       """c.get()のラッパー"""
       print(url, end="", flush=True)
       r = c.get(url=url)
@@ -158,10 +158,6 @@ if __name__ == '__main__':
       data = r.get('data', None)
       if not data:
         return None
-
-      # 追加のキーが指定されているならそれを差し込む
-      if ex_id:
-        data['ex_id'] = ex_id
 
       # dbに格納
       db.insert(data)
@@ -229,7 +225,24 @@ if __name__ == '__main__':
         #  "network_connector_endpoint": {
         #    "interfaces": [
         url = k5c.EP_NETWORK + "/v2.0/network_connector_endpoints/" + item_id + "/interfaces"
-        get(url=url, ex_id=item_id)
+        # ここだけは特別な処理が必要
+        # get(url=url)
+        print(url, end="", flush=True)
+        r = c.get(url=url)
+        print("   ...done", flush=True)
+
+        # ステータスコードは'status_code'キーに格納
+        status_code = r.get('status_code', -1)
+        if status_code < 200 or status_code >= 300:
+          continue
+
+        # データは'data'キーに格納
+        data = r.get('data', None)
+        if not data:
+          continue
+
+        # dbに格納
+        db.update(data, q['network_connector_endpoint'].id == item_id)
 
     #
     # List networks
