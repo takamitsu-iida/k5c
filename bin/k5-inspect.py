@@ -541,11 +541,24 @@ if __name__ == '__main__':
         # このコネクタエンドポイントが持つポートの情報を表示したい
         # ポートのdevice_idキーは、内部の意味不明な物になってしまうため、対応付けがとれない
         # そのためにk5-list-connected-interfaces-of-network-connector-endpoint.pyの情報を使う
-        # ex_idがこのncep_idと一致するオブジェクトを取得する
         # {
         #   "network_connector_endpoint": {
-        #     "ex_id": xxxxxx,
         #     "interfaces": [
+        interface_list = ncep.get('interfaces', [])
+        for iface in interface_list:
+          port_id = iface.get('port_id')
+          port = get_port_by_id(port_id)
+          if port:
+            name = port.get('name')
+            if not name:
+              name = 'NO-NAME'
+            print("{}Port {} is {}, Admin state is {}".format(' '*4, name, port.get('status'), port.get('admin_state_up')))
+            print("{}Port uuid is {}".format(' '*6, port.get('id', '')))
+            print("{}Port is attached to the Network {}".format(' '*6, port.get('network_id', '')))
+            print("{}binding:vnic_type is {}".format(' '*6, port.get('binding:vnic_type')))
+            print("{}Hardware address is {}".format(' '*6, port.get('mac_address')))
+            for fixedip in port.get('fixed_ips', []):
+              print("{}Internet address is {} , Subnet is {}".format(' '*6, fixedip.get('ip_address'), fixedip.get('subnet_id')))
 
     else:
       print("{}This network connector has no endpoint.".format(' '*2))
@@ -707,9 +720,10 @@ if __name__ == '__main__':
           links.append({'source': nc_id, 'target': ncp_id})
 
       # 子となる接続ポート
-      port_list = search_port_by_device_id(ncep_id)
-      for port in port_list:
-        port_id = port.get('id')
+      interface_list = ncep.get('interfaces', [])
+      for iface in interface_list:
+        port_id = iface.get('port_id')
+        port = get_port_by_id(port_id)
         if not filter(lambda x: x.get(id) == port_id, nodes):
           port['node_type'] = 'PORT'
           port['x'] = 80
