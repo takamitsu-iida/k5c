@@ -734,6 +734,18 @@ status_code: 200
 {'interface': {'port_id': '6c73b1a0-ab3d-46e5-9515-f04e9f660423'}}
 ```
 
+> NOTE:
+>
+> コネクタエンドポイントとポートを接続すると、ポートのdevice_idはコネクタエンドポイントになることを期待してしまいますが、実際には違います。内部制御ポートのようです。APIマニュアルにはこのように記載されています。
+>
+> ID for internal control is displayed in device_id of port information after the port
+connected to Network Connector Endpoint.
+>
+> コネクタエンドポイントに繋がっているポートを知りたければ
+> List Connected Interfaces of Network Connector
+Endpoint
+> というAPIを使います。
+
 <BR>
 
 ## 手順１０．ルータと外部ネットを接続する
