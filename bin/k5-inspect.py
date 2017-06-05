@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
+ネットワークコネクタエンドポイント周辺はまだ未実装。
+
 k5-inspect.py --create
 　各種情報を採取してtinydbに格納します。
 　追記していくので、事前にconf/db.jsonをリネームするか削除してください。
@@ -82,9 +84,15 @@ if __name__ == '__main__':
     logging.error("tinydb not found. pip install tinydb")
     sys.exit(1)
 
+  # キャッシュを新規作成する場合には、古いファイルを削除する
+  if args.create:
+    if os.path.isfile(args.filename):
+      try:
+        os.remove(args.filename)
+      except OSError:
+        pass
+
   # 情報を保管するデータベース
-  # ファイル名決め打ちならこの時点で初期化してしまえばいいが
-  # 引数でファイル名を選択した後でinit_db()を呼んで初期化する
   db = TinyDB(args.filename)
 
   # 検索用のクエリオブジェクト
@@ -135,7 +143,7 @@ if __name__ == '__main__':
 
     # これだけのためにデコレータを定義するのはさすがに面倒なので
     # c.get()にラッパー関数をかぶせます
-    def get(url=""):
+    def get(url="", ex_id=""):
       """c.get()のラッパー"""
       print(url, end="", flush=True)
       r = c.get(url=url)
@@ -150,6 +158,10 @@ if __name__ == '__main__':
       data = r.get('data', None)
       if not data:
         return None
+
+      # 追加のキーが指定されているならそれを差し込む
+      if ex_id:
+        data['ex_id'] = ex_id
 
       # dbに格納
       db.insert(data)
@@ -217,7 +229,7 @@ if __name__ == '__main__':
         #  "network_connector_endpoint": {
         #    "interfaces": [
         url = k5c.EP_NETWORK + "/v2.0/network_connector_endpoints/" + item_id + "/interfaces"
-        get(url=url)
+        get(url=url, ex_id=item_id)
 
     #
     # List networks
@@ -436,7 +448,6 @@ if __name__ == '__main__':
       return ncep.get('network_connector_endpoint')
     return None
 
-
   def get_network_by_id(network_id):
     """指定されたIDのネットワークを返却します"""
     network = db.get(q['network'].id == network_id)
@@ -470,24 +481,25 @@ if __name__ == '__main__':
       print("{}External gateway is not set.")
     print("{}Routing table".format(' '*2))
     if router.get('routes'):
-      for item in router.get('routes', []):
-        print("{}{} via {}".format(' '*4, item.get('destination'), item.get('nexthop')))
+      for route in router.get('routes', []):
+        print("{}{} via {}".format(' '*4, route.get('destination'), route.get('nexthop')))
     else:
       print("{}No route is set.".format(' '*4))
 
     # このルータを親にしているポートを探す
     port_list = search_port_by_device_id(router.get('id'))
     if port_list:
-      for item in port_list:
-        name = item.get('name')
+      for port in port_list:
+        name = port.get('name')
         if not name:
           name = 'NO-NAME'
-        print("{}Port {} is {}, Admin state is {}".format(' '*2, name, item.get('status'), item.get('admin_state_up')))
-        print("{}Port uuid is {}".format(' '*4, item.get('id', '')))
-        print("{}binding:vnic_type is {}".format(' '*4, item.get('binding:vnic_type')))
-        print("{}Hardware address is {}".format(' '*4, item.get('mac_address')))
-        for subitem in item.get('fixed_ips', []):
-          print("{}Internet address is {} ,Subnet is {}".format(' '*4, subitem.get('ip_address'), subitem.get('subnet_id')))
+        print("{}Port {} is {}, Admin state is {}".format(' '*2, name, port.get('status'), port.get('admin_state_up')))
+        print("{}Port uuid is {}".format(' '*4, port.get('id', '')))
+        print("{}Port is attached to the Network {}".format(' '*4, port.get('network_id', '')))
+        print("{}binding:vnic_type is {}".format(' '*4, port.get('binding:vnic_type')))
+        print("{}Hardware address is {}".format(' '*4, port.get('mac_address')))
+        for fixedip in port.get('fixed_ips', []):
+          print("{}Internet address is {} , Subnet is {}".format(' '*4, fixedip.get('ip_address'), fixedip.get('subnet_id')))
     else:
       print("{}This router has no port.".format(' '*2))
 
@@ -506,13 +518,22 @@ if __name__ == '__main__':
     # このコネクタに付属するエンドポイント
     network_connector_endpoints = nc.get('network_connector_endpoints', [])
     if network_connector_endpoints:
-      for item in network_connector_endpoints:
-        ncep = get_network_connector_endpoint_by_id(item)
+      for ncep_id in network_connector_endpoints:
+        ncep = get_network_connector_endpoint_by_id(ncep_id)
         print("{}Network Connector Endpoint {}".format(' '*2, ncep.get('name')))
         print("{}Ncep uuid is {}".format(' '*4, ncep.get('id')))
         print("{}Type is {}".format(' '*4, ncep.get('endpoint_type')))
         print("{}Tenant uuid is {}".format(' '*4, ncep.get('tenant_id')))
         print("{}Location is {}".format(' '*4, ncep.get('location')))
+        # このコネクタエンドポイントが持つポートの情報を表示したい
+        # ポートのdevice_idキーは、内部の意味不明な物になってしまうため、対応付けがとれない
+        # そのためにk5-list-connected-interfaces-of-network-connector-endpoint.pyの情報を使う
+        # ex_idがこのncep_idと一致するオブジェクトを取得する
+        # {
+        #   "network_connector_endpoint": {
+        #     "ex_id": xxxxxx,
+        #     "interfaces": [
+
     else:
       print("{}This network connector has no endpoint.".format(' '*2))
 
@@ -531,10 +552,10 @@ if __name__ == '__main__':
     print("{}Availability zone is {}".format(' '*2, n.get('availability_zone')))
 
     # サブネットを表示
-    for item in n.get('subnets'):
-      subnet = get_subnet_by_id(item)
+    for subnet_id in n.get('subnets'):
+      subnet = get_subnet_by_id(subnet_id)
       if not subnet:
-        print("{}Subnet uuid is {}".format(' '*2, item))
+        print("{}Subnet uuid is {}".format(' '*2, subnet_id))
         continue
       print("{}Subnet {} is {}".format(' '*2, subnet.get('name', 'NO NAME'), subnet.get('id')))
       print("{}Internet address is {}".format(' '*4, subnet.get('cidr')))
@@ -779,24 +800,24 @@ d3iida.heredoc.topology = (function () {
       routers = get_list('routers')
       if routers:
         routers = sorted(routers, key=lambda x: x.get('name', ''))
-        for item in routers:
-          inspect_router(item)
+        for router in routers:
+          inspect_router(router)
 
     if args.network_connector:
       connectors = get_list('network_connectors')
       if connectors:
         connectors = sorted(connectors, key=lambda x: x.get('name', ''))
-        for item in connectors:
-          inspect_network_connector(item)
+        for connector in connectors:
+          inspect_network_connector(connector)
 
     if args.network:
       networks = get_list('networks')
       if networks:
         networks = sorted(networks, key=lambda x: x.get('name', ''))
-        for item in networks:
-          if 'inf_' in item.get('name'):
+        for network in networks:
+          if 'inf_' in network.get('name'):
             continue
-          inspect_network(item)
+          inspect_network(network)
 
     if args.dump:
       print(json.dumps(db.all(), indent=2))
