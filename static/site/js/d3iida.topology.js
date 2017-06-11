@@ -112,7 +112,6 @@
           .enter()
           .append('line')
           .classed('links', true)
-          .attr('stroke', 'black')
           .merge(linkAll);
 
         // ノードを描画するレイヤ

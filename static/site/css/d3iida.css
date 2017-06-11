@@ -202,17 +202,16 @@ strong {
   background     : #555;
 }
 
-.links line {
+.links {
   stroke: #999;
-  stroke-opacity: 0.6;
+  stroke-opacity: 0.8;
+}
+
+.nodes {
+  cursor: pointer;
 }
 
 .nodes circle {
   stroke: #fff;
   stroke-width: 1.5px;
-}
-
-.node text {
-  stroke:#333;
-  cursor: pointer;
 }
