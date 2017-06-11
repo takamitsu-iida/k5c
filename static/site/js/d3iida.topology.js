@@ -31,15 +31,17 @@
     // 描画領域の大きさに変更はあるか
     var sizeChanged = false;
 
+    // 色
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
+
     var simulation = d3.forceSimulation()
       .force('link', d3.forceLink().id(function(d) {
         return d.id;
       }))
+      .force('charge', d3.forceManyBody())
       .force('collide', d3.forceCollide(function(d) {
         return 20;
-      })
-      .iterations(16))
-      .force('charge', d3.forceManyBody())
+      }).iterations(16))
       .force('center', d3.forceCenter(w / 2, h / 2))
       .force('y', d3.forceY(0))
       .force('x', d3.forceX(0));
@@ -115,7 +117,34 @@
           .data(dataNodes)
           .enter()
           .append('circle')
-          .attr('r', 10)
+          .attr('r', function(d) {
+            if (d.node_type === 'PORT') {
+              return 4;
+            } else if (d.node_type === 'ROUTER') {
+              return 10;
+            } else if (d.node_type === 'NETWORK') {
+              return 15;
+            } else if (d.node_type === 'NC') {
+              return 8;
+            } else if (d.node_type === 'NCEP') {
+              return 6;
+            }
+            return 3;
+          })
+          .attr('fill', function(d) {
+            if (d.node_type === 'PORT') {
+              return color(1);
+            } else if (d.node_type === 'ROUTER') {
+              return color(2);
+            } else if (d.node_type === 'NETWORK') {
+              return color(3);
+            } else if (d.node_type === 'NC') {
+              return color(4);
+            } else if (d.node_type === 'NCEP') {
+              return color(5);
+            }
+            return color(6);
+          })
           .call(d3.drag()
             .on('start', dragstarted)
             .on('drag', dragged)
