@@ -3,6 +3,7 @@
 requests
 tabulate
 pyyaml
+tinydb
 
 # jdcal
 # et-xmlfile
