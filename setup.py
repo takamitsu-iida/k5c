@@ -3,8 +3,13 @@
 """
 cx_Freeze 用セットアップファイル
 
+ビルドする
 setup.py build
+
+インストール用msiファイルを作成する
 setup.py bdist_msi
+
+ビルド後にbuildフォルダをwin32に置き換えて手動でzip化する。
 """
 
 import glob
