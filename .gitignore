@@ -2,6 +2,7 @@
 /data/
 /log/
 /win32/
+/.vscode/
 
 # pickleで保存したファイルは無視
 *.pickle
