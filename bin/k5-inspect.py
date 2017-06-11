@@ -713,7 +713,7 @@ if __name__ == '__main__':
         ncp = get_network_connector_pool_by_id(ncp_id)
         ncp_id = ncp.get('id')
         if not exists_in(nodes, ncp_id):
-          ncp['node_type'] = 'NCP'
+          ncp['node_type'] = 'NCPOOL'
           ncp['x'] = 70
           ncp['y'] = 70
           nodes.append(ncp)

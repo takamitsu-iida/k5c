@@ -9,12 +9,15 @@
     var width = 600;
     var height = 400;
 
+    // コンテナの幅に合わせるかどうか
+    var adjustContainerWidth = false;
+
     // 'g'の描画領域となるデフォルトのマージン
     var margin = {
       top: 20,
       right: 20,
       bottom: 20,
-      left: 40
+      left: 20
     };
 
     // チャート描画領域のサイズw, h
@@ -34,13 +37,14 @@
     // 色
     var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+    // directed forceレイアウト
     var simulation = d3.forceSimulation()
       .force('link', d3.forceLink().id(function(d) {
         return d.id;
       }))
       .force('charge', d3.forceManyBody())
       .force('collide', d3.forceCollide(function(d) {
-        return 20;
+        return 40;
       }).iterations(16))
       .force('center', d3.forceCenter(w / 2, h / 2))
       .force('y', d3.forceY(0))
@@ -48,6 +52,11 @@
 
     // call()されたときに呼ばれる公開関数
     function exports(_selection) {
+      if (adjustContainerWidth) {
+        var containerWidth = _selection.node().clientWidth;
+        exports.width(containerWidth);
+      }
+
       _selection.each(function(_data) {
         if (!_data) {
           // データにnullを指定してcall()した場合は、既存のSVGを削除する
@@ -82,40 +91,48 @@
 
         // チャート描画領域'g'を追加
         var topologyChartAll = d3.select(this).select('svg').selectAll('.topologyChart').data(dummy);
-        topologyChartAll
+        var topologyChart = topologyChartAll
           // ENTER領域
           .enter()
           .append('g')
           .classed('topologyChart', true)
-          .attr('width', w)
-          .attr('height', h)
-          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+          .merge(topologyChartAll);
 
-        if (sizeChanged) {
-          topologyChartAll
-            .attr('width', w)
-            .attr('height', h)
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-        }
-
-        // 作成済みの描画領域'g'を選択しておく
-        var topologyChart = d3.select(this).select('.topologyChart');
-
-        var link = topologyChart
+        // リンクを描画するレイヤ
+        var linkLayerAll = topologyChart.selectAll('.linkLayer').data(dummy);
+        var linkLayer = linkLayerAll
+          .enter()
           .append('g')
-          .attr('class', 'links')
-          .selectAll('line')
-          .data(dataLinks)
+          .classed('linkLayer', true)
+          .merge(linkLayerAll);
+
+        // リンクレイヤにlineを追加する
+        var linkAll = linkLayer.selectAll('.links').data(dataLinks);
+        var link = linkAll
           .enter()
           .append('line')
-          .attr('stroke', 'black');
+          .classed('links', true)
+          .attr('stroke', 'black')
+          .merge(linkAll);
 
-        var node = topologyChart
-          .append('g')
-          .attr('class', 'nodes')
-          .selectAll('circle')
-          .data(dataNodes)
+        // ノードを描画するレイヤ
+        var nodeLayerAll = topologyChart.selectAll('.nodeLayer').data(dummy);
+        var nodeLayer = nodeLayerAll
           .enter()
+          .append('g')
+          .classed('nodeLayer', true)
+          .merge(nodeLayerAll);
+
+        // ノードレイヤにcircleとtextを一体化するgを追加する
+        var nodeAll = nodeLayer.selectAll('.nodes').data(dataNodes);
+        var node = nodeAll
+          // ENTER領域
+          .enter()
+          .append('g')
+          .classed('nodes', true);
+
+        node
+          // まだENTER領域
           .append('circle')
           .attr('r', function(d) {
             if (d.node_type === 'PORT') {
@@ -128,6 +145,8 @@
               return 8;
             } else if (d.node_type === 'NCEP') {
               return 6;
+            } else if (d.node_type === 'NCPOOL') {
+              return 15;
             }
             return 3;
           })
@@ -142,13 +161,31 @@
               return color(4);
             } else if (d.node_type === 'NCEP') {
               return color(5);
+            } else if (d.node_type === 'NCPOOL') {
+              return color(6);
             }
-            return color(6);
-          })
+            return color(7);
+          });
+
+        node
+          // まだENTER領域
+          .append('text')
+          .attr('dx', 12)
+          .attr('dy', '.35em')
+          .text(function(d) {
+            return d.node_type;
+          });
+
+        node
+          // まだENTER領域
           .call(d3.drag()
             .on('start', dragstarted)
             .on('drag', dragged)
             .on('end', dragended));
+
+        // 全てのノード
+        node
+          .merge(nodeAll);
 
         var ticked = function() {
           link
@@ -166,11 +203,8 @@
             });
 
           node
-            .attr('cx', function(d) {
-              return d.x;
-            })
-            .attr('cy', function(d) {
-              return d.y;
+            .attr('transform', function(d) {
+              return 'translate(' + d.x + ',' + d.y + ')';
             });
         };
 
@@ -178,7 +212,8 @@
           .nodes(dataNodes)
           .on('tick', ticked);
 
-        simulation.force('link')
+        simulation
+          .force('link')
           .links(dataLinks);
 
         sizeChanged = false;

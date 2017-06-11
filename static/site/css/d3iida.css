@@ -211,3 +211,8 @@ strong {
   stroke: #fff;
   stroke-width: 1.5px;
 }
+
+.node text {
+  stroke:#333;
+  cursor: pointer;
+}
