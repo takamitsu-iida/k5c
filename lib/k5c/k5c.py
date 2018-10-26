@@ -144,6 +144,7 @@ if USE_FILE_HANDLER:
 try:
   import requests
   # HTTPSを使用した場合に、証明書関連の警告を無視する
+  # pylint: disable=E1101
   requests.packages.urllib3.disable_warnings()
 except ImportError as e:
   logging.error("requestsモジュールのインポートに失敗しました。")
@@ -219,14 +220,14 @@ class Client(object):
     r = None
     try:
       r = requests.post(self._url_token, timeout=self._timeout, proxies=self._proxies, headers=headers, data=auth_json, verify=True)
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.SSLError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ConnectionError:
       logger.error("requests.exceptions.ConnectionError occured")
     except requests.exceptions.HTTPError:
       logger.error("requests.exceptions.HTTPError occured")
-    except requests.exceptions.SSLError:
-      logger.error("requests.exceptions.SSLError occured")
-    except requests.exceptions.ProxyError:
-      logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ReadTimeout:
       logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
@@ -358,14 +359,14 @@ class Client(object):
     logger.info("GET '%s'", url)
     try:
       return requests.get(url, params=params, **kwargs)
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ConnectionError:
       logger.error("requests.exceptions.ConnectionError occured")
     except requests.exceptions.HTTPError:
       logger.error("requests.exceptions.HTTPError occured")
-    except requests.exceptions.SSLError:
-      logger.error("requests.exceptions.SSLError occured")
-    except requests.exceptions.ProxyError:
-      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.ReadTimeout:
       logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
@@ -382,14 +383,14 @@ class Client(object):
     logger.info("POST '%s'", url)
     try:
       return requests.post(url, json.dumps(data), **kwargs)
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ConnectionError:
       logger.error("requests.exceptions.ConnectionError occured")
     except requests.exceptions.HTTPError:
       logger.error("requests.exceptions.HTTPError occured")
-    except requests.exceptions.SSLError:
-      logger.error("requests.exceptions.SSLError occured")
-    except requests.exceptions.ProxyError:
-      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.ReadTimeout:
       logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
@@ -406,14 +407,14 @@ class Client(object):
     logger.info("PUT '%s'", url)
     try:
       return requests.put(url, json.dumps(data), **kwargs)
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ConnectionError:
       logger.error("requests.exceptions.ConnectionError occured")
     except requests.exceptions.HTTPError:
       logger.error("requests.exceptions.HTTPError occured")
-    except requests.exceptions.SSLError:
-      logger.error("requests.exceptions.SSLError occured")
-    except requests.exceptions.ProxyError:
-      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.ReadTimeout:
       logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:
@@ -430,14 +431,14 @@ class Client(object):
     logger.info("DELETE '%s'", url)
     try:
       return requests.delete(url, **kwargs)
+    except requests.exceptions.ProxyError:
+      logger.error("requests.exceptions.ProxyError occured")
+    except requests.exceptions.SSLError:
+      logger.error("requests.exceptions.SSLError occured")
     except requests.exceptions.ConnectionError:
       logger.error("requests.exceptions.ConnectionError occured")
     except requests.exceptions.HTTPError:
       logger.error("requests.exceptions.HTTPError occured")
-    except requests.exceptions.SSLError:
-      logger.error("requests.exceptions.SSLError occured")
-    except requests.exceptions.ProxyError:
-      logger.error("requests.exceptions.ProxyError occured")
     except requests.exceptions.ReadTimeout:
       logger.error("requests.exceptions.ReadTimeout occured")
     except requests.exceptions.RequestException as e:

@@ -16,6 +16,9 @@ k5config.py
 config.ini
 k5config.ini
 
+# vs code
+*.code-workspace
+
 #
 # 以下、giboによる自動生成
 #
