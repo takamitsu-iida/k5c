@@ -533,6 +533,9 @@ if __name__ == '__main__':
     if network_connector_endpoints:
       for ncep_id in network_connector_endpoints:
         ncep = get_network_connector_endpoint_by_id(ncep_id)
+        if ncep is None:
+          print("Network Connector Endpoint is None")
+          continue
         print("{}Network Connector Endpoint {}".format(' '*2, ncep.get('name')))
         print("{}Ncep uuid is {}".format(' '*4, ncep.get('id')))
         print("{}Type is {}".format(' '*4, ncep.get('endpoint_type')))
